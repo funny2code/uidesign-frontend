@@ -1,0 +1,59 @@
+/* Global spacing styles */
+body {
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
+    line-height: 1.6; /* Set line height for the whole page */
+}
+
+/* Header spacing styles */
+header {
+    padding: 20px; /* Add padding around the header */
+    line-height: 1.2; /* Adjust line height for the header */
+}
+
+/* Navigation spacing styles */
+nav {
+    padding: 10px 20px; /* Add padding to the navigation links */
+    line-height: 1.5; /* Adjust line height for the navigation links */
+}
+
+/* Main content spacing styles */
+main {
+    padding: 20px; /* Add padding to the main content area */
+    line-height: 1.6; /* Adjust line height for the main content */
+}
+
+/* Sidebar spacing styles */
+aside {
+    padding: 15px; /* Add padding to the sidebar */
+    line-height: 1.4; /* Adjust line height for the sidebar */
+}
+
+/* Footer spacing styles */
+footer {
+    padding: 20px; /* Add padding to the footer */
+    line-height: 1.2; /* Adjust line height for the footer */
+}
+
+/* Button spacing styles */
+button {
+    padding: 10px 20px; /* Add padding to buttons */
+    margin: 5px; /* Add margin around buttons */
+    line-height: 1.4; /* Adjust line height for buttons */
+}
+
+/* Links spacing styles */
+a {
+    line-height: 1.6; /* Adjust line height for links */
+}
+
+/* Form input spacing styles */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+textarea {
+    padding: 10px; /* Add padding to input fields */
+    margin: 5px; /* Add margin around input fields */
+    line-height: 1.5; /* Adjust line height for input fields */
+}
+  

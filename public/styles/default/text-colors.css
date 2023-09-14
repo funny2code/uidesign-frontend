@@ -1,0 +1,47 @@
+/* Global text styles */
+body {
+  color: #333333; /* Dark gray text color for the whole page */
+}
+
+/* Header text styles */
+header {
+  color: #ffffff; /* White text color for the header */
+}
+
+/* Navigation text styles */
+nav {
+  color: #ffffff; /* White text color for the navigation links */
+}
+
+/* Main content text styles */
+main {
+  color: #111111; /* Black text color for the main content */
+}
+
+/* Sidebar text styles */
+aside {
+  color: #444444; /* Dark gray text color for the sidebar */
+}
+
+/* Footer text styles */
+footer {
+  color: #ffffff; /* White text color for the footer */
+}
+
+/* Button text styles */
+button {
+  color: #ffffff; /* White text color for buttons */
+}
+
+/* Links text styles */
+a {
+  color: #3366cc; /* Blue link text color */
+}
+
+/* Form input text styles */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+textarea {
+  color: #333333; /* Dark gray text color for input fields */
+}

@@ -1,0 +1,17 @@
+$primary: rgb(23, 40, 86);
+$secondary: #e8e8eb;
+// $secondary: #f2f2f2;
+// $success: #1976d2;
+$info: #778899;
+$success-hover: #1863ae;
+$primary-hover: rgb(23, 40, 86);
+$dark-hover: #222222;
+$dark: #222222;
+$offcanvas-vertical-height: 400px;
+$offcanvas-transition-duration: .4s;
+$placeholder-opacity-max: .2;
+$placeholder-opacity-min: .1;
+// $border-radius: .375rem;
+$border-radius: 5px;
+// @import 'bootstrap/scss/bootstrap.scss';
+@import "../../node_modules/bootstrap/scss/bootstrap.scss";

@@ -1,0 +1,132 @@
+/* Background Color */
+body {
+  background-color: #f0f0f0;
+}
+header {
+  background-color: #3B5998;
+}
+nav {
+  background-color: #282c34;
+}
+main {
+  background-color: #ffffff;
+}
+aside {
+  background-color: #f7f7f7;
+}
+footer {
+  background-color: #4CAF50;
+}
+button {
+  background-color: #3B429F;
+}
+input[type="text"],
+input[type="password"],
+input[type="email"],
+textarea {
+  background-color: #f9f9f9;
+}
+/* Color */
+body {
+  color: #333333;
+}
+header {
+  color: #ffffff;
+}
+nav {
+  color: #ffffff;
+}
+main {
+  color: #111111;
+}
+aside {
+  color: #444444;
+}
+footer {
+  color: #ffffff;
+}
+button {
+  color: #ffffff;
+}
+a {
+  color: #3366cc;
+}
+input[type="text"],
+input[type="password"],
+input[type="email"],
+textarea {
+  color: #333333;
+}
+/* Font Family */
+body {
+  font-family: Arial, sans-serif;
+}
+header {
+  font-family: 'Helvetica Neue', sans-serif;
+}
+nav {
+  font-family: 'Roboto', sans-serif;
+}
+main {
+  font-family: 'Open Sans', sans-serif;
+}
+aside {
+  font-family: 'Noto Sans', sans-serif;
+}
+footer {
+  font-family: 'Lato', sans-serif;
+}
+button {
+  font-family: 'Montserrat', sans-serif;
+}
+a {
+  font-family: 'Poppins', sans-serif;
+}
+input[type="text"],
+input[type="password"],
+input[type="email"],
+textarea {
+  font-family: 'Quicksand', sans-serif;
+}
+/* Spacing Values */
+body {
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+header {
+  padding: 20px;
+  line-height: 1.2;
+}
+nav {
+  padding: 10px 20px;
+  line-height: 1.5;
+}
+main {
+  padding: 20px;
+  line-height: 1.6;
+}
+aside {
+  padding: 15px;
+  line-height: 1.4;
+}
+footer {
+  padding: 20px;
+  line-height: 1.2;
+}
+button {
+  padding: 10px 20px;
+  margin: 5px;
+  line-height: 1.4;
+}
+a {
+  line-height: 1.6;
+}
+input[type="text"],
+input[type="password"],
+input[type="email"],
+textarea {
+  padding: 10px;
+  margin: 5px;
+  line-height: 1.5;
+}

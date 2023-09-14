@@ -1,0 +1,48 @@
+/* Global font styles */
+body {
+    font-family: Arial, sans-serif; /* Default font for the whole page */
+}
+
+/* Header font styles */
+header {
+    font-family: 'Helvetica Neue', sans-serif; /* Header font family */
+}
+
+/* Navigation font styles */
+nav {
+    font-family: 'Roboto', sans-serif; /* Navigation font family */
+}
+
+/* Main content font styles */
+main {
+    font-family: 'Open Sans', sans-serif; /* Main content font family */
+}
+
+/* Sidebar font styles */
+aside {
+    font-family: 'Noto Sans', sans-serif; /* Sidebar font family */
+}
+
+/* Footer font styles */
+footer {
+    font-family: 'Lato', sans-serif; /* Footer font family */
+}
+
+/* Button font styles */
+button {
+    font-family: 'Montserrat', sans-serif; /* Button font family */
+}
+
+/* Links font styles */
+a {
+    font-family: 'Poppins', sans-serif; /* Link font family */
+}
+
+/* Form input font styles */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+textarea {
+    font-family: 'Quicksand', sans-serif; /* Form input font family */
+}
+  

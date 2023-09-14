@@ -1,0 +1,23 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const API_URL = "https://4uocapxflc.execute-api.us-east-2.amazonaws.com/dev";
+const api_url = import.meta.env.MODE === "development" ? "http://localhost:8000" : API_URL;
+// const api_url = API_URL;
+---
+<Layout title="UIChain">
+	<main class="container-fluid">
+		<section class="row py-4">
+			<section class="col-0 col-md-2"></section>
+			<section class="col-12 col-md-8">
+				<p class="text-center" style="font-size: 2rem;">
+					Logged in successfully.
+				</p>
+				<p class="text-center">
+					You can close this page now.
+				</p>
+			</section>
+			<section class="col-0 col-md-2"></section>
+		</section>
+	</main>
+</Layout>

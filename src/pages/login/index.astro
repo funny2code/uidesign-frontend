@@ -1,0 +1,26 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+import App from "../../components/app"
+import LoginForm from '../../components/login/Login';
+
+const API_URL = "https://api.uidesign.ai";
+// const api_url = import.meta.env.MODE === "development" ? "http://localhost:8000" : API_URL;
+const api_url = API_URL;
+---
+<AppLayout title="UI Design">
+	<main class="container-fluid vh-100 main-bg">
+		<section class="row p-4">
+			<section class="d-flex align-items-center justify-content-center form-wrapper">
+				<div class="container" style={{paddingTop: '10rem', paddingBottom: '10rem'}}>
+					<div class="row">
+						<div class="col-0 col-sm-2 col-lg-4"></div>
+						<div class="col-12 col-sm-8 col-lg-4">
+							<LoginForm api_url={api_url} client:only/>
+						</div>
+						<div class="col-0 col-sm-2 col-lg-4"></div>
+					</div>
+				</div>
+			</section>
+		</section>
+	</main>
+</AppLayout>

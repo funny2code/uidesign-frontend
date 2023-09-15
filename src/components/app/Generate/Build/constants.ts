@@ -10,7 +10,7 @@ export const OPTIONS = [
   },
   {
     name: "Dashboard",
-    value: "emanation-ai/vite-ts-react-shadcn-tw/tree/dashboard",
+    value: "emanation-ai/vite-ts-react-shadcn-tw/tree/dev-dashboard",
   },
   {
     name: "Music Playlist",

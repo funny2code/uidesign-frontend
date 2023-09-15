@@ -9,6 +9,7 @@ import type { IValue } from "../Create/types";
 import InputBar from "../components/InputBar";
 import type { VM } from "@stackblitz/sdk";
 import sdk from "@stackblitz/sdk";
+import { toTitleCase, getOptions } from "./utils";
 
 // todo: handle file save
 const DEFAULT_AUTOSAVE_TIME = 30000;
@@ -19,6 +20,7 @@ const Build = ({ height }: { height: number }) => {
   // Flow
   const [processing, setProcessing] = useState(false);
   const [input, setInput] = useState("");
+  const [options, setOptions] = useState<IValue[]>([]);
   const [projectType, setProjectType] = useState<IValue>(OPTIONS[0]);
   const [promptType, setPromptType] = useState<IValue>(PROMPT_OPTIONS[0]);
   const [vm, setVM] = useState<VM | undefined>(undefined);
@@ -91,6 +93,21 @@ const Build = ({ height }: { height: number }) => {
       setVM(vm);
     };
     updateFrame();
+    getOptions(projectType.value).then(data => {
+      setOptions(prev => {
+        const newData = data.map(item => ({
+          name: toTitleCase(item.key.replace("_", " ")),
+          value: item.key,
+        }));
+        return [
+          {
+            name: "Colors",
+            value: "colors",
+          },
+          ...newData,
+        ];
+      });
+    });
   }, [projectType]);
 
   return (
@@ -142,6 +159,7 @@ const Build = ({ height }: { height: number }) => {
               inputRef={inputRef}
               buttonRef={buttonRef}
               promptType={promptType}
+              promptOptions={options}
               setPromptType={setPromptType}
             >
               <ul

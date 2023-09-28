@@ -1,12 +1,11 @@
 export const OPTIONS = [
   {
     name: "Base",
-    // value: "AlbertoV5/vite-ts-react-shadcn-tw/tree/main",
-    value: "emanation-ai/vite-ts-react-shadcn-tw/tree/landing",
+    value: "emanation-ai/vite-ts-react-shadcn-tw/tree/dev-landing",
   },
   {
     name: "Auth",
-    value: "emanation-ai/vite-ts-react-shadcn-tw/tree/auth",
+    value: "emanation-ai/vite-ts-react-shadcn-tw/tree/dev-auth",
   },
   {
     name: "Dashboard",
@@ -14,7 +13,7 @@ export const OPTIONS = [
   },
   {
     name: "Music Playlist",
-    value: "emanation-ai/vite-ts-react-shadcn-tw/tree/music-playlist",
+    value: "emanation-ai/vite-ts-react-shadcn-tw/tree/dev-music-playlist",
   },
   {
     name: "Playground",

@@ -23,25 +23,48 @@ export interface ISchema {
 }
 
 export interface ISettingsDataItem {
-    Default?: any 
+    [key: string]: any;
 }
 
 export interface ISettingsData {
-    current?: string | object,
-    presets?: ISettingsDataItem
+    current: string;
+    presets: ISettingsDataItem;
+}
+
+export interface ThemeContent {
+    collection?: Record<string, any>;
+}
+
+export interface ITheme {
+    settings_data: Record<string, any>;
+    templates: {
+        [key: string]: Record<string, any>;
+    },
+    themeContent: ThemeContent;
+};
+
+export interface IThemes {
+    [key: string]: ITheme;
 }
 
 export interface IThemeBody {
-    id?: string | undefined,
-    themeNames?: boolean,
-    pages?: boolean,
-    settingsData?: boolean,
-    settingsSchema?: boolean
+    id?: string | undefined;
+    themeNames?: boolean;
+    currentPage?: string;
+    pages?: boolean;
+    settingsData?: boolean;
+    settingsSchema?: boolean;
 }
 
 export interface IViewReq {
-    theme_id?: string,
-    settings_data: Record<string, any>,
-    main?: Record<string, any>,
-    themeContent?: Record<string, any> 
+    theme_id?: string;
+    settings_data: Record<string, any>;
+    main?: Record<string, any>;
+    themeContent?: Record<string, any>;
+}
+
+export interface IDownloadReq {
+    theme_id: string;
+    settings_data?: Record<string, any>;
+    templates?: Record<string, any>;
 }

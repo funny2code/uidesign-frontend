@@ -1,7 +1,7 @@
 import type { ISchemaItem } from "../interface/shopify";
 import ColorComp from "./color";
 
-const ColorSchemeGroup = ({ data, settings, handleChangeFields }: { data: ISchemaItem, settings: any, handleChangeFields: (e: any) => void }) => {
+const ColorSchemeGroup = ({ data, settings, handleChangeFields, sendSettingsFunc }: { data: ISchemaItem, settings: any, handleChangeFields: (e: any) => void, sendSettingsFunc: () => void}) => {
     return (
         <>
             {Object.keys(settings[data.id]).map((item, key) =>
@@ -19,6 +19,7 @@ const ColorSchemeGroup = ({ data, settings, handleChangeFields }: { data: ISchem
                                         settings={settings[data.id][item].settings}
                                         filedName={`${data.id}.${item}.settings`}
                                         handleChangeFields={handleChangeFields}
+                                        sendSettingsFunc={sendSettingsFunc}
                                     />
                                 }
                             })

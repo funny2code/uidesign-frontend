@@ -1,35 +1,34 @@
 import { STYLES } from "../Create/constants";
-import { shopifyBody, shopifyHead } from "../../../../atoms";
 import { parseConfigParams } from "../../utils/params";
 import { useSession } from "../../../auth/useSession";
 import { useState, useRef, useEffect } from "react";
-import type { IValue, ISopifyPages } from "../Create/types";
-import { initFrame } from "../../utils/frame";
+import type { ISopifyPages } from "../Create/types";
 import InputBar from "../components/InputBarShopify";
 import { executeShopify, getThemeNamesAndPages, updateShopitTheme } from "../commands";
 import { MAKE_UI_API_VIEW } from "../../constants";
-// import { SHOPIFY_PAGES } from './constants';
-
-import type { ISchema, ISettingsData } from "./interface/shopify";
-import { initFrameShopify } from "./iframe";
+import { ClipLoader } from 'react-spinners';
+import type { ISchema, IThemes } from "./interface/shopify";
 import Settings from "./settings";
-import type { StatusCallback } from "../commands/types";
+import { downloadShopitTheme } from "../commands/shopify";
 
 const Shopify = () => {
   // Auth
   const { getSession } = useSession();
   // Flow
-  const [processing, setProcessing] = useState(false);
+  const [isLoading, setLoading] = useState<boolean>(true);
+  const [processing, setProcessing] = useState<boolean>(true);
+  const [isDisabled, setIsDisabled] = useState<boolean>(false);
+  const [isDownload, setIsDownload] = useState<boolean>(false);
+
   const [input, setInput] = useState("");
   const [themeId, setThemeId] = useState<string>("64dcd06b0db1077c79970cec");
   const [page, setPage] = useState<string>("index&settings=style");
   const [shopifyPage, setShopifyPage] = useState<ISopifyPages[] | []>([]);
   const [shopifyThemes, setShopifyThemes] = useState<ISopifyPages[] | []>([]);
-  const [isSettingsData, setSettingsData] = useState<ISettingsData | undefined>(undefined);
   const [isSettingsSchema, setSettingsSchema] = useState<ISchema[] | []>([]);
+  const [isThemes, setIsThemes] = useState<IThemes>({});
   const [filterSchema, setFilterSchema] = useState<ISchema[] | []>([]);
-  const [isDisabled, setIsDisabled] = useState<boolean>(true);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [iframeContent, setIframeContent] = useState<string>("");
   // Refs
   const inputRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -38,12 +37,10 @@ const Shopify = () => {
   const [controller, setController] = useState<AbortController | undefined>(undefined);
 
   async function initGenerate() {
-    const iframeSection = sectionRef.current;
-    if (!iframeSection) return;
     if (controller && processing) {
       controller.abort();
       setProcessing(false);
-      initFrame(sectionRef.current);
+      setIsDisabled(false)
       return;
     }
     const tokens = await getSession();
@@ -51,24 +48,56 @@ const Shopify = () => {
     const control = new AbortController();
     setController(control);
     setProcessing(true);
+    setIsDisabled(true);
+
+
     const queryParams = parseConfigParams(input, {
       theme_id: themeId,
-      page: page,
+      page: page
     });
-    if (!isSettingsData?.presets?.Default) return;
+
     await executeShopify(
       control.signal,
       queryParams,
       tokens.id_token,
-      `${MAKE_UI_API_VIEW}?id=${themeId}&page=${page}`,
-      themeId,
-      isSettingsData?.presets?.Default,
-      async (ok: boolean, html) => {
-        console.log(html, "DAV");
-        if (html && typeof html === "string") initFrame(iframeSection, html);
-        setProcessing(false);
+      async (ok, data) => {
+        if (!ok || !data) {
+          setIsDisabled(false);
+          setProcessing(false);
+          return;
+        }
+        const { main, themeContent, subtype } = data;
+
+        const html = await updateShopitTheme(
+          `${MAKE_UI_API_VIEW}?id=${themeId}&page=${page}`,
+          themeId,
+          isThemes[themeId]?.settings_data,
+          main,
+          themeContent
+        );
+
+        ok === 2
+          ? updateIframeContent(html, subtype)
+          : updateIframeContent(html);
+
+        if (ok === 1) {
+          console.log(ok, main);
+          setIsThemes((prevThemes) => {
+            return {
+              ...prevThemes,
+              [themeId]: {
+                settings_data: isThemes[themeId]?.settings_data,
+                templates: { [page]: main },
+                themeContent: themeContent
+              }
+            };
+          });
+          setIsDisabled(false);
+          setProcessing(false);
+        }
       }
     );
+
   }
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -78,155 +107,208 @@ const Shopify = () => {
   const handlePageChange = async (e: any) => {
     if (!e) return;
     try {
-      const iframeSection = sectionRef.current;
       const pageValue = e.target.value;
+      setProcessing(true);
       setPage(pageValue);
       const splitSchema =
         STYLES[pageValue] &&
         isSettingsSchema.filter((s: ISchema) => STYLES[pageValue].includes(s.name.toLowerCase()));
       setFilterSchema(splitSchema || []);
-      if (!isSettingsData?.presets?.Default) return;
       const html = await updateShopitTheme(
         `${MAKE_UI_API_VIEW}?id=${themeId}&page=${pageValue}`,
         themeId,
-        isSettingsData.presets?.Default
+        isThemes[themeId]?.settings_data,
+        isThemes[themeId]?.templates[pageValue],
+        isThemes[themeId]?.themeContent
       );
-      if (!iframeSection) return;
-      if (html) initFrame(iframeSection, html);
+      updateIframeContent(html);
+      setProcessing(false);
     } catch (err) {
       console.log(err);
     }
   };
+
+  const addThemesCall = async (id: string) => {
+    const getShopify = await getThemeNamesAndPages(id);
+    const { pages, themeNames, settingsData, settingsSchema } = getShopify?.response || {};
+    const resPages = pages?.length && pages;
+    resPages?.length && resPages.push({ _id: resPages[0]._id + "3", name: "index&settings=style" });
+    if (themeNames?.length && Object.keys(isThemes).length === 0) setShopifyThemes(themeNames);
+    resPages?.length && setShopifyPage(resPages);
+    if (settingsData && isThemes[id] === undefined) setIsThemes((prevThemes) => {
+      return {
+        ...prevThemes,
+        [id]: { settings_data: settingsData.presets[settingsData.current], templates: {}, themeContent: {} }
+      };
+    });
+    settingsSchema?.length && setSettingsSchema(settingsSchema);
+    const splitSchema =
+      STYLES[page] &&
+      settingsSchema.filter((s: ISchema) => STYLES[page].includes(s.name.toLowerCase()));
+    setFilterSchema(splitSchema || []);
+  }
 
   const handleThemeChange = async (e: any) => {
     if (!e) return;
     try {
       let id = e.target.value;
-      const iframeSection = sectionRef.current;
+      setProcessing(true);
       setThemeId(id);
-      const getShopify = await getThemeNamesAndPages(id);
-      const { pages, themeNames, settingsData, settingsSchema } = getShopify?.response || {};
-      const resPages = pages?.length && pages;
-      resPages?.length && resPages.push({ _id: resPages[0]._id + "3", name: "index&settings=style" });
-      resPages?.length && setShopifyPage(resPages);
-      themeNames?.length && setShopifyThemes(themeNames);
-      settingsData && setSettingsData(settingsData);
-      settingsSchema?.length && setSettingsSchema(settingsSchema);
-      const splitSchema =
-        STYLES[page] &&
-        settingsSchema.filter((s: ISchema) => STYLES[page].includes(s.name.toLowerCase()));
-      setFilterSchema(splitSchema || []);
-      if (!iframeSection) return;
-      initFrameShopify(iframeSection, `${MAKE_UI_API_VIEW}?id=${id}&page=${page}`);
+      await addThemesCall(id);
+      const html = await updateShopitTheme(
+        `${MAKE_UI_API_VIEW}?id=${id}&page=${page}`,
+        id,
+        isThemes[id]?.settings_data,
+        isThemes[id]?.templates[page],
+        isThemes[id]?.themeContent
+      );
+      updateIframeContent(html);
+      setProcessing(false);
     } catch (err) {
       console.log(err);
     }
   };
 
-  const handleChangeFields = (e: any) => {
+
+
+  const handleChangeFields = async (e: any) => {
+    if (!e && processing) return;
     const { name, value, checked, type } = e.target;
-    setSettingsData(prevSettings => {
-      if (!prevSettings?.presets?.Default) return;
-      const splitName = name.split(".");
+    if (!name) return;
+    const valueByType = type === "checkbox" ? checked : type === "range" ? parseInt(value, 10) : value;
+    const splitName = name.split(".");
+    setIsThemes((prevThemes) => {
       if (splitName.length === 1) {
         return {
-          ...prevSettings,
-          presets: {
-            ...prevSettings.presets,
-            Default: {
-              ...prevSettings.presets.Default,
-              [name]: type === "checkbox" ? checked : value,
+          ...prevThemes,
+          [themeId]: {
+            ...prevThemes[themeId],
+            settings_data: {
+              ...prevThemes[themeId].settings_data,
+              [name]: valueByType,
             },
           },
         };
       } else if (splitName.length === 4) {
         return {
-          ...prevSettings,
-          presets: {
-            ...prevSettings.presets,
-            Default: {
-              ...prevSettings.presets.Default,
+          ...prevThemes,
+          [themeId]: {
+            ...prevThemes[themeId],
+            settings_data: {
+              ...prevThemes[themeId].settings_data,
               [splitName[0]]: {
-                ...prevSettings.presets.Default[splitName[0]],
+                ...prevThemes[themeId].settings_data[splitName[0]],
                 [splitName[1]]: {
-                  ...prevSettings.presets.Default[splitName[0]][splitName[1]],
+                  ...prevThemes[themeId].settings_data[splitName[0]][splitName[1]],
                   [splitName[2]]: {
-                    ...prevSettings.presets.Default[splitName[0]][splitName[1]][splitName[2]],
-                    [splitName[3]]: value,
-                  },
-                },
-              },
+                    ...prevThemes[themeId].settings_data[splitName[0]][splitName[1]][splitName[2]],
+                    [splitName[3]]: valueByType
+                  }
+                }
+              }
             },
           },
         };
       }
+      return prevThemes;
     });
+  };
 
-    setIsDisabled(false);
+  const sendSettingsFunc = async () => {
+    setProcessing(true);
+    const html = await updateShopitTheme(
+      `${MAKE_UI_API_VIEW}?id=${themeId}&page=${page}`,
+      themeId,
+      isThemes[themeId]?.settings_data,
+      isThemes[themeId]?.templates[page],
+      isThemes[themeId]?.templates
+    );
+    updateIframeContent(html);
+    setProcessing(false);
   };
 
   // Generate
   useEffect(() => {
     (async () => {
       try {
-        const getShopify = await getThemeNamesAndPages();
-        const { pages, themeNames, settingsData, settingsSchema } = getShopify?.response || {};
-        const resPages = pages?.length && pages;
-        resPages?.length && resPages.push({ _id: resPages[0]._id + "3", name: "index&settings=style" });
-        resPages?.length && setShopifyPage(resPages);
-        themeNames?.length && setShopifyThemes(themeNames);
-        settingsData && setSettingsData(settingsData);
-        settingsSchema?.length && setSettingsSchema(settingsSchema);
-        const splitSchema =
-          STYLES[page] &&
-          settingsSchema.filter((s: ISchema) => STYLES[page].includes(s.name.toLowerCase()));
-        setFilterSchema(splitSchema);
-      } catch (err) {}
+        await addThemesCall(themeId);
+        const html = await updateShopitTheme(
+          `${MAKE_UI_API_VIEW}?id=${themeId}&page=${page}`,
+          themeId,
+          isThemes[themeId]?.settings_data,
+          isThemes[themeId]?.templates[page],
+          isThemes[themeId]?.templates
+        );
+        updateIframeContent(html);
+        setLoading(false);
+        setProcessing(false);
+      } catch (err) {
+        console.error(err, "ERROR WHEN START");
+      }
     })();
-
-    const iframeSection = sectionRef.current;
-    if (!buttonRef.current || !iframeSection) return;
-    const iframeBody = shopifyBody.get();
-    const iframeHead = shopifyHead.get();
-    if (iframeBody && iframeHead) {
-      const iframe = initFrame(iframeSection);
-      iframe.onload = () => {
-        const body = iframe.contentWindow?.document.body;
-        const head = iframe.contentWindow?.document.head;
-        if (head) head.innerHTML = iframeHead;
-        if (body) body.innerHTML = iframeBody;
-      };
-    } else {
-      const pageHandle = `${MAKE_UI_API_VIEW}?id=${themeId}&page=${page}`;
-      initFrameShopify(iframeSection, pageHandle);
-    }
   }, []);
 
-  const updateSettings = async () => {
+
+  const updateIframeContent = (htmlContent: string, section: string | undefined = undefined) => {
     try {
-      const iframeSection = sectionRef.current;
-      if (!iframeSection || isDisabled) return;
-      if (!isSettingsData?.presets?.Default) return;
-      setIsLoading(true);
-      const pageHandle = `${MAKE_UI_API_VIEW}?id=${themeId}&page=${page}`;
-      const html = await updateShopitTheme(pageHandle, themeId, isSettingsData.presets?.Default);
-      if (html) initFrame(iframeSection, html);
-      setIsDisabled(true);
-      setIsLoading(false);
+      if (section) {
+        const iframeContent = iframeRef?.current?.contentDocument;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlContent, 'text/html');
+        if (iframeContent) {
+          const oldSection = iframeContent.querySelector(`.section-${section}`);
+          const newSection = doc.querySelector(`.section-${section}`);
+          if (oldSection && newSection) oldSection.replaceWith(newSection);
+          oldSection && oldSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      } else {
+        setIframeContent(htmlContent);
+      }
     } catch (err) {
-      console.log(err);
+      console.error("Error:", err);
     }
   };
+
+  const handleThemeDownload = async (e: any) => {
+    if (!e) return;
+    setIsDownload(true);
+    setProcessing(true);
+    const blob = await downloadShopitTheme(themeId, isThemes[themeId].settings_data, isThemes[themeId].templates);
+    const anchor = document.createElement('a');
+    const objectURL = URL.createObjectURL(blob);
+    anchor.href = objectURL;
+    const currentThemeName = shopifyThemes.filter(theme => theme._id === themeId);
+    anchor.download = `${currentThemeName[0].name || "theme"}.zip`;
+    anchor.click();
+    URL.revokeObjectURL(objectURL);
+    setIsDownload(false);
+    setProcessing(false);
+  };
+
 
   return (
     <>
       <section ref={sectionRef} className="designer-window hstack flex-grow-1">
-        <div ref={iframeRef} id="embed" style={{ height: "100%", width: "100%" }}></div>
+        {
+          isLoading ? (
+            <div style={{ display: 'flex', backgroundColor: '#DCDCDC', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
+              <ClipLoader color={'#123abc'} loading={true} size={100} />
+            </div>
+          ) : (
+            <iframe
+              ref={iframeRef}
+              srcDoc={iframeContent}
+              title="My Iframe"
+              style={{ width: '100%', height: '100%', border: 'none' }}
+            />
+          )
+        }
       </section>
       <form onSubmit={handleSubmit}>
         <InputBar
           input={input}
           setInput={setInput}
+          isDisabled={isDisabled}
           processing={processing}
           placeholder="Describe your design"
           inputRef={inputRef}
@@ -237,6 +319,8 @@ const Shopify = () => {
           themeId={themeId}
           handleThemeChange={handleThemeChange}
           buttonRef={buttonRef}
+          isDownload={isDownload}
+          downloadTheme={handleThemeDownload}
         >
           <div
             className="dropdown-menu mb-3 p-1 pb-2"
@@ -250,7 +334,7 @@ const Shopify = () => {
           >
             <div className="position-relative" style={{ paddingBottom: "70px" }}>
               {filterSchema &&
-                isSettingsData &&
+                isThemes[themeId]?.settings_data &&
                 filterSchema.map(
                   (item: ISchema) =>
                     item.settings && (
@@ -283,9 +367,10 @@ const Shopify = () => {
                             >
                               <div className="accordion-body px-2">
                                 <Settings
-                                  data={isSettingsData}
+                                  data={isThemes[themeId].settings_data}
                                   schema={item.settings}
                                   handleChangeFields={handleChangeFields}
+                                  sendSettingsFunc={sendSettingsFunc}
                                 />
                               </div>
                             </div>
@@ -294,27 +379,6 @@ const Shopify = () => {
                       </div>
                     )
                 )}
-              {filterSchema && (
-                <div className="position-absolute bottom-0 start-0 col-12">
-                  <button
-                    type="button"
-                    onClick={updateSettings}
-                    className="d-flex justify-content-center align-items-center gap-2 col-12 btn btn-primary rounded-0 btn-lg text-uppercase"
-                    disabled={isDisabled}
-                  >
-                    {isLoading ? (
-                      <>
-                        <span className="spinner-border spinner-border-md" aria-hidden="true"></span>
-                        <span className="visually-hidden" role="status">
-                          Loading...
-                        </span>
-                      </>
-                    ) : (
-                      <span>Save Changes</span>
-                    )}
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </InputBar>

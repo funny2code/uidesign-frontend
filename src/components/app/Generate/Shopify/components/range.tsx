@@ -1,6 +1,6 @@
 import type { ISchemaItem } from "../interface/shopify";
 
-const RangeComp = ({ data, settings, handleChangeFields }: { data: ISchemaItem, settings: any, handleChangeFields: (e: any) => void }) => {
+const RangeComp = ({ data, settings, handleChangeFields, sendSettingsFunc }: { data: ISchemaItem, settings: any, handleChangeFields: (e: any) => void, sendSettingsFunc: () => void }) => {
 
     return (
         <div className="row align-items-center m-0 p-0 mb-2">
@@ -8,7 +8,17 @@ const RangeComp = ({ data, settings, handleChangeFields }: { data: ISchemaItem, 
                 <label className="form-label">{data.label}</label>
             </div>
             <div className="col-10 p-0">
-                <input type="range" className="form-range" onChange={handleChangeFields} name={data.id} value={settings[data.id]} min={data.min} max={data.max} step={data.step} />
+                <input 
+                    type="range" 
+                    className="form-range" 
+                    onBlur={sendSettingsFunc}
+                    onChange={(e) => handleChangeFields(e)} 
+                    name={data.id} 
+                    value={settings[data.id]} 
+                    min={data.min} 
+                    max={data.max} 
+                    step={data.step} 
+                />
             </div>
             <div className="col-2 p-0 text-end">
                 <span>{settings[data.id] + data.unit}</span>

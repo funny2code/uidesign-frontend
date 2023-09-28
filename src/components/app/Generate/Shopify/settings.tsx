@@ -1,4 +1,4 @@
-import type { ISettingsData, ISchemaItem } from './interface/shopify';
+import type { ISchemaItem, ISettingsDataItem } from './interface/shopify';
 import ColorSchemeGroup from './components/color-scheme-group';
 import ColorSchema from './components/color-schema';
 import TextComp from './components/text';
@@ -8,9 +8,7 @@ import SelectComp from './components/select';
 import RichtextComp from './components/richtext';
 import CheckboxComp from './components/checkbox';
 
-const Settings = ({ data, schema, handleChangeFields }: { data: ISettingsData, schema: ISchemaItem[], handleChangeFields: (e: any) => void }) => {
-
-    const settings = data.presets?.Default;
+const Settings = ({ data, schema, handleChangeFields, sendSettingsFunc }: { data: ISettingsDataItem, schema: ISchemaItem[], handleChangeFields: (e: any) => void, sendSettingsFunc: () => void }) => {
 
     return (
         <>
@@ -20,61 +18,69 @@ const Settings = ({ data, schema, handleChangeFields }: { data: ISettingsData, s
                         return <ColorSchemeGroup
                             key={schemaItem.type + "_" + index}
                             data={schemaItem}
-                            settings={settings}
+                            settings={data}
                             handleChangeFields={handleChangeFields}
+                            sendSettingsFunc={sendSettingsFunc}
                         />
                     } else if (schemaItem.type === 'color_scheme') {
                         return <ColorSchema
                             key={schemaItem.type + "_" + index}
                             data={schemaItem}
-                            settings={settings}
+                            settings={data}
                             handleChangeFields={handleChangeFields}
+                            sendSettingsFunc={sendSettingsFunc}
                         />
                     } else if (schemaItem.type === 'color') {
                         return <ColorComp
                             key={schemaItem.type + "_" + index}
                             data={schemaItem}
-                            settings={settings}
+                            settings={data}
                             filedName={undefined}
                             handleChangeFields={handleChangeFields}
+                            sendSettingsFunc={sendSettingsFunc}
                         />
                     } else if (schemaItem.type === 'text') {
                         return <TextComp
                             key={schemaItem.type + "_" + index}
                             data={schemaItem}
-                            settings={settings}
+                            settings={data}
                             handleChangeFields={handleChangeFields}
+                            sendSettingsFunc={sendSettingsFunc}
                         />
                     } else if (schemaItem.type === 'select') {
                         return <SelectComp 
                             key={schemaItem.type + "_" + index}
                             data={schemaItem}
-                            settings={settings}
+                            settings={data}
                             handleChangeFields={handleChangeFields}
+                            sendSettingsFunc={sendSettingsFunc}
                         />
                     } else if (schemaItem.type === 'range') {
                         return <RangeComp
                             key={schemaItem.type + "_" + index}
                             data={schemaItem}
-                            settings={settings}
+                            settings={data}
                             handleChangeFields={handleChangeFields}
+                            sendSettingsFunc={sendSettingsFunc}
                         />
                     } else if (schemaItem.type === 'checkbox') {
                         return <CheckboxComp
                             key={schemaItem.type + "_" + index}
                             data={schemaItem}
-                            settings={settings}
+                            settings={data}
                             handleChangeFields={handleChangeFields}
+                            sendSettingsFunc={sendSettingsFunc}
                         />
                     } else if (schemaItem.type === 'richtext' || schemaItem.type === 'textarea') {
                         return <RichtextComp
                             key={schemaItem.type + "_" + index}
                             data={schemaItem}
-                            settings={settings}
+                            settings={data}
                             handleChangeFields={handleChangeFields}
+                            sendSettingsFunc={sendSettingsFunc}
                         />
                     } else {
-                        return (<input key={schemaItem.type + "_" + index} type="hidden" name={schemaItem.id} value={settings[schemaItem.id]}/>)
+                        return (<input key={schemaItem.type + "_" + index} type="hidden" name={schemaItem.id} value={data[schemaItem.id]}/>)
                     }
                 })
             }

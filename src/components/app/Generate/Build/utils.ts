@@ -1,9 +1,9 @@
 export const getOptions = async (project_type: string) => {
-  const t = project_type.replace("tree/", "").replace("dev-", "").replace("emanation-ai/", "");
-  const url = `https://cdn.uidesign.ai/build/${t}/index.json`;
+  const subpath = project_type.replace("tree/", "").replace("emanation-ai/", "");
+  const url = `https://cdn.uidesign.ai/build/${subpath}/index.default.json`;
   const res = await fetch(url);
   const data = await res.json();
-  return data as { key: string; path: string }[];
+  return Object.keys(data) as string[];
 };
 
 export function toTitleCase(str: string) {

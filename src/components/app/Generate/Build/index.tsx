@@ -43,7 +43,7 @@ const Build = ({ height }: { height: number }) => {
     const control = new AbortController();
     setController(control);
     setProcessing(true);
-    const type = projectType.value.replace("tree/", "").replace("dev-", "").replace("emanation-ai/", "");
+    const type = projectType.value.replace("tree/", "").replace("emanation-ai/", "");
     const queryParams = `?prompt=${input}&project_type=${type}&prompt_type=${promptType.value}`;
     await executeBuild(vm, control.signal, queryParams, tokens.id_token, async (ok: boolean) => {
       setProcessing(false);
@@ -95,9 +95,9 @@ const Build = ({ height }: { height: number }) => {
     updateFrame();
     getOptions(projectType.value).then(data => {
       setOptions(prev => {
-        const newData = data.map(item => ({
-          name: toTitleCase(item.key.replace("_", " ")),
-          value: item.key,
+        const newData = data.map(key => ({
+          name: toTitleCase(key.replace("_", " ")),
+          value: key,
         }));
         return [
           {

@@ -1,6 +1,5 @@
 import type React from "react";
 import OptionElement from "./Option";
-import { PROMPT_OPTIONS } from "../Build/constants";
 import type { IValue } from "../Create/types";
 
 interface InputBarProps extends React.PropsWithChildren {
@@ -12,6 +11,7 @@ interface InputBarProps extends React.PropsWithChildren {
   placeholder: string;
   center?: boolean;
   promptType?: IValue;
+  promptOptions: IValue[];
   setPromptType?: React.Dispatch<React.SetStateAction<IValue>>;
 }
 
@@ -25,6 +25,7 @@ const InputBar = ({
   children,
   center = true,
   promptType,
+  promptOptions,
   setPromptType,
 }: InputBarProps) => {
   return (
@@ -79,7 +80,7 @@ const InputBar = ({
           >
             <OptionElement
               title={"Prompt Type"}
-              values={PROMPT_OPTIONS}
+              values={promptOptions}
               selected={promptType}
               setSelected={setPromptType}
               horizontal={false}

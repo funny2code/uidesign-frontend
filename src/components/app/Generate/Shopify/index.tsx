@@ -6,10 +6,12 @@ import type { ISopifyPages } from "../Create/types";
 import InputBar from "../components/InputBarShopify";
 import { executeShopify, getThemeNamesAndPages, updateShopitTheme } from "../commands";
 import { MAKE_UI_API_VIEW } from "../../constants";
-import { ClipLoader } from 'react-spinners';
+// import { ClipLoader } from "react-spinners";
 import type { ISchema, IThemes } from "./interface/shopify";
 import Settings from "./settings";
 import { downloadShopitTheme } from "../commands/shopify";
+
+import ClipLoader from "react-spinners/ClipLoader";
 
 const Shopify = () => {
   // Auth
@@ -40,7 +42,7 @@ const Shopify = () => {
     if (controller && processing) {
       controller.abort();
       setProcessing(false);
-      setIsDisabled(false)
+      setIsDisabled(false);
       return;
     }
     const tokens = await getSession();
@@ -50,54 +52,45 @@ const Shopify = () => {
     setProcessing(true);
     setIsDisabled(true);
 
-
     const queryParams = parseConfigParams(input, {
       theme_id: themeId,
-      page: page
+      page: page,
     });
 
-    await executeShopify(
-      control.signal,
-      queryParams,
-      tokens.id_token,
-      async (ok, data) => {
-        if (!ok || !data) {
-          setIsDisabled(false);
-          setProcessing(false);
-          return;
-        }
-        const { main, themeContent, subtype } = data;
-
-        const html = await updateShopitTheme(
-          `${MAKE_UI_API_VIEW}?id=${themeId}&page=${page}`,
-          themeId,
-          isThemes[themeId]?.settings_data,
-          main,
-          themeContent
-        );
-
-        ok === 2
-          ? updateIframeContent(html, subtype)
-          : updateIframeContent(html);
-
-        if (ok === 1) {
-          console.log(ok, main);
-          setIsThemes((prevThemes) => {
-            return {
-              ...prevThemes,
-              [themeId]: {
-                settings_data: isThemes[themeId]?.settings_data,
-                templates: { [page]: main },
-                themeContent: themeContent
-              }
-            };
-          });
-          setIsDisabled(false);
-          setProcessing(false);
-        }
+    await executeShopify(control.signal, queryParams, tokens.id_token, async (ok, data) => {
+      if (!ok || !data) {
+        setIsDisabled(false);
+        setProcessing(false);
+        return;
       }
-    );
+      const { main, themeContent, subtype } = data;
 
+      const html = await updateShopitTheme(
+        `${MAKE_UI_API_VIEW}?id=${themeId}&page=${page}`,
+        themeId,
+        isThemes[themeId]?.settings_data,
+        main,
+        themeContent
+      );
+
+      ok === 2 ? updateIframeContent(html, subtype) : updateIframeContent(html);
+
+      if (ok === 1) {
+        console.log(ok, main);
+        setIsThemes(prevThemes => {
+          return {
+            ...prevThemes,
+            [themeId]: {
+              settings_data: isThemes[themeId]?.settings_data,
+              templates: { [page]: main },
+              themeContent: themeContent,
+            },
+          };
+        });
+        setIsDisabled(false);
+        setProcessing(false);
+      }
+    });
   }
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -135,18 +128,22 @@ const Shopify = () => {
     resPages?.length && resPages.push({ _id: resPages[0]._id + "3", name: "index&settings=style" });
     if (themeNames?.length && Object.keys(isThemes).length === 0) setShopifyThemes(themeNames);
     resPages?.length && setShopifyPage(resPages);
-    if (settingsData && isThemes[id] === undefined) setIsThemes((prevThemes) => {
-      return {
-        ...prevThemes,
-        [id]: { settings_data: settingsData.presets[settingsData.current], templates: {}, themeContent: {} }
-      };
-    });
+    if (settingsData && isThemes[id] === undefined)
+      setIsThemes(prevThemes => {
+        return {
+          ...prevThemes,
+          [id]: {
+            settings_data: settingsData.presets[settingsData.current],
+            templates: {},
+            themeContent: {},
+          },
+        };
+      });
     settingsSchema?.length && setSettingsSchema(settingsSchema);
     const splitSchema =
-      STYLES[page] &&
-      settingsSchema.filter((s: ISchema) => STYLES[page].includes(s.name.toLowerCase()));
+      STYLES[page] && settingsSchema.filter((s: ISchema) => STYLES[page].includes(s.name.toLowerCase()));
     setFilterSchema(splitSchema || []);
-  }
+  };
 
   const handleThemeChange = async (e: any) => {
     if (!e) return;
@@ -169,15 +166,13 @@ const Shopify = () => {
     }
   };
 
-
-
   const handleChangeFields = async (e: any) => {
     if (!e && processing) return;
     const { name, value, checked, type } = e.target;
     if (!name) return;
     const valueByType = type === "checkbox" ? checked : type === "range" ? parseInt(value, 10) : value;
     const splitName = name.split(".");
-    setIsThemes((prevThemes) => {
+    setIsThemes(prevThemes => {
       if (splitName.length === 1) {
         return {
           ...prevThemes,
@@ -202,10 +197,10 @@ const Shopify = () => {
                   ...prevThemes[themeId].settings_data[splitName[0]][splitName[1]],
                   [splitName[2]]: {
                     ...prevThemes[themeId].settings_data[splitName[0]][splitName[1]][splitName[2]],
-                    [splitName[3]]: valueByType
-                  }
-                }
-              }
+                    [splitName[3]]: valueByType,
+                  },
+                },
+              },
             },
           },
         };
@@ -248,18 +243,17 @@ const Shopify = () => {
     })();
   }, []);
 
-
   const updateIframeContent = (htmlContent: string, section: string | undefined = undefined) => {
     try {
       if (section) {
         const iframeContent = iframeRef?.current?.contentDocument;
         const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlContent, 'text/html');
+        const doc = parser.parseFromString(htmlContent, "text/html");
         if (iframeContent) {
           const oldSection = iframeContent.querySelector(`.section-${section}`);
           const newSection = doc.querySelector(`.section-${section}`);
           if (oldSection && newSection) oldSection.replaceWith(newSection);
-          oldSection && oldSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          oldSection && oldSection.scrollIntoView({ behavior: "smooth", block: "center" });
         }
       } else {
         setIframeContent(htmlContent);
@@ -273,8 +267,12 @@ const Shopify = () => {
     if (!e) return;
     setIsDownload(true);
     setProcessing(true);
-    const blob = await downloadShopitTheme(themeId, isThemes[themeId].settings_data, isThemes[themeId].templates);
-    const anchor = document.createElement('a');
+    const blob = await downloadShopitTheme(
+      themeId,
+      isThemes[themeId].settings_data,
+      isThemes[themeId].templates
+    );
+    const anchor = document.createElement("a");
     const objectURL = URL.createObjectURL(blob);
     anchor.href = objectURL;
     const currentThemeName = shopifyThemes.filter(theme => theme._id === themeId);
@@ -285,24 +283,30 @@ const Shopify = () => {
     setProcessing(false);
   };
 
-
   return (
     <>
       <section ref={sectionRef} className="designer-window hstack flex-grow-1">
-        {
-          isLoading ? (
-            <div style={{ display: 'flex', backgroundColor: '#DCDCDC', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
-              <ClipLoader color={'#123abc'} loading={true} size={100} />
-            </div>
-          ) : (
-            <iframe
-              ref={iframeRef}
-              srcDoc={iframeContent}
-              title="My Iframe"
-              style={{ width: '100%', height: '100%', border: 'none' }}
-            />
-          )
-        }
+        {isLoading ? (
+          <div
+            style={{
+              display: "flex",
+              backgroundColor: "#DCDCDC",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+              height: "100%",
+            }}
+          >
+            <ClipLoader color={"#123abc"} loading={true} size={100} />
+          </div>
+        ) : (
+          <iframe
+            ref={iframeRef}
+            srcDoc={iframeContent}
+            title="My Iframe"
+            style={{ width: "100%", height: "100%", border: "none" }}
+          />
+        )}
       </section>
       <form onSubmit={handleSubmit}>
         <InputBar

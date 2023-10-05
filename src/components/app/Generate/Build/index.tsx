@@ -117,7 +117,7 @@ const Build = ({ height }: { height: number }) => {
         className="designer-window hstack flex-grow-1"
         style={{
           // marginTop: "0",
-          // marginBottom: "40px",
+         // marginBottom: "40px",
           opacity: showProjectTypes ? "0" : "1",
           pointerEvents: showProjectTypes ? "none" : "auto",
           height: showProjectTypes ? 0 : "100%",

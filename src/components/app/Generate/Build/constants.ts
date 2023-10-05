@@ -1,8 +1,8 @@
 export const OPTIONS = [
-  {
-    name: "Base",
-    value: "emanation-ai/vite-ts-react-shadcn-tw/tree/dev-landing",
-  },
+  // {
+  //   name: "Base",
+  //   value: "emanation-ai/vite-ts-react-shadcn-tw/tree/dev-landing",
+  // },
   {
     name: "Auth",
     value: "emanation-ai/vite-ts-react-shadcn-tw/tree/dev-auth",

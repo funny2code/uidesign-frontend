@@ -1,8 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { V2DocumentsService, V2ProjectsService, V2AssetsService } from "../../../../client";
-import type { DocumentResult, DocumentSimilarityResult, SimilarityResults } from "../../../../client";
+import {
+  V2DocumentsService,
+  V2ProjectsService,
+  V2AssetsService,
+  PROJECT_TYPE,
+} from "../../../../client";
+import type {
+  DocumentSimilarityResult,
+  SimilarityResults,
+  ProjectSimilarityResult,
+} from "../../../../client";
 import { DOCUMENT_TYPE } from "../../../../client";
-import CodeMirror from "@uiw/react-codemirror";
+import DocumentsTable from "./documentsTable";
+import { ImagesGallery } from "./ImagesGallery";
+import ProjectsPanel from "./ProjectsPanel";
 
 const sections = {
   documents: "documents",
@@ -10,14 +21,17 @@ const sections = {
   projects: "projects",
 };
 const Embeddings = () => {
+  // arrays
   const [documents, setDocuments] = useState<DocumentSimilarityResult[]>();
   const [images, setImages] = useState<SimilarityResults[]>();
+  const [projects, setProjects] = useState<ProjectSimilarityResult[]>();
+  // selected
   const [selectedDocument, setSelectedDocument] = useState<DocumentSimilarityResult | undefined>(
     undefined
   );
   const [inputSearch, setInputSearch] = useState<string>("");
   const [inputTemperature, setInputTemperature] = useState<number>(0.1);
-  const [inputType, setInputType] = useState<DOCUMENT_TYPE | "Any">("Any");
+  const [inputType, setInputType] = useState<DOCUMENT_TYPE | PROJECT_TYPE | "Any">("Any");
   const [section, setSection] = useState<string>("documents");
   const [offset, setOffset] = useState<number>(0);
   const [limit, setLimit] = useState<number>(12);
@@ -36,7 +50,7 @@ const Embeddings = () => {
     const res = await V2DocumentsService.readPublicDocumentsV2PublicDocumentsGet(
       params.offset,
       params.limit,
-      params.type,
+      params.type as DOCUMENT_TYPE,
       params.preview,
       params.description,
       params.threshold,
@@ -48,7 +62,7 @@ const Embeddings = () => {
     //
   };
 
-  const handleSubmitAssets = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmitImages = async (e: React.FormEvent<HTMLFormElement>) => {
     const params = {
       description: inputSearch,
     };
@@ -63,13 +77,36 @@ const Embeddings = () => {
     setImages(res.result);
   };
 
+  const handleSubmitProjects = async (e: React.FormEvent<HTMLFormElement>) => {
+    const params = {
+      offset: offset,
+      limit: limit,
+      type: inputType === "Any" ? undefined : inputType,
+      preview: false,
+      description: inputSearch ? inputSearch : undefined,
+      threshold: 0.75,
+      timeRange: undefined,
+      temperature: inputTemperature,
+    };
+    const res = await V2ProjectsService.readUserProjectsV2UserProjectsGet(
+      params.offset,
+      params.limit,
+      params.type as PROJECT_TYPE,
+      params.description,
+      params.threshold
+    );
+    console.log(res);
+    setProjects(res.result);
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (section === "documents") {
       handleSubmitDocuments(e);
     } else if (section === "projects") {
+      handleSubmitProjects(e);
     } else if (section === "images") {
-      handleSubmitAssets(e);
+      handleSubmitImages(e);
     }
   };
 
@@ -107,11 +144,19 @@ const Embeddings = () => {
                     onChange={e => setInputType(e.target.value as DOCUMENT_TYPE)}
                   >
                     <option value={"Any"}>Any</option>
-                    {Object.entries(DOCUMENT_TYPE).map(([k, v]) => (
-                      <option key={k} value={v}>
-                        {v}
-                      </option>
-                    ))}
+                    {section === "documents"
+                      ? Object.entries(DOCUMENT_TYPE).map(([k, v]) => (
+                          <option key={k} value={v}>
+                            {v}
+                          </option>
+                        ))
+                      : section === "projects"
+                      ? Object.entries(PROJECT_TYPE).map(([k, v]) => (
+                          <option key={k} value={v}>
+                            {v}
+                          </option>
+                        ))
+                      : null}
                   </select>
                 </div>
                 <div className="input-group w-25">
@@ -158,57 +203,15 @@ const Embeddings = () => {
         </section>
         <section className="container p-4">
           <div className="row">
-            {section == "documents" && (
-              <table className="table table-sm table-striped table-responsive table-hover w-100">
-                <thead>
-                  <tr>
-                    {/* <th>ID</th> */}
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                    <th>Tags</th>
-                    <th>Owner</th>
-                    <th>Similarity</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {documents?.map((d, i) => (
-                    <tr key={`${d.id}-${i}`} onClick={() => setSelectedDocument(d)}>
-                      {/* <td>{d.id}</td> */}
-                      <td>{d.name}</td>
-                      <td>{d.type}</td>
-                      <td>{d.description}</td>
-                      <td>{d.tags.join(", ")}</td>
-                      <td>{d.owner_username}</td>
-                      <td>{d.similarity}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-            {section == "images" && (
-              <>
-                {images &&
-                  images[0].similar.map((d, i) => (
-                    <div className="col-4">
-                      <img
-                        key={`${d.uri}-${i}`}
-                        src={`https://app.uidesign.ai/images/${d.uri}`}
-                        className="img-fluid"
-                      />
-                    </div>
-                  ))}
-              </>
-            )}
-          </div>
-        </section>
-        <section className="container p-4">
-          <div className="row">
-            {selectedDocument && selectedDocument.data && (
-              <CodeMirror
-                value={selectedDocument.data?.text || JSON.stringify(selectedDocument.data, null, 2)}
+            {section == "documents" && documents && (
+              <DocumentsTable
+                documents={documents}
+                selectedDocument={selectedDocument}
+                setSelectedDocument={setSelectedDocument}
               />
             )}
+            {section == "images" && images && <ImagesGallery images={images} />}
+            {section == "projects" && "Projects" && <ProjectsPanel />}
           </div>
         </section>
       </section>

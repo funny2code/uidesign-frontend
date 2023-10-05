@@ -7,6 +7,7 @@ import Create from "./Create";
 import Build from "./Build";
 import Remix from "./Remix";
 import Copy from "./Copy";
+import Old from "./Old";
 
 const HEIGHT_OFFSET = 68;
 const Generate = () => {
@@ -22,7 +23,7 @@ const Generate = () => {
     [PAGES.Create]: (children: React.ReactNode) => <Create />,
     [PAGES.Copy]: (children: React.ReactNode) => <Copy />,
     [PAGES.Remix]: (children: React.ReactNode) => <Remix />,
-    [ADMIN_PAGES.Old]: (children: React.ReactNode) => <Create />,
+    [ADMIN_PAGES.Old]: (children: React.ReactNode) => <Old />,
     [ADMIN_PAGES.Build]: (children: React.ReactNode) => <></>,
     [ADMIN_PAGES.Shopify]: (children: React.ReactNode) => <Shopify />,
   };

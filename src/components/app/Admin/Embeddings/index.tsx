@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { V2DocumentsService, V2ProjectsService, V2AssetsService } from "../../../../client";
-import type { DocumentResult, DocumentSimilarityResult } from "../../../../client";
+import type { DocumentResult, DocumentSimilarityResult, SimilarityResults } from "../../../../client";
 import { DOCUMENT_TYPE } from "../../../../client";
 import CodeMirror from "@uiw/react-codemirror";
 
@@ -11,6 +11,7 @@ const sections = {
 };
 const Embeddings = () => {
   const [documents, setDocuments] = useState<DocumentSimilarityResult[]>();
+  const [images, setImages] = useState<SimilarityResults[]>();
   const [selectedDocument, setSelectedDocument] = useState<DocumentSimilarityResult | undefined>(
     undefined
   );
@@ -18,15 +19,17 @@ const Embeddings = () => {
   const [inputTemperature, setInputTemperature] = useState<number>(0.1);
   const [inputType, setInputType] = useState<DOCUMENT_TYPE | "Any">("Any");
   const [section, setSection] = useState<string>("documents");
+  const [offset, setOffset] = useState<number>(0);
+  const [limit, setLimit] = useState<number>(12);
 
   const handleSubmitDocuments = async (e: React.FormEvent<HTMLFormElement>) => {
     const params = {
-      offset: 0,
-      limit: 10,
+      offset: offset,
+      limit: limit,
       type: inputType === "Any" ? undefined : inputType,
       preview: false,
       description: inputSearch ? inputSearch : undefined,
-      threshold: 0.8,
+      threshold: 0.75,
       timeRange: undefined,
       temperature: inputTemperature,
     };
@@ -52,11 +55,12 @@ const Embeddings = () => {
     const res = await V2AssetsService.readSimilarImagesV2AssetsImagesGet(
       [params.description],
       0.5,
-      0,
-      10,
-      0.1
+      offset,
+      limit,
+      inputTemperature
     );
     console.log(res);
+    setImages(res.result);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -124,40 +128,78 @@ const Embeddings = () => {
                   />
                 </div>
               </section>
-              <button className="btn btn-primary p-2" type="submit">
-                Search
-              </button>
+              <div className="hstack gap-2">
+                <button className="btn btn-primary p-2" type="submit">
+                  Search
+                </button>
+                <div className="input-group w-25">
+                  <span className="input-group-text">Offset</span>
+                  <input
+                    type="number"
+                    className="form-control"
+                    placeholder="Offset"
+                    onChange={e => setOffset(parseInt(e.target.value))}
+                    value={offset}
+                  />
+                </div>
+                <div className="input-group w-25">
+                  <span className="input-group-text">Limit</span>
+                  <input
+                    type="number"
+                    className="form-control"
+                    placeholder="Limit"
+                    onChange={e => setLimit(parseInt(e.target.value))}
+                    value={limit}
+                  />
+                </div>
+              </div>
             </form>
           </div>
         </section>
         <section className="container p-4">
           <div className="row">
-            <table className="table table-sm table-striped table-responsive table-hover w-100">
-              <thead>
-                <tr>
-                  {/* <th>ID</th> */}
-                  <th>Name</th>
-                  <th>Type</th>
-                  <th>Description</th>
-                  <th>Tags</th>
-                  <th>Owner</th>
-                  <th>Similarity</th>
-                </tr>
-              </thead>
-              <tbody>
-                {documents?.map((d, i) => (
-                  <tr key={`${d.id}-${i}`} onClick={() => setSelectedDocument(d)}>
-                    {/* <td>{d.id}</td> */}
-                    <td>{d.name}</td>
-                    <td>{d.type}</td>
-                    <td>{d.description}</td>
-                    <td>{d.tags.join(", ")}</td>
-                    <td>{d.owner_username}</td>
-                    <td>{d.similarity}</td>
+            {section == "documents" && (
+              <table className="table table-sm table-striped table-responsive table-hover w-100">
+                <thead>
+                  <tr>
+                    {/* <th>ID</th> */}
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Tags</th>
+                    <th>Owner</th>
+                    <th>Similarity</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {documents?.map((d, i) => (
+                    <tr key={`${d.id}-${i}`} onClick={() => setSelectedDocument(d)}>
+                      {/* <td>{d.id}</td> */}
+                      <td>{d.name}</td>
+                      <td>{d.type}</td>
+                      <td>{d.description}</td>
+                      <td>{d.tags.join(", ")}</td>
+                      <td>{d.owner_username}</td>
+                      <td>{d.similarity}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            {section == "images" && (
+              <>
+                {images &&
+                  images[0].similar.map((d, i) => (
+                    <div className="col-4">
+                      <img
+                        key={`${d.uri}-${i}`}
+                        src={`https://app.uidesign.ai/images/${d.uri}`}
+                        className="img-fluid"
+                      />
+                    </div>
+                  ))}
+              </>
+            )}
           </div>
         </section>
         <section className="container p-4">

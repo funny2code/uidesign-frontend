@@ -1,5 +1,5 @@
 import { createCSS, createHTML } from "../../../../atoms";
-import { executeCreate, StoresType } from "../commands";
+import { executeOld } from "../commands/old";
 import { useSession } from "../../../auth/useSession";
 import { useState, useRef, useEffect } from "react";
 import { initFrame } from "../../utils/frame";
@@ -42,7 +42,7 @@ const Create = () => {
       controller = new AbortController();
       setProcessing(true);
       isProcessing = true;
-      await executeCreate(
+      await executeOld(
         initFrame(iframeSection),
         controller.signal,
         `?prompt=${inputValue}`,

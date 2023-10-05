@@ -27,6 +27,7 @@ export class V2DocumentsService {
      * @param timeRange Two timestamps (before, after) for filtering. Defaults to none.
      * @param temperature Temperature for similarity search. Defaults to 0.2
      * @param tags List of tags to filter by. Not supported with similarity search yet. Defaults to none.
+     * @param userId User ID to filter by. Defaults to none.
      * @returns MultipleResults_DocumentSimilarityResult_ Successful Response
      * @throws ApiError
      */
@@ -40,6 +41,7 @@ export class V2DocumentsService {
         timeRange?: Array<string>,
         temperature: number = 0.2,
         tags?: Array<string>,
+        userId?: string,
     ): CancelablePromise<MultipleResults_DocumentSimilarityResult_> {
         return __request(OpenAPI, {
             method: 'GET',
@@ -54,6 +56,7 @@ export class V2DocumentsService {
                 'time_range': timeRange,
                 'temperature': temperature,
                 'tags': tags,
+                'user_id': userId,
             },
             errors: {
                 404: `Not Found`,

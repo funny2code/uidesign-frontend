@@ -5,7 +5,7 @@ interface Props {
   images: SimilarityResults[];
 }
 
-export const ImagesGallery = ({ images }: Props) => {
+const ImagesGallery = ({ images }: Props) => {
   return (
     <>
       {images[0].similar.map((d, i) => (
@@ -20,3 +20,4 @@ export const ImagesGallery = ({ images }: Props) => {
     </>
   );
 };
+export default ImagesGallery;

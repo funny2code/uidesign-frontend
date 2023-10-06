@@ -11,8 +11,8 @@ import type {
   ProjectSimilarityResult,
 } from "../../../../client";
 import { DOCUMENT_TYPE } from "../../../../client";
-import DocumentsTable from "./documentsTable";
-import { ImagesGallery } from "./ImagesGallery";
+import DocumentsTable from "./DocumentsTable";
+import ImagesGallery from "./ImagesGallery";
 import ProjectsPanel from "./ProjectsPanel";
 
 const sections = {

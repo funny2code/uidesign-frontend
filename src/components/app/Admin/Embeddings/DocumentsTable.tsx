@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import type { DocumentSimilarityResult } from "../../../../client";
 import { V2DocumentsService } from "../../../../client";
 import CodeMirror from "@uiw/react-codemirror";
@@ -5,29 +6,31 @@ import CodeMirror from "@uiw/react-codemirror";
 export interface Props {
   documents: DocumentSimilarityResult[];
   selectedDocument: DocumentSimilarityResult | undefined;
-  setSelectedDocument: (d: DocumentSimilarityResult) => void;
+  setSelectedDocument: React.Dispatch<React.SetStateAction<DocumentSimilarityResult | undefined>>;
 }
+type DocumentData = { text: string };
 
 const DocumentsTable = ({ documents, selectedDocument, setSelectedDocument }: Props) => {
+  const [documentData, setDocumentData] = useState<DocumentData | Record<string, any>>();
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const document = selectedDocument;
-    if (!document) return;
-    if (document.hasOwnProperty("data") || !document.data) return;
-    const req = {
-      name: document.name,
-      public: document.public,
-      description: document.description,
-      url: document.url,
-      img_url: document.img_url,
-      tags: document.tags,
-      type: document.type,
-      data: document.data,
-    };
+    if (!document || !documentData) return;
+    console.log(document, documentData);
     try {
-      await V2DocumentsService.updateUserDocumentV2UserDocumentsIdPut(document.id, req);
-    } catch {
+      await V2DocumentsService.updateUserDocumentV2UserDocumentsIdPut(document.id, {
+        name: document.name,
+        public: document.public,
+        description: document.description,
+        url: document.url,
+        img_url: document.img_url,
+        tags: document.tags,
+        type: document.type,
+        data: documentData,
+      });
       window.alert("Saved");
+    } catch {
+      window.alert("Failed to save");
     }
   };
   const handleDelete = async (id: string) => {
@@ -40,17 +43,35 @@ const DocumentsTable = ({ documents, selectedDocument, setSelectedDocument }: Pr
       window.alert("Failed to delete");
     }
   };
+  useEffect(() => {
+    if (selectedDocument) {
+      setDocumentData(prev => {
+        const text = selectedDocument.data?.text;
+        if (text) return { text: text };
+        return selectedDocument.data;
+      });
+    }
+  }, [selectedDocument]);
   return (
     <section className="container">
       {selectedDocument && selectedDocument.data && (
         <div className="row" style={{ height: "500px" }}>
           <form className="vstack gap-2" onSubmit={handleSave}>
             <CodeMirror
-              value={selectedDocument.data?.text || JSON.stringify(selectedDocument.data, null, 2)}
+              value={documentData?.text || JSON.stringify(documentData, null, 2)}
+              onChange={e => {
+                setDocumentData(prev => {
+                  const text = prev?.text;
+                  if (text) return { text: e };
+                  return JSON.parse(e);
+                });
+              }}
               height={"400px"}
             />
             <div className="form-group">
-              <button className="btn btn-success">Save</button>
+              <button type={"submit"} className="btn btn-success">
+                Save
+              </button>
             </div>
           </form>
         </div>

@@ -8,17 +8,17 @@ export interface Props {
   selectedDocument: DocumentSimilarityResult | undefined;
   setSelectedDocument: React.Dispatch<React.SetStateAction<DocumentSimilarityResult | undefined>>;
 }
-type DocumentData = { text: string };
+// type DocumentData = { text: string };
 
 const DocumentsTable = ({ documents, selectedDocument, setSelectedDocument }: Props) => {
-  const [documentData, setDocumentData] = useState<DocumentData | Record<string, any>>();
+  const [documentData, setDocumentData] = useState<Record<string, any>>({});
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const document = selectedDocument;
     if (!document || !documentData) return;
     console.log(document, documentData);
     try {
-      await V2DocumentsService.updateUserDocumentV2UserDocumentsIdPut(document.id, {
+      const body = {
         name: document.name,
         public: document.public,
         description: document.description,
@@ -27,7 +27,8 @@ const DocumentsTable = ({ documents, selectedDocument, setSelectedDocument }: Pr
         tags: document.tags,
         type: document.type,
         data: documentData,
-      });
+      };
+      await V2DocumentsService.updateUserDocumentV2UserDocumentsIdPut(document.id, body);
       window.alert("Saved");
     } catch {
       window.alert("Failed to save");
@@ -45,11 +46,11 @@ const DocumentsTable = ({ documents, selectedDocument, setSelectedDocument }: Pr
   };
   useEffect(() => {
     if (selectedDocument) {
-      setDocumentData(prev => {
-        const text = selectedDocument.data?.text;
-        if (text) return { text: text };
-        return selectedDocument.data;
-      });
+      setDocumentData(prev =>
+        selectedDocument.data?.hasOwnProperty("text")
+          ? { text: selectedDocument.data?.text }
+          : selectedDocument.data
+      );
     }
   }, [selectedDocument]);
   return (
@@ -58,13 +59,13 @@ const DocumentsTable = ({ documents, selectedDocument, setSelectedDocument }: Pr
         <div className="row" style={{ height: "500px" }}>
           <form className="vstack gap-2" onSubmit={handleSave}>
             <CodeMirror
-              value={documentData?.text || JSON.stringify(documentData, null, 2)}
+              value={
+                documentData.hasOwnProperty("text")
+                  ? documentData.text
+                  : JSON.stringify(documentData, null, 2)
+              }
               onChange={e => {
-                setDocumentData(prev => {
-                  const text = prev?.text;
-                  if (text) return { text: e };
-                  return JSON.parse(e);
-                });
+                setDocumentData(prev => (prev.hasOwnProperty("text") ? { text: e } : JSON.parse(e)));
               }}
               height={"400px"}
             />

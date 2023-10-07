@@ -31,7 +31,7 @@ const Embeddings = () => {
   );
   const [selectedProject, setSelectedProject] = useState<ProjectSimilarityResult | undefined>(undefined);
   const [inputSearch, setInputSearch] = useState<string>("");
-  const [inputTemperature, setInputTemperature] = useState<number>(0.1);
+  const [inputTemperature, setInputTemperature] = useState<number>(0.0);
   const [inputType, setInputType] = useState<DOCUMENT_TYPE | PROJECT_TYPE | "Any">("Any");
   const [section, setSection] = useState<string>("documents");
   const [offset, setOffset] = useState<number>(0);
@@ -104,6 +104,7 @@ const Embeddings = () => {
     e.preventDefault();
     if (section === "documents") {
       handleSubmitDocuments(e);
+      setSelectedDocument(undefined);
     } else if (section === "projects") {
       handleSubmitProjects(e);
     } else if (section === "images") {

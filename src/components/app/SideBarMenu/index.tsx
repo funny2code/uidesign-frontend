@@ -24,16 +24,22 @@ const SidebarMenu = ({ currentPage, handlePageChange }: Props) => {
         <ul className="menu">
           {pages.map((page, index) => (
             <li key={`option-${index}`}>
-              <button
-                className={currentPage === page ? "active" : ""}
-                onClick={() =>
-                  page === "Admin"
-                    ? (window.location.href = ADMIN_PAGE)
-                    : handlePageChange && handlePageChange(page)
-                }
-              >
-                {page}
-              </button>
+              {page === "Admin" ? (
+                <a
+                  style={{ color: "inherit", textDecoration: "none" }}
+                  href={ADMIN_PAGE}
+                  target="_blank"
+                >
+                  <button type={"button"}>Admin</button>
+                </a>
+              ) : (
+                <button
+                  className={currentPage === page ? "active" : ""}
+                  onClick={() => handlePageChange && handlePageChange(page)}
+                >
+                  {page}
+                </button>
+              )}
             </li>
           ))}
         </ul>

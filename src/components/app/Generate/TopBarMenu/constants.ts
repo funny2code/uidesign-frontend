@@ -10,3 +10,5 @@ export const ADMIN_PAGES: Record<UIDesignAdminPage, UIDesignAdminPage> = {
   Build: "Build",
   Old: "Old",
 };
+
+export type PagesType = UIDesignPage | UIDesignAdminPage;

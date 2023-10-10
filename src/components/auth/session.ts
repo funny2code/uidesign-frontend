@@ -1,4 +1,5 @@
-import { Tokens, User, setTokens, getTokens } from "./storage";
+import { setTokens, getTokens } from "./storage";
+import type { Tokens, User } from "./storage";
 import { API_URL } from "../app/constants";
 import { OpenAPI } from "../../client";
 import jwt_decode from "jwt-decode";

@@ -1,4 +1,4 @@
-import { executeRemix, StoresType } from "../commands";
+import { executeRemix } from "../commands";
 import { inputPrompt, remixHTML, remixCSS, generatedProjectsIds } from "../../../../atoms";
 import { initFrame } from "../../utils/frame";
 import { useSession } from "../../../auth/useSession";

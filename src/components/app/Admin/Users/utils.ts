@@ -1,30 +1,6 @@
 import { OpenAPI } from "../../../../client";
+import type { UserRequest, UserResponse, UserData, UpdateStatus, UserPoolData } from "./types";
 
-export interface UserRequest {
-  limit: number;
-  subscribed_only: boolean;
-  pagination_token?: string;
-  email_filter?: string;
-}
-export interface User {
-  Username: string;
-  Attributes: { Name: string; Value: string }[];
-  UserCreateDate: string;
-  UserLastModifiedDate: string;
-  UserStatus: string;
-}
-export interface UserData extends User {
-  UserAttributes: { Name: string; Value: string }[];
-  is_subscribed: boolean;
-  is_admin: boolean;
-}
-export interface UserResponse {
-  pagination_token: string;
-  users: Array<User>;
-}
-export interface UpdateStatus {
-  is_subscribed: boolean;
-}
 export const getUsers = async (props: UserRequest, token: string) => {
   var url = `${OpenAPI.BASE}/auth/admin/users/`;
   url += `?limit=${props.limit}&subscribed_only=${props.subscribed_only}`;
@@ -82,9 +58,7 @@ export const updateUser = async (user_email: string, props: UpdateStatus, token:
     console.log(e);
   }
 };
-interface UserPoolData {
-  number_of_users: number;
-}
+
 export const getUserPoolData = async (token: string) => {
   var url = `${OpenAPI.BASE}/auth/admin/userpool/`;
   try {

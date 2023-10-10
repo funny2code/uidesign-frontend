@@ -1,5 +1,6 @@
-import { OpenAPI, V2ProjectsService, ProjectSimilarityResult } from "../../../client";
+import { OpenAPI, V2ProjectsService } from "../../../client";
 import { fetchDocuments, editDocuments, exportDocuments } from "../utils/documents";
+import type { ProjectSimilarityResult } from "../../../client";
 import { useSession } from "../../auth/useSession";
 import { initFrame } from "../utils/frame";
 

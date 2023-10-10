@@ -1,36 +1,10 @@
-import { OpenAPI, V2DocumentsService, DocumentResult } from "../../../../client";
-import { useState, useEffect, useRef } from "react";
+import { OpenAPI, V2DocumentsService } from "../../../../client";
+import type { FormProps, DataContent } from "./types";
+import { useState } from "react";
 
 import { css } from "@codemirror/lang-css";
-import { html } from "@codemirror/lang-html";
-import { json } from "@codemirror/lang-json";
 import CodeMirror from "@uiw/react-codemirror";
-import { markdown } from "@codemirror/lang-markdown";
-import { vscodeDark } from "@uiw/codemirror-theme-vscode";
-import type { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 
-export interface Data {
-  slot_type: string;
-  message_content: string;
-  system_message: string;
-  pre_message: string;
-}
-export interface ContentComponent {
-  config: string;
-  markup: string;
-}
-export interface ConfigData extends DocumentResult {
-  data: Data | ContentComponent;
-}
-interface FormProps {
-  type: string;
-  category: string;
-  tokens: Record<string, string>;
-  document: ConfigData;
-  height: number;
-  width: number;
-  hasPreMessage?: boolean;
-}
 const CONTENT = "content";
 export const Form = ({
   type,
@@ -65,7 +39,7 @@ export const Form = ({
             ...document.data,
             pre_message: preMessage,
             system_message: value,
-          } as Data,
+          } as DataContent,
         });
       }
     }

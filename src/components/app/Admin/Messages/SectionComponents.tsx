@@ -1,17 +1,11 @@
-import { OpenAPI, V2DocumentsService, DOCUMENT_TYPE } from "../../../../client";
-import type { Tokens } from "../../../auth/storage";
-import { useState, useEffect } from "react";
-import { FormComponent, ConfigData } from "./FormComponent";
-import { useRef } from "react";
+import { OpenAPI, V2DocumentsService } from "../../../../client";
+import type { SectionComponentProps, ComponentData } from "./types";
 import { useSession } from "../../../auth/useSession";
+import type { Tokens } from "../../../auth/storage";
+import { FormComponent } from "./FormComponent";
+import { useState, useEffect } from "react";
+import { useRef } from "react";
 
-interface SectionElementProps {
-  category: string;
-  description: string;
-  tokens: Tokens;
-  values: string;
-  hasPreMessage?: boolean;
-}
 const LIMIT = 40;
 const componentTypes: { name: string; value: string }[] = [
   {
@@ -33,10 +27,10 @@ export const SectionComponents = ({
   tokens,
   values,
   hasPreMessage = true,
-}: SectionElementProps) => {
+}: SectionComponentProps) => {
   const { getSession } = useSession();
-  const [components, setComponents] = useState<ConfigData[]>([]);
-  const [selected, setSelected] = useState<ConfigData | null>(null);
+  const [components, setComponents] = useState<ComponentData[]>([]);
+  const [selected, setSelected] = useState<ComponentData | null>(null);
   const [componentType, setComponentType] = useState<{ name: string; value: string }>(componentTypes[0]);
   const [token, setTokens] = useState<Tokens>(tokens);
   const ref = useRef<HTMLInputElement>(null);
@@ -46,7 +40,7 @@ export const SectionComponents = ({
       OpenAPI.TOKEN = session.id_token;
       setTokens(session);
       const res = await V2DocumentsService.readUserDocumentV2UserDocumentsIdGet(id);
-      setSelected(res.result as ConfigData);
+      setSelected(res.result as ComponentData);
     }
   };
   const fetchComponentNames = async (id?: string) => {
@@ -65,7 +59,7 @@ export const SectionComponents = ({
       const bIndex = values.indexOf(b.tags[0]);
       return aIndex - bIndex;
     });
-    const config = res.result as ConfigData[];
+    const config = res.result as ComponentData[];
     setComponents(config);
     await fetchSpecificComponent(id || config[0].id);
   };

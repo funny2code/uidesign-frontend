@@ -6,14 +6,23 @@ import Input from "./components/Input";
 import InputType from "./components/InputType";
 import { PROJECT_TYPE, DOCUMENT_TYPE } from "../../../../client";
 
+import { V2DocumentsService } from "../../../../client";
+
 const CreateEditor = () => {
   const [data, setData] = useState<string>();
   const [inputDescription, setInputDescription] = useState<string>("");
-  const [inputType, setInputType] = useState<DOCUMENT_TYPE | PROJECT_TYPE>(DOCUMENT_TYPE.JS);
+  const [inputType, setInputType] = useState<DOCUMENT_TYPE>(DOCUMENT_TYPE.JS);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log(data);
+
+    // V2DocumentsService.createUserDocumentV2UserDocumentsPost({
+    //   name: inputDescription,
+    //   description: inputDescription,
+    //   type: inputType,
+    //   // data: data,
+    // });
   };
 
   return (

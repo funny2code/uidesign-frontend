@@ -19,6 +19,8 @@ import InputType from "./components/InputType";
 import InputNumber from "./components/InputNumber";
 import InputInt from "./components/InputInt";
 import CreateEditor from "./CreateEditor";
+import Button from "./components/Button";
+import SectionWrapper from "./components/SectionWrapper";
 
 const sections = {
   documents: "documents",
@@ -126,7 +128,7 @@ const Embeddings = () => {
   return (
     <>
       <section className="designer-window flex-grow-1" style={{ overflow: "auto" }}>
-        <div className="row" style={{ marginTop: "-2px", marginLeft: "-2px" }}>
+        <div className="row gap-2" style={{ marginTop: "-2px", marginLeft: "-2px" }}>
           <ul className="nav nav-tabs">
             {Object.keys(sections).map(s => (
               <li
@@ -140,23 +142,18 @@ const Embeddings = () => {
             ))}
           </ul>
           {/* CREATE */}
-          <div className="container p-2 px-4">
-            <form className="pb-2 hstack gap-2" onSubmit={handleSubmitCreate}>
-              <div className="form-group">
-                <button
-                  className="btn btn-primary"
-                  type="button"
-                  onClick={() => setViewEditor(!viewEditor)}
-                >
-                  {viewEditor ? "Hide" : "Create"}
-                </button>
-              </div>
+          <SectionWrapper>
+            <form className="hstack gap-2" onSubmit={handleSubmitCreate}>
+              <Button
+                text={viewEditor ? "Hide" : "Create"}
+                callback={() => setViewEditor(!viewEditor)}
+              />
             </form>
-          </div>
-          <div className="container p-2 px-4">{viewEditor && <CreateEditor />}</div>
+          </SectionWrapper>
+          <SectionWrapper>{viewEditor && <CreateEditor />}</SectionWrapper>
           {/* SEARCH */}
-          <form className="container p-2 px-4" onSubmit={handleSubmit}>
-            <section className="pb-2 row gap-2">
+          <SectionWrapper>
+            <form className="row gap-2" onSubmit={handleSubmit}>
               <Input placeholder="Description" value={inputSearch} setValue={setInputSearch} />
               <InputType value={inputType} setValue={setInputType} section={section} allowAny={true} />
               <InputNumber
@@ -167,32 +164,28 @@ const Embeddings = () => {
               <InputNumber value={inputThreshold} setValue={setInputThreshold} label={"Threshold"} />
               <InputInt value={offset} setValue={setOffset} label={"Offset"} />
               <InputInt value={limit} setValue={setLimit} label={"Limit"} />
-              <div className="col-6 col-lg-3">
-                <button className="btn btn-primary p-2" type="submit">
-                  Search
-                </button>
-              </div>
-            </section>
-          </form>
+              <Button text={"Search"} />
+            </form>
+          </SectionWrapper>
+          {/* VIEW */}
+          <SectionWrapper>
+            {section == "documents" && documents && (
+              <DocumentsTable
+                documents={documents}
+                selectedDocument={selectedDocument}
+                setSelectedDocument={setSelectedDocument}
+              />
+            )}
+            {section == "images" && images && <ImagesGallery images={images} />}
+            {section == "projects" && "Projects" && (
+              <ProjectsPanel
+                projects={projects}
+                selectedProject={selectedProject}
+                setSelectedProject={setSelectedProject}
+              />
+            )}
+          </SectionWrapper>
         </div>
-        {/* VIEW */}
-        <section className="container-fluid p-2 px-4">
-          {section == "documents" && documents && (
-            <DocumentsTable
-              documents={documents}
-              selectedDocument={selectedDocument}
-              setSelectedDocument={setSelectedDocument}
-            />
-          )}
-          {section == "images" && images && <ImagesGallery images={images} />}
-          {section == "projects" && "Projects" && (
-            <ProjectsPanel
-              projects={projects}
-              selectedProject={selectedProject}
-              setSelectedProject={setSelectedProject}
-            />
-          )}
-        </section>
       </section>
     </>
   );

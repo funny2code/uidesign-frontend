@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { DocumentSimilarityResult } from "../../../../client";
 import { V2DocumentsService } from "../../../../client";
 import CodeMirror from "@uiw/react-codemirror";
-import { isDataObject, isDataText } from "../../../../client_utils/typeguards";
+import { isDataText } from "../../../../client_utils/typeguards";
 
 export interface Props {
   documents: DocumentSimilarityResult[];
@@ -51,7 +51,7 @@ const DocumentsTable = ({ documents, selectedDocument, setSelectedDocument }: Pr
     }
   }, [selectedDocument]);
   return (
-    <>
+    <section className="container-fluid px-2">
       {selectedDocument && selectedDocument.data && (
         <div className="row" style={{ height: "500px" }}>
           <form className="vstack gap-2" onSubmit={handleSave}>
@@ -113,7 +113,7 @@ const DocumentsTable = ({ documents, selectedDocument, setSelectedDocument }: Pr
           </tbody>
         </table>
       </div>
-    </>
+    </section>
   );
 };
 

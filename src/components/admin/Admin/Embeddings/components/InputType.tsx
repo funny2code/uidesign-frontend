@@ -1,8 +1,10 @@
 import { DOCUMENT_TYPE, PROJECT_TYPE } from "../../../../../client";
 //
 interface Props {
-  value: string;
-  setValue: (value: DOCUMENT_TYPE | PROJECT_TYPE) => void;
+  value: DOCUMENT_TYPE | PROJECT_TYPE | "Any";
+  setValue:
+    | React.Dispatch<React.SetStateAction<DOCUMENT_TYPE | PROJECT_TYPE | "Any">>
+    | React.Dispatch<React.SetStateAction<DOCUMENT_TYPE>>;
   section: string;
   allowAny?: boolean;
 }

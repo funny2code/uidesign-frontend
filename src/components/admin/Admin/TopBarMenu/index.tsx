@@ -1,3 +1,4 @@
+import { HOME_PAGE } from "../../../constants";
 import { PAGES } from "./constants";
 import { useEffect, useState } from "react";
 
@@ -13,7 +14,11 @@ const TopBarMenu = ({ currentPage, handlePageChange }: Props) => {
       <li key={index}>
         <button
           className={`${currentPage === page ? "active" : ""}`}
-          onClick={() => (handlePageChange ? handlePageChange(page) : () => {})}
+          onClick={() =>
+            page === "Home"
+              ? (window.location.href = HOME_PAGE)
+              : handlePageChange && handlePageChange(page)
+          }
         >
           {page}
         </button>

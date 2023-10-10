@@ -18,6 +18,7 @@ import Input from "./components/Input";
 import InputType from "./components/InputType";
 import InputNumber from "./components/InputNumber";
 import InputInt from "./components/InputInt";
+import CreateEditor from "./CreateEditor";
 
 const sections = {
   documents: "documents",
@@ -41,6 +42,7 @@ const Embeddings = () => {
   const [section, setSection] = useState<string>("documents");
   const [offset, setOffset] = useState<number>(0);
   const [limit, setLimit] = useState<number>(12);
+  const [viewEditor, setViewEditor] = useState<boolean>(false);
 
   const handleSubmitDocuments = async (e: React.FormEvent<HTMLFormElement>) => {
     const params = {
@@ -117,6 +119,10 @@ const Embeddings = () => {
     }
   };
 
+  const handleSubmitCreate = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+  };
+
   return (
     <>
       <section className="designer-window flex-grow-1" style={{ overflow: "auto" }}>
@@ -134,6 +140,26 @@ const Embeddings = () => {
                 </li>
               ))}
             </ul>
+            {/* CREATE */}
+            <div className="container p-2 px-4">
+              <form className="pb-2 hstack gap-2" onSubmit={handleSubmitCreate}>
+                <div className="form-group">
+                  <button className="btn btn-primary" type="submit">
+                    Create
+                  </button>
+                </div>
+                <div className="form-group">
+                  <button
+                    className="btn btn-primary"
+                    type="button"
+                    onClick={() => setViewEditor(!viewEditor)}
+                  >
+                    {viewEditor ? "Hide" : "Show"}
+                  </button>
+                </div>
+              </form>
+            </div>
+            <div className="container p-2 px-4">{viewEditor && <CreateEditor />}</div>
             <form className="container p-2 px-4" onSubmit={handleSubmit}>
               <section className="pb-2 row gap-2">
                 <Input placeholder="Description" value={inputSearch} setValue={setInputSearch} />
@@ -172,16 +198,6 @@ const Embeddings = () => {
                 setSelectedProject={setSelectedProject}
               />
             )}
-          </div>
-          {/* CREATE */}
-          <div className="row">
-            <form className="" onSubmit={handleSubmit}>
-              <div className="form-group">
-                <button className="btn btn-primary" type="submit">
-                  Create
-                </button>
-              </div>
-            </form>
           </div>
         </section>
       </section>

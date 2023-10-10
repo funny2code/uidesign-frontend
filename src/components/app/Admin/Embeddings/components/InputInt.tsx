@@ -15,6 +15,7 @@ const InputInt = ({ value, setValue, label }: Props) => {
         <input
           type="number"
           step={1}
+          min={0}
           className="form-control"
           onChange={e => setValue(parseFloat(e.target.value))}
           value={value}

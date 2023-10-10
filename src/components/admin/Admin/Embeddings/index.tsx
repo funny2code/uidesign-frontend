@@ -121,10 +121,6 @@ const Embeddings = () => {
     }
   };
 
-  const handleSubmitCreate = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-  };
-
   return (
     <>
       <section className="designer-window flex-grow-1" style={{ overflow: "auto" }}>
@@ -143,16 +139,14 @@ const Embeddings = () => {
           </ul>
           {/* CREATE */}
           <SectionWrapper>
-            <form className="hstack gap-2" onSubmit={handleSubmitCreate}>
-              <Button
-                text={viewEditor ? "Hide" : "Create"}
-                callback={() => setViewEditor(!viewEditor)}
-              />
-            </form>
+            <CreateEditor
+              selectedDocument={selectedDocument}
+              setSelectedDocument={setSelectedDocument}
+            />
           </SectionWrapper>
-          <SectionWrapper>{viewEditor && <CreateEditor />}</SectionWrapper>
-          {/* SEARCH */}
+          {/* SEARCH / VIEW / EDIT / DELETE */}
           <SectionWrapper>
+            <span className="form-text p-0 m-0">Search</span>
             <form className="row gap-0" onSubmit={handleSubmit}>
               <Input placeholder="Description" value={inputSearch} setValue={setInputSearch} />
               <InputType value={inputType} setValue={setInputType} section={section} allowAny={true} />
@@ -167,7 +161,6 @@ const Embeddings = () => {
               <Button text={"Search"} />
             </form>
           </SectionWrapper>
-          {/* VIEW / EDIT / DELETE */}
           <SectionWrapper>
             {section == "documents" && documents && (
               <DocumentsTable

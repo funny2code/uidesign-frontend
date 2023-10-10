@@ -11,28 +11,6 @@ export interface Props {
 }
 const DocumentsTable = ({ documents, selectedDocument, setSelectedDocument }: Props) => {
   const [documentData, setDocumentData] = useState<Record<string, any>>({});
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const document = selectedDocument;
-    if (!document || !documentData) return;
-    console.log(document, documentData);
-    try {
-      const body = {
-        name: document.name,
-        public: document.public,
-        description: document.description,
-        url: document.url,
-        img_url: document.img_url,
-        tags: document.tags,
-        type: document.type,
-        data: documentData,
-      };
-      await V2DocumentsService.updateUserDocumentV2UserDocumentsIdPut(document.id, body);
-      window.alert("Saved");
-    } catch {
-      window.alert("Failed to save");
-    }
-  };
   const handleDelete = async (id: string) => {
     const confirm = window.confirm("Delete?");
     if (!confirm) return;
@@ -52,28 +30,6 @@ const DocumentsTable = ({ documents, selectedDocument, setSelectedDocument }: Pr
   }, [selectedDocument]);
   return (
     <section className="container-fluid px-2">
-      {selectedDocument && selectedDocument.data && (
-        <div className="row" style={{ height: "500px" }}>
-          <form className="vstack gap-2" onSubmit={handleSave}>
-            <CodeMirror
-              value={
-                isDataText(selectedDocument.data)
-                  ? documentData.text
-                  : JSON.stringify(documentData, null, 2)
-              }
-              onChange={e => {
-                setDocumentData(prev => (prev.hasOwnProperty("text") ? { text: e } : JSON.parse(e)));
-              }}
-              height={"400px"}
-            />
-            <div className="form-group">
-              <button type={"submit"} className="btn btn-success">
-                Save
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
       <div className="row">
         <table className="table table-sm table-striped table-responsive table-hover">
           <thead>

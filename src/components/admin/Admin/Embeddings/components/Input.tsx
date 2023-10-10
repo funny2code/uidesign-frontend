@@ -5,9 +5,10 @@ interface Props {
   setValue: (value: string) => void;
   placeholder: string;
   required?: boolean;
+  disabled?: boolean;
 }
 
-const Input = ({ value, setValue, placeholder, required = false }: Props) => {
+const Input = ({ value, setValue, placeholder, required = false, disabled = false }: Props) => {
   return (
     <div className="col-6 col-lg-3 my-1">
       <div className="input-group">
@@ -18,6 +19,7 @@ const Input = ({ value, setValue, placeholder, required = false }: Props) => {
           onChange={e => setValue(e.target.value)}
           value={value}
           required={required}
+          disabled={disabled}
         />
       </div>
     </div>

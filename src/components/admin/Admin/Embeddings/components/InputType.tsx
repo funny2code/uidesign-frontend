@@ -7,9 +7,10 @@ interface Props {
     | React.Dispatch<React.SetStateAction<DOCUMENT_TYPE>>;
   section: string;
   allowAny?: boolean;
+  disabled?: boolean;
 }
 
-const InputType = ({ value, setValue, section, allowAny = false }: Props) => {
+const InputType = ({ value, setValue, section, allowAny = false, disabled = false }: Props) => {
   return (
     <div className="col-6 col-lg-3 my-1">
       <div className="input-group">
@@ -18,6 +19,7 @@ const InputType = ({ value, setValue, section, allowAny = false }: Props) => {
           className="form-select"
           value={value}
           onChange={e => setValue(e.target.value as DOCUMENT_TYPE)}
+          disabled={disabled}
         >
           {allowAny && <option value={"Any"}>Any</option>}
           {section === "documents"

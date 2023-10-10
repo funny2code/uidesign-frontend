@@ -5,7 +5,7 @@ export interface Props {
 
 const Button = ({ text, callback = undefined }: Props) => {
   return (
-    <div className="col-6 col-lg-3">
+    <div className="col-6 col-lg-3 my-1">
       <button
         className="btn btn-primary p-2"
         type={callback ? "button" : "submit"}

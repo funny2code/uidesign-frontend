@@ -128,7 +128,7 @@ const Embeddings = () => {
   return (
     <>
       <section className="designer-window flex-grow-1" style={{ overflow: "auto" }}>
-        <div className="row gap-2" style={{ marginTop: "-2px", marginLeft: "-2px" }}>
+        <div className="row gap-0" style={{ marginTop: "-2px", marginLeft: "-2px" }}>
           <ul className="nav nav-tabs">
             {Object.keys(sections).map(s => (
               <li
@@ -153,7 +153,7 @@ const Embeddings = () => {
           <SectionWrapper>{viewEditor && <CreateEditor />}</SectionWrapper>
           {/* SEARCH */}
           <SectionWrapper>
-            <form className="row gap-2" onSubmit={handleSubmit}>
+            <form className="row gap-0" onSubmit={handleSubmit}>
               <Input placeholder="Description" value={inputSearch} setValue={setInputSearch} />
               <InputType value={inputType} setValue={setInputType} section={section} allowAny={true} />
               <InputNumber
@@ -167,7 +167,7 @@ const Embeddings = () => {
               <Button text={"Search"} />
             </form>
           </SectionWrapper>
-          {/* VIEW */}
+          {/* VIEW / EDIT / DELETE */}
           <SectionWrapper>
             {section == "documents" && documents && (
               <DocumentsTable

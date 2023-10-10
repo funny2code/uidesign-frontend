@@ -9,7 +9,7 @@ interface Props {
 
 const Input = ({ value, setValue, placeholder, required = false }: Props) => {
   return (
-    <div className="col-6 col-lg-3">
+    <div className="col-6 col-lg-3 my-1">
       <div className="input-group">
         <input
           type="text"

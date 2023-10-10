@@ -1,5 +1,3 @@
-import React from "react";
-
 interface Props {
   value: number;
   setValue: (value: number) => void;
@@ -9,7 +7,7 @@ interface Props {
 
 const InputNumber = ({ value, setValue, label }: Props) => {
   return (
-    <div className="col-6 col-lg-3">
+    <div className="col-6 col-lg-3 my-1">
       <div className="input-group">
         <span className="input-group-text">{label}</span>
         <input

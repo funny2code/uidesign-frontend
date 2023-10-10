@@ -16,3 +16,8 @@ export const isDataObject = (data: DataText | DataObject | undefined): data is D
 };
 
 export const TEXT_DOCUMENTS = [DOCUMENT_TYPE.HTML, DOCUMENT_TYPE.CSS];
+export type TextDocumentType = DOCUMENT_TYPE.HTML | DOCUMENT_TYPE.CSS;
+/** All document types that can be text. */
+export const isTextDataDocumentType = (type: DOCUMENT_TYPE): type is TextDocumentType => {
+  return TEXT_DOCUMENTS.includes(type);
+};

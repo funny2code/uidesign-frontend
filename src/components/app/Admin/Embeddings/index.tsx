@@ -10,10 +10,14 @@ import type {
   SimilarityResults,
   ProjectSimilarityResult,
 } from "../../../../client";
-import { DOCUMENT_TYPE } from "../../../../client";
+import type { DOCUMENT_TYPE } from "../../../../client";
 import DocumentsTable from "./DocumentsTable";
 import ImagesGallery from "./ImagesGallery";
 import ProjectsPanel from "./ProjectsPanel";
+import Input from "./components/Input";
+import InputType from "./components/InputType";
+import InputNumber from "./components/InputNumber";
+import InputInt from "./components/InputInt";
 
 const sections = {
   documents: "documents",
@@ -32,6 +36,7 @@ const Embeddings = () => {
   const [selectedProject, setSelectedProject] = useState<ProjectSimilarityResult | undefined>(undefined);
   const [inputSearch, setInputSearch] = useState<string>("");
   const [inputTemperature, setInputTemperature] = useState<number>(0.0);
+  const [inputThreshold, setInputThreshold] = useState<number>(0.75);
   const [inputType, setInputType] = useState<DOCUMENT_TYPE | PROJECT_TYPE | "Any">("Any");
   const [section, setSection] = useState<string>("documents");
   const [offset, setOffset] = useState<number>(0);
@@ -44,7 +49,7 @@ const Embeddings = () => {
       type: inputType === "Any" ? undefined : inputType,
       preview: false,
       description: inputSearch ? inputSearch : undefined,
-      threshold: 0.75,
+      threshold: inputThreshold,
       timeRange: undefined,
       temperature: inputTemperature,
     };
@@ -129,77 +134,24 @@ const Embeddings = () => {
                 </li>
               ))}
             </ul>
-            <form className="p-2 px-4" onSubmit={handleSubmit}>
-              <section className="pb-2 d-flex flex-row flex-wrap">
-                <input
-                  type="text"
-                  className="form-control w-25"
-                  placeholder={`Description`}
-                  onChange={e => setInputSearch(e.target.value)}
-                  value={inputSearch}
+            <form className="container p-2 px-4" onSubmit={handleSubmit}>
+              <section className="pb-2 row gap-2">
+                <Input placeholder="Description" value={inputSearch} setValue={setInputSearch} />
+                <InputType value={inputType} setValue={setInputType} section={section} />
+                <InputNumber
+                  value={inputTemperature}
+                  setValue={setInputTemperature}
+                  label={"Temperature"}
                 />
-                <div className="input-group w-25">
-                  <span className="input-group-text">Type</span>
-                  <select
-                    className="form-select"
-                    value={inputType}
-                    onChange={e => setInputType(e.target.value as DOCUMENT_TYPE)}
-                  >
-                    <option value={"Any"}>Any</option>
-                    {section === "documents"
-                      ? Object.entries(DOCUMENT_TYPE).map(([k, v]) => (
-                          <option key={k} value={v}>
-                            {v}
-                          </option>
-                        ))
-                      : section === "projects"
-                      ? Object.entries(PROJECT_TYPE).map(([k, v]) => (
-                          <option key={k} value={v}>
-                            {v}
-                          </option>
-                        ))
-                      : null}
-                  </select>
-                </div>
-                <div className="input-group w-25">
-                  <span className="input-group-text">Temperature</span>
-                  <input
-                    type="number"
-                    step={0.01}
-                    max={1.0}
-                    min={0.0}
-                    className="form-control"
-                    placeholder="Temperature"
-                    onChange={e => setInputTemperature(parseFloat(e.target.value))}
-                    value={inputTemperature}
-                  />
+                <InputNumber value={inputThreshold} setValue={setInputThreshold} label={"Threshold"} />
+                <InputInt value={offset} setValue={setOffset} label={"Offset"} />
+                <InputInt value={limit} setValue={setLimit} label={"Limit"} />
+                <div className="col-6 col-lg-3">
+                  <button className="btn btn-primary p-2" type="submit">
+                    Search
+                  </button>
                 </div>
               </section>
-              <div className="hstack gap-2">
-                <button className="btn btn-primary p-2" type="submit">
-                  Search
-                </button>
-                <div className="input-group w-25">
-                  <span className="input-group-text">Offset</span>
-                  <input
-                    type="number"
-                    className="form-control"
-                    placeholder="Offset"
-                    onChange={e => setOffset(parseInt(e.target.value))}
-                    value={offset}
-                  />
-                </div>
-                <div className="input-group w-25">
-                  <span className="input-group-text">Limit</span>
-                  <input
-                    type="number"
-                    className="form-control"
-                    placeholder="Limit"
-                    onChange={e => setLimit(parseInt(e.target.value))}
-                    value={limit}
-                  />
-                </div>
-              </div>
             </form>
           </div>
         </section>
@@ -220,6 +172,16 @@ const Embeddings = () => {
                 setSelectedProject={setSelectedProject}
               />
             )}
+          </div>
+          {/* CREATE */}
+          <div className="row">
+            <form className="" onSubmit={handleSubmit}>
+              <div className="form-group">
+                <button className="btn btn-primary" type="submit">
+                  Create
+                </button>
+              </div>
+            </form>
           </div>
         </section>
       </section>

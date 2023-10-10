@@ -2,14 +2,13 @@ import { useEffect, useState } from "react";
 import type { DocumentSimilarityResult } from "../../../../client";
 import { V2DocumentsService } from "../../../../client";
 import CodeMirror from "@uiw/react-codemirror";
+import { isDataObject, isDataText } from "../../../../client_utils/typeguards";
 
 export interface Props {
   documents: DocumentSimilarityResult[];
   selectedDocument: DocumentSimilarityResult | undefined;
   setSelectedDocument: React.Dispatch<React.SetStateAction<DocumentSimilarityResult | undefined>>;
 }
-// type DocumentData = { text: string };
-
 const DocumentsTable = ({ documents, selectedDocument, setSelectedDocument }: Props) => {
   const [documentData, setDocumentData] = useState<Record<string, any>>({});
   const handleSave = async (e: React.FormEvent) => {
@@ -47,20 +46,18 @@ const DocumentsTable = ({ documents, selectedDocument, setSelectedDocument }: Pr
   useEffect(() => {
     if (selectedDocument) {
       setDocumentData(prev =>
-        selectedDocument.data?.hasOwnProperty("text")
-          ? { text: selectedDocument.data?.text }
-          : selectedDocument.data
+        isDataText(selectedDocument.data) ? { text: selectedDocument.data?.text } : selectedDocument.data
       );
     }
   }, [selectedDocument]);
   return (
-    <section className="container">
+    <>
       {selectedDocument && selectedDocument.data && (
         <div className="row" style={{ height: "500px" }}>
           <form className="vstack gap-2" onSubmit={handleSave}>
             <CodeMirror
               value={
-                documentData.hasOwnProperty("text")
+                isDataText(selectedDocument.data)
                   ? documentData.text
                   : JSON.stringify(documentData, null, 2)
               }
@@ -116,7 +113,7 @@ const DocumentsTable = ({ documents, selectedDocument, setSelectedDocument }: Pr
           </tbody>
         </table>
       </div>
-    </section>
+    </>
   );
 };
 

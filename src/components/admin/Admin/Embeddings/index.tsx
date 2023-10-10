@@ -126,79 +126,72 @@ const Embeddings = () => {
   return (
     <>
       <section className="designer-window flex-grow-1" style={{ overflow: "auto" }}>
-        <section className="container vstack p-0" style={{ marginTop: "-2px", marginLeft: "-2px" }}>
-          <div className="row px-2">
-            <ul className="nav nav-tabs">
-              {Object.keys(sections).map(s => (
-                <li
-                  className={`nav-link text-dark ${s === section ? "active" : ""}`}
-                  style={{ cursor: "pointer" }}
-                  key={s}
-                  onClick={() => setSection(s)}
+        <div className="row" style={{ marginTop: "-2px", marginLeft: "-2px" }}>
+          <ul className="nav nav-tabs">
+            {Object.keys(sections).map(s => (
+              <li
+                className={`nav-link text-dark ${s === section ? "active" : ""}`}
+                style={{ cursor: "pointer" }}
+                key={s}
+                onClick={() => setSection(s)}
+              >
+                {s.replace("_", " ")}
+              </li>
+            ))}
+          </ul>
+          {/* CREATE */}
+          <div className="container p-2 px-4">
+            <form className="pb-2 hstack gap-2" onSubmit={handleSubmitCreate}>
+              <div className="form-group">
+                <button
+                  className="btn btn-primary"
+                  type="button"
+                  onClick={() => setViewEditor(!viewEditor)}
                 >
-                  {s.replace("_", " ")}
-                </li>
-              ))}
-            </ul>
-            {/* CREATE */}
-            <div className="container p-2 px-4">
-              <form className="pb-2 hstack gap-2" onSubmit={handleSubmitCreate}>
-                <div className="form-group">
-                  <button className="btn btn-primary" type="submit">
-                    Create
-                  </button>
-                </div>
-                <div className="form-group">
-                  <button
-                    className="btn btn-primary"
-                    type="button"
-                    onClick={() => setViewEditor(!viewEditor)}
-                  >
-                    {viewEditor ? "Hide" : "Show"}
-                  </button>
-                </div>
-              </form>
-            </div>
-            <div className="container p-2 px-4">{viewEditor && <CreateEditor />}</div>
-            <form className="container p-2 px-4" onSubmit={handleSubmit}>
-              <section className="pb-2 row gap-2">
-                <Input placeholder="Description" value={inputSearch} setValue={setInputSearch} />
-                <InputType value={inputType} setValue={setInputType} section={section} />
-                <InputNumber
-                  value={inputTemperature}
-                  setValue={setInputTemperature}
-                  label={"Temperature"}
-                />
-                <InputNumber value={inputThreshold} setValue={setInputThreshold} label={"Threshold"} />
-                <InputInt value={offset} setValue={setOffset} label={"Offset"} />
-                <InputInt value={limit} setValue={setLimit} label={"Limit"} />
-                <div className="col-6 col-lg-3">
-                  <button className="btn btn-primary p-2" type="submit">
-                    Search
-                  </button>
-                </div>
-              </section>
+                  {viewEditor ? "Hide" : "Create"}
+                </button>
+              </div>
             </form>
           </div>
-        </section>
-        <section className="container p-4">
-          <div className="row">
-            {section == "documents" && documents && (
-              <DocumentsTable
-                documents={documents}
-                selectedDocument={selectedDocument}
-                setSelectedDocument={setSelectedDocument}
+          <div className="container p-2 px-4">{viewEditor && <CreateEditor />}</div>
+          {/* SEARCH */}
+          <form className="container p-2 px-4" onSubmit={handleSubmit}>
+            <section className="pb-2 row gap-2">
+              <Input placeholder="Description" value={inputSearch} setValue={setInputSearch} />
+              <InputType value={inputType} setValue={setInputType} section={section} allowAny={true} />
+              <InputNumber
+                value={inputTemperature}
+                setValue={setInputTemperature}
+                label={"Temperature"}
               />
-            )}
-            {section == "images" && images && <ImagesGallery images={images} />}
-            {section == "projects" && "Projects" && (
-              <ProjectsPanel
-                projects={projects}
-                selectedProject={selectedProject}
-                setSelectedProject={setSelectedProject}
-              />
-            )}
-          </div>
+              <InputNumber value={inputThreshold} setValue={setInputThreshold} label={"Threshold"} />
+              <InputInt value={offset} setValue={setOffset} label={"Offset"} />
+              <InputInt value={limit} setValue={setLimit} label={"Limit"} />
+              <div className="col-6 col-lg-3">
+                <button className="btn btn-primary p-2" type="submit">
+                  Search
+                </button>
+              </div>
+            </section>
+          </form>
+        </div>
+        {/* VIEW */}
+        <section className="container-fluid p-2 px-4">
+          {section == "documents" && documents && (
+            <DocumentsTable
+              documents={documents}
+              selectedDocument={selectedDocument}
+              setSelectedDocument={setSelectedDocument}
+            />
+          )}
+          {section == "images" && images && <ImagesGallery images={images} />}
+          {section == "projects" && "Projects" && (
+            <ProjectsPanel
+              projects={projects}
+              selectedProject={selectedProject}
+              setSelectedProject={setSelectedProject}
+            />
+          )}
         </section>
       </section>
     </>

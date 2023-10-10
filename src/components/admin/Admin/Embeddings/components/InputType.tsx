@@ -4,9 +4,10 @@ interface Props {
   value: string;
   setValue: (value: DOCUMENT_TYPE | PROJECT_TYPE) => void;
   section: string;
+  allowAny?: boolean;
 }
 
-const InputType = ({ value, setValue, section }: Props) => {
+const InputType = ({ value, setValue, section, allowAny = false }: Props) => {
   return (
     <div className="col-6 col-lg-3">
       <div className="input-group">
@@ -16,7 +17,7 @@ const InputType = ({ value, setValue, section }: Props) => {
           value={value}
           onChange={e => setValue(e.target.value as DOCUMENT_TYPE)}
         >
-          <option value={"Any"}>Any</option>
+          {allowAny && <option value={"Any"}>Any</option>}
           {section === "documents"
             ? Object.entries(DOCUMENT_TYPE).map(([k, v]) => (
                 <option key={k} value={v}>

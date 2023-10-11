@@ -1,13 +1,12 @@
-import { createBody, createHead, useDevMode } from "../../../../atoms";
+import { createBody, createHead } from "../../../../atoms";
 import { EventSourcePolyfill } from "event-source-polyfill";
-import { BASE_URL, TEST_URL } from "../../constants";
 import type { DataType, StatusCallback } from "./types";
 import { formatters, parsers } from "./utils";
 
 const EVENT_COUNT_LIMIT = 5 + 1;
 
 /** Receives a callback to execute on stream ending. Return true if all ok. */
-export const executeSlots = async (
+export const executeOld = async (
   iframe: HTMLIFrameElement,
   signal: AbortSignal,
   query: string,
@@ -29,8 +28,7 @@ export const executeSlots = async (
     Object.values(sections).forEach(section => (section.innerHTML = ""));
     var eventCount = 0;
     // Stream
-    const message_type = useDevMode.get() ? "dev" : "prod";
-    const eventStream = new EventSourcePolyfill(`${TEST_URL}${query}&message_type=${message_type}`, {
+    const eventStream = new EventSourcePolyfill(`https://app.uidesign.ai/stream/original${query}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     eventStream.addEventListener("message", async e => {
@@ -66,7 +64,7 @@ export const executeSlots = async (
       } else {
         // console.log(data);
         streamData[type] += data;
-        sections[type].innerHTML = parsers[type](streamData[type], message_type === "prod");
+        sections[type].innerHTML = parsers[type](streamData[type]);
       }
     });
     eventStream.addEventListener("open", () => {

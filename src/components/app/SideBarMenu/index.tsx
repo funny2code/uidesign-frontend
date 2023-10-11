@@ -2,6 +2,7 @@ import Branding from "./Brand";
 import Settings from "./Settings";
 import { useEffect, useState } from "react";
 import { useSession } from "../../auth/useSession";
+import { ADMIN_PAGE } from "../../constants";
 
 interface Props {
   currentPage?: string;
@@ -13,7 +14,7 @@ const SidebarMenu = ({ currentPage, handlePageChange }: Props) => {
   const { getSession } = useSession();
   useEffect(() => {
     getSession().then(tokens => {
-      tokens.is_admin && setPages(prev => [...prev, "Admin"]);
+      tokens.is_admin && setPages(["Generate", "History", "Admin"]);
     });
   }, []);
   return (
@@ -22,13 +23,23 @@ const SidebarMenu = ({ currentPage, handlePageChange }: Props) => {
         <Branding />
         <ul className="menu">
           {pages.map((page, index) => (
-            <li key={index}>
-              <button
-                className={currentPage === page ? "active" : ""}
-                onClick={() => (handlePageChange ? handlePageChange(page) : () => {})}
-              >
-                {page}
-              </button>
+            <li key={`option-${index}`}>
+              {page === "Admin" ? (
+                <a
+                  style={{ color: "inherit", textDecoration: "none" }}
+                  href={ADMIN_PAGE}
+                  target="_blank"
+                >
+                  <button type={"button"}>Admin</button>
+                </a>
+              ) : (
+                <button
+                  className={currentPage === page ? "active" : ""}
+                  onClick={() => handlePageChange && handlePageChange(page)}
+                >
+                  {page}
+                </button>
+              )}
             </li>
           ))}
         </ul>

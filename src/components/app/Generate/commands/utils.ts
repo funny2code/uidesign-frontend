@@ -1,5 +1,5 @@
 import Parser from "css-simple-parser";
-import type { DataType, DocumentProcessor, StatusCallback } from "./types";
+import type { DocumentProcessor } from "./types";
 
 /** Parse text during stream. */
 export const parsers: DocumentProcessor = {

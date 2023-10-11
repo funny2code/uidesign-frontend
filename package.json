@@ -11,7 +11,7 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/react": "^2.2.1",
+    "@astrojs/react": "^3.0.3",
     "@codemirror/lang-css": "^6.2.0",
     "@codemirror/lang-html": "^6.4.5",
     "@codemirror/lang-json": "^6.0.1",
@@ -25,7 +25,7 @@
     "@uiw/codemirror-theme-vscode": "^4.21.9",
     "@uiw/react-codemirror": "^4.21.7",
     "@zip.js/zip.js": "^2.7.17",
-    "astro": "2.5.6",
+    "astro": "^3.2.4",
     "bootstrap": "^5.2.3",
     "codemirror": "^6.0.1",
     "css-simple-parser": "^3.0.0",

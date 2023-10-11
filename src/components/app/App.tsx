@@ -1,11 +1,9 @@
 import SidebarMenu from "./SideBarMenu";
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
 import Generate from "./Generate";
 import History from "./History";
-import Admin from "./Admin";
 
 const App = () => {
-  const iframeSectionRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState("Generate");
   const handlePageChange = (page: string) => {
     setCurrentPage(page);
@@ -16,7 +14,7 @@ const App = () => {
         <SidebarMenu currentPage={currentPage} handlePageChange={handlePageChange} />
         {currentPage == "Generate" && <Generate />}
         {currentPage == "History" && <History />}
-        {currentPage == "Admin" && <Admin />}
+        {/* {currentPage == "Admin" && <Admin />} */}
       </section>
     </section>
   );

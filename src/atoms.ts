@@ -1,8 +1,7 @@
 // https://docs.astro.build/en/core-concepts/sharing-state/
-import { WritableAtom, atom } from "nanostores";
+import { atom } from "nanostores";
 import type { VM, ProjectFiles } from "@stackblitz/sdk";
 import type { PagesType } from "./components/app/Generate/TopBarMenu/constants";
-import type React from "react";
 // TODO: Organize
 export const createCSS = atom("");
 export const createHTML = atom("");

@@ -1,28 +1,17 @@
-import type { Tokens } from "../../../auth/storage";
-import { OpenAPI, V2DocumentsService, DocumentResult, DOCUMENT_TYPE } from "../../../../client";
+import { OpenAPI, V2DocumentsService } from "../../../../client";
 import { useState, useEffect, useRef } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { html } from "@codemirror/lang-html";
-import { json } from "@codemirror/lang-json";
+import type { FormComponentProps } from "./types";
 
-export interface ContentComponent {
-  config: string;
-  markup: string;
-  tag?: string;
-}
-export interface ConfigData extends DocumentResult {
-  data: ContentComponent;
-}
-interface FormProps {
-  category: string;
-  tokens: Tokens;
-  doc: ConfigData;
-  hasPreMessage?: boolean;
-  acallback: (id: string) => Promise<void>;
-  width: number;
-  height: number;
-}
-export const FormComponent = ({ category, tokens, doc, acallback, width, height }: FormProps) => {
+export const FormComponent = ({
+  category,
+  tokens,
+  doc,
+  acallback,
+  width,
+  height,
+}: FormComponentProps) => {
   const [value, setValue] = useState(doc.data.config);
   const [name, setName] = useState(doc.name);
   const [tag, setTag] = useState(doc.data.tag || "");

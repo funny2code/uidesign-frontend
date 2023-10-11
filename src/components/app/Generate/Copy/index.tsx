@@ -1,4 +1,4 @@
-import { executeCopy, StoresType } from "../commands";
+import { executeCopy } from "../commands";
 import { copyCSS, copyHTML, generatedProjectsIds } from "../../../../atoms";
 import { initFrame } from "../../utils/frame";
 import { useSession } from "../../../auth/useSession";

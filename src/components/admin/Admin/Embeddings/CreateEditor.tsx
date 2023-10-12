@@ -37,6 +37,31 @@ const CreateEditor = ({ selectedDocument, setSelectedDocument }: CreateEditorPro
     }
   };
 
+  /** Get the extension for the codemirror editor  */
+  const getExtension = (documentType: DOCUMENT_TYPE) => {
+    const type = selectedDocument?.type || documentType;
+    switch (type) {
+      case DOCUMENT_TYPE.CSS:
+        return css();
+      case DOCUMENT_TYPE.HTML:
+        return html();
+      default:
+        return json();
+    }
+  };
+
+  const getExtensionTextLabel = (documentType: DOCUMENT_TYPE) => {
+    const type = selectedDocument?.type || documentType;
+    switch (type) {
+      case DOCUMENT_TYPE.CSS:
+        return "css";
+      case DOCUMENT_TYPE.HTML:
+        return "html";
+      default:
+        return "json";
+    }
+  };
+
   /** Handle creating a new document. */
   const handleSave = async () => {
     console.log(data);
@@ -83,31 +108,6 @@ const CreateEditor = ({ selectedDocument, setSelectedDocument }: CreateEditorPro
       window.alert("Saved");
     } catch {
       window.alert("Failed to save");
-    }
-  };
-
-  /** Get the extension for the codemirror editor  */
-  const getExtension = (documentType: DOCUMENT_TYPE) => {
-    const type = selectedDocument?.type || documentType;
-    switch (type) {
-      case DOCUMENT_TYPE.CSS:
-        return css();
-      case DOCUMENT_TYPE.HTML:
-        return html();
-      default:
-        return json();
-    }
-  };
-
-  const getExtensionTextLabel = (documentType: DOCUMENT_TYPE) => {
-    const type = selectedDocument?.type || documentType;
-    switch (type) {
-      case DOCUMENT_TYPE.CSS:
-        return "css";
-      case DOCUMENT_TYPE.HTML:
-        return "html";
-      default:
-        return "json";
     }
   };
 

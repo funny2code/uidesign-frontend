@@ -138,12 +138,14 @@ const Embeddings = () => {
             ))}
           </ul>
           {/* CREATE */}
-          <SectionWrapper>
-            <CreateEditor
-              selectedDocument={selectedDocument}
-              setSelectedDocument={setSelectedDocument}
-            />
-          </SectionWrapper>
+          {section == "documents" && (
+            <SectionWrapper>
+              <CreateEditor
+                selectedDocument={selectedDocument}
+                setSelectedDocument={setSelectedDocument}
+              />
+            </SectionWrapper>
+          )}
           {/* SEARCH / VIEW / EDIT / DELETE */}
           <SectionWrapper>
             <span className="form-text p-0 m-0">Search</span>

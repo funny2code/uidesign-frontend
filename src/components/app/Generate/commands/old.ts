@@ -1,4 +1,4 @@
-import { createBody, createHead } from "../../../../atoms";
+import { oldHTML, oldCSS } from "../../../../atoms";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import type { DataType, StatusCallback } from "./types";
 import { formatters, parsers } from "./utils";
@@ -20,7 +20,7 @@ export const executeOld = async (
       throw new Error("No body or head found.");
     }
     // Maps
-    const stores = { html: createBody, css: createHead };
+    const stores = { html: oldHTML, css: oldCSS };
     const sections = { html: body, css: head };
     const streamData = { html: "", css: "" };
     // Reset states

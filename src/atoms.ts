@@ -15,6 +15,8 @@ export const remixCSS = atom("");
 export const remixHTML = atom("");
 export const shopifyHead = atom("");
 export const shopifyBody = atom("");
+export const oldCSS = atom("");
+export const oldHTML = atom("");
 //
 export const inputPrompt = atom("");
 export const selectedDesignType = atom("");

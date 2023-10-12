@@ -7,9 +7,9 @@ interface Props {
 
 const ImagesGallery = ({ images }: Props) => {
   return (
-    <>
+    <div className="row">
       {images[0].similar.map((d, i) => (
-        <div className="col-4">
+        <div key={`${d.uri}-${i}`} className="col-4">
           <img
             key={`${d.uri}-${i}`}
             src={`https://app.uidesign.ai/images/${d.uri}`}
@@ -17,7 +17,7 @@ const ImagesGallery = ({ images }: Props) => {
           />
         </div>
       ))}
-    </>
+    </div>
   );
 };
 export default ImagesGallery;

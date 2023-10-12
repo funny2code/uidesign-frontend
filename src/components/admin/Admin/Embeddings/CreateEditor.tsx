@@ -12,7 +12,7 @@ import type { DocumentSimilarityResult } from "../../../../client";
 import { V2DocumentsService } from "../../../../client";
 import { useSession } from "../../../auth/useSession";
 
-import { isTextDataDocumentType, isDataText } from "../../../../client_utils/typeguards";
+import { isDataText } from "../../../../client_utils/typeguards";
 
 export type CreateEditorProps = {
   selectedDocument: DocumentSimilarityResult | undefined;

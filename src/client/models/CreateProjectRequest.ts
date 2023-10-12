@@ -12,6 +12,7 @@ export type CreateProjectRequest = {
     url: string;
     img_url: string;
     tags: Array<string>;
+    context?: Record<string, any>;
     type: PROJECT_TYPE;
     data: CreateProjectRequestData;
 };

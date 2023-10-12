@@ -21,6 +21,7 @@ export type ProjectResult = {
      */
     tags: Array<string>;
     type: PROJECT_TYPE;
+    context?: Record<string, any>;
     /**
      * Can be empty list.
      */

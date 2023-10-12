@@ -21,6 +21,7 @@ export type ProjectSimilarityResult = {
      */
     tags: Array<string>;
     type: PROJECT_TYPE;
+    context?: Record<string, any>;
     /**
      * Can be empty list.
      */

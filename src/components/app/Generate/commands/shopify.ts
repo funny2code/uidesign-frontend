@@ -103,7 +103,11 @@ export const updateShopitTheme = async (
   return response;
 };
 
-export const downloadShopitTheme = async (id: string, settingsData: Record<string, any> | undefined, templates: Record<string, any> | undefined) => {
+export const downloadShopitTheme = async (
+  id: string,
+  settingsData: Record<string, any> | undefined,
+  templates: Record<string, any> | undefined
+) => {
   const body: IDownloadReq = {
     theme_id: id,
     settings_data: settingsData,
@@ -113,7 +117,7 @@ export const downloadShopitTheme = async (id: string, settingsData: Record<strin
   const response = await fetch(`${MAKE_UI_URL}/api/download`, {
     method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       Authorization: MAKE_UI_API,
     },
     body: JSON.stringify(body),
@@ -121,5 +125,4 @@ export const downloadShopitTheme = async (id: string, settingsData: Record<strin
 
   const blob = await response.blob();
   return blob;
-
 };

@@ -1,6 +1,6 @@
 import type React from "react";
 import OptionElement from "./Option";
-import type { IValue } from "../Create/types";
+import type { IValue } from "../Create2/types";
 
 interface InputBarProps extends React.PropsWithChildren {
   input: string;

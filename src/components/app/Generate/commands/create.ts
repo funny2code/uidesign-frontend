@@ -1,10 +1,11 @@
-import { createBody, createHead, generatedProjectsIds } from "../../../../atoms";
+import { oldHTML, oldCSS } from "../../../../atoms";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import type { DataType, StatusCallback } from "./types";
 import { formatters, parsers } from "./utils";
-import { BASE_URL } from "../../constants";
+import { generatedProjectsIds } from "../../../../atoms";
 
-export type StreamType = DataType | "error" | "info" | "id" | "head" | "layout";
+const EVENT_COUNT_LIMIT = 5 + 1;
+
 /** Receives a callback to execute on stream ending. Return true if all ok. */
 export const executeCreate = async (
   iframe: HTMLIFrameElement,
@@ -17,69 +18,68 @@ export const executeCreate = async (
     const body = iframe.contentWindow?.document.body;
     const head = iframe.contentWindow?.document.head;
     if (!body || !head) {
-      throw new Error("No body or head found for iframe.");
+      throw new Error("No body or head found.");
     }
-    const stores = { html: createBody, css: createHead };
+    // Maps
+    const stores = { html: oldHTML, css: oldCSS };
     const sections = { html: body, css: head };
-    const streamData = { html: {}, css: "" } as Record<string, any>;
-    let layout: string[] = [];
+    const streamData = { html: "", css: "" };
+    // Reset states
     Object.values(stores).forEach(store => store.set(""));
     Object.values(sections).forEach(section => (section.innerHTML = ""));
-    const eventStream = new EventSourcePolyfill(`${BASE_URL}/stream/create${query}`, {
+    var eventCount = 0;
+    // Stream
+    const eventStream = new EventSourcePolyfill(`https://app.uidesign.ai/stream/original${query}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     eventStream.addEventListener("message", async e => {
       if (signal.aborted) {
         console.log("ABORTED_STREAM");
         eventStream.close();
-        return callback(false);
+        callback(false, undefined);
+        return;
       }
-      const { type, data }: { type: StreamType; data: any } = JSON.parse(e.data);
-      switch (type) {
-        case "head":
-          head.innerHTML = data;
-          streamData.css = data;
-          return;
-        case "error":
-          console.log("ERROR_STREAM", data);
-          sections.html.innerHTML = `<div>${data}</div>`;
-          return callback(false, undefined);
-        case "info":
-          return console.log("INFO_STREAM", data);
-        case "id":
-          generatedProjectsIds.set({ ...generatedProjectsIds.get(), Create: data });
-          stores.css.set(streamData.css);
-          stores.html.set(
-            Object.entries(streamData.html)
-              .map(([k, v]) => v)
-              .join("\n")
-          );
+      const { type, data }: { type: DataType | "error" | "id"; data: string } = JSON.parse(e.data);
+      // DELETE ME
+      // console.log(data);
+      console.log(type, data);
+      if (type === "error") {
+        console.log("ERROR_STREAM", data);
+        sections["html"].innerHTML = `<div>${data}</div>`;
+        // eventStream.close();
+        callback(false, undefined);
+        return;
+      } else if (type === "id") {
+        generatedProjectsIds.set({ ...generatedProjectsIds.get(), Create: data });
+        stores.html.set(formatters.html(streamData.html));
+        stores.css.set(streamData.css);
+        eventStream.close();
+        console.log("END_STREAM", data);
+        return callback(true, stores);
+      }
+      if (data === "[DONE]") {
+        eventCount += 1;
+        stores[type].set(formatters[type](streamData[type]));
+        if (eventCount >= EVENT_COUNT_LIMIT) {
+          console.log("END");
+          console.log("END_STREAM", eventCount);
+          // Update HTML with images.
+          sections.html.innerHTML = formatters.html(streamData.html);
           eventStream.close();
-          console.log("END_STREAM", data);
-          return callback(true, stores);
-        case "layout":
-          layout = data;
-          data.forEach((name: string) => {
-            streamData.html[name] = "";
-          });
+          callback(true, stores);
           return;
-        case "html":
-          streamData.html[data.name] = data.data;
-          sections.html.innerHTML = Object.entries(streamData.html)
-            .map(([k, v]) => v)
-            .join("\n");
-          return;
-        case "css":
-          streamData.css += parsers.css(data);
-          sections.css.innerHTML = streamData.css;
-          return;
+        }
+      } else {
+        // console.log(data);
+        streamData[type] += data;
+        sections[type].innerHTML = parsers[type](streamData[type]);
       }
     });
     eventStream.addEventListener("open", () => {
-      console.log("START_STREAM");
+      console.log("OPEN_STREAM");
     });
     eventStream.addEventListener("error", e => {
-      console.log("ERROR_STREAM");
+      console.log("ERROR_STREAM", e);
       eventStream.close();
       callback(false, undefined);
     });

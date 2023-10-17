@@ -1,4 +1,4 @@
-import type { IOptions } from "../Create/types";
+import type { IOptions } from "../Create2/types";
 
 const OptionElement = ({ title, values, selected, setSelected, horizontal = true }: IOptions) => {
   return (

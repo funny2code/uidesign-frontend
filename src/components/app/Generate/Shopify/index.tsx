@@ -1,8 +1,8 @@
-import { STYLES } from "../Create/constants";
+import { STYLES } from "../Create2/constants";
 import { parseConfigParams } from "../../utils/params";
 import { useSession } from "../../../auth/useSession";
 import { useState, useRef, useEffect } from "react";
-import type { ISopifyPages } from "../Create/types";
+import type { ISopifyPages } from "../Create2/types";
 import InputBar from "../components/InputBarShopify";
 import { executeShopify, getThemeNamesAndPages, updateShopitTheme } from "../commands";
 import { MAKE_UI_API_VIEW } from "../../constants";

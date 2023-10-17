@@ -5,7 +5,7 @@ import ProjectCard from "../components/ProjectCard";
 import OptionElement from "../components/Option";
 import { executeBuild } from "../commands/build";
 import { vmFilesState } from "../../../../atoms";
-import type { IValue } from "../Create/types";
+import type { IValue } from "../Create2/types";
 import InputBar from "../components/InputBar";
 import type { VM } from "@stackblitz/sdk";
 import sdk from "@stackblitz/sdk";
@@ -117,7 +117,7 @@ const Build = ({ height }: { height: number }) => {
         className="designer-window hstack flex-grow-1"
         style={{
           // marginTop: "0",
-         // marginBottom: "40px",
+          // marginBottom: "40px",
           opacity: showProjectTypes ? "0" : "1",
           pointerEvents: showProjectTypes ? "none" : "auto",
           height: showProjectTypes ? 0 : "100%",

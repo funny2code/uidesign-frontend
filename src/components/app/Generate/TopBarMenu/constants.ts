@@ -8,7 +8,7 @@ export const PAGES: Record<UIDesignPage, UIDesignPage> = {
 export const ADMIN_PAGES: Record<UIDesignAdminPage, UIDesignAdminPage> = {
   Shopify: "Shopify",
   Build: "Build",
-  Old: "Old",
+  Create2: "Create2",
 };
 
 export type PagesType = UIDesignPage | UIDesignAdminPage;

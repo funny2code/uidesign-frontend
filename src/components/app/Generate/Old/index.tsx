@@ -1,10 +1,10 @@
-import { oldCSS, oldHTML } from "../../../../atoms";
-import { executeOld } from "../commands/old";
 import { useSession } from "../../../auth/useSession";
 import { useState, useRef, useEffect } from "react";
+import { oldCSS, oldHTML } from "../../../../atoms";
+import { executeOld } from "../commands/old";
 import { initFrame } from "../../utils/frame";
 
-const Create = () => {
+const Old = () => {
   // Auth
   const { getSession } = useSession();
   // Flow
@@ -84,7 +84,7 @@ const Create = () => {
           className="form-control"
           style={{ height: "100%" }}
           type="text"
-          placeholder={"Describe your design (old)"}
+          placeholder={"Describe your design"}
           value={input}
           onChange={e => setInput(e.target.value)}
           disabled={processing}
@@ -102,4 +102,4 @@ const Create = () => {
   );
 };
 
-export default Create;
+export default Old;

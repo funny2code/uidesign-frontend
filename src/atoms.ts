@@ -24,4 +24,3 @@ export const vmState = atom(undefined as VM | undefined);
 // ref state
 export const vmFilesState = atom(undefined as ProjectFiles | undefined);
 //
-export const useDevMode = atom(false);

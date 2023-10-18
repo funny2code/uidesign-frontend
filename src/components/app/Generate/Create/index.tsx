@@ -9,7 +9,7 @@ import { executeCreate } from "../commands";
 import type { IValue } from "./types";
 import OptionElement from "../components/Option";
 
-const Slots = () => {
+const Create = () => {
   // Auth
   const { getSession } = useSession();
   // Flow
@@ -170,4 +170,4 @@ const Slots = () => {
   );
 };
 
-export default Slots;
+export default Create;

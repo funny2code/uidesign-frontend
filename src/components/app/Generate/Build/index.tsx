@@ -5,7 +5,7 @@ import ProjectCard from "../components/ProjectCard";
 import OptionElement from "../components/Option";
 import { executeBuild } from "../commands/build";
 import { vmFilesState } from "../../../../atoms";
-import type { IValue } from "../Create2/types";
+import type { IValue } from "../Create/types";
 import InputBar from "../components/InputBar";
 import type { VM } from "@stackblitz/sdk";
 import sdk from "@stackblitz/sdk";

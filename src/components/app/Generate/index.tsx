@@ -3,8 +3,8 @@ import { PAGES, ADMIN_PAGES } from "./TopBarMenu/constants";
 import type { UIDesignAdminPage, UIDesignPage } from "./TopBarMenu/types";
 import TopBarMenu from "./TopBarMenu";
 import Shopify from "./Shopify";
-import Create2 from "./Create2";
 import Create from "./Create";
+import Old from "./Old";
 import Build from "./Build";
 import Remix from "./Remix";
 import Copy from "./Copy";
@@ -12,7 +12,7 @@ import Copy from "./Copy";
 const HEIGHT_OFFSET = 68;
 const Generate = () => {
   // Flow
-  const [currentPage, setCurrentPage] = useState<UIDesignPage | UIDesignAdminPage>(PAGES.Create);
+  const [currentPage, setCurrentPage] = useState<UIDesignPage | UIDesignAdminPage>(PAGES.Old);
   const handlePageChange = (page: UIDesignPage | UIDesignAdminPage) => {
     setCurrentPage(page);
   };
@@ -20,12 +20,12 @@ const Generate = () => {
   const stackblitzRef = useRef<HTMLDivElement>(null);
   const otherRef = useRef<HTMLDivElement>(null);
   const pages = {
-    [PAGES.Create]: <Create />,
+    [PAGES.Old]: <Old />,
     [PAGES.Copy]: <Copy />,
     [PAGES.Remix]: <Remix />,
     [ADMIN_PAGES.Shopify]: <Shopify />,
     [ADMIN_PAGES.Build]: <></>, // Build
-    [ADMIN_PAGES.Create2]: <Create2 />,
+    [ADMIN_PAGES.Create]: <Create />,
   };
   useEffect(() => {
     // Load the Stackblitz iframe on this Component's render to avoid re-creating on page change.

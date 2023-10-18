@@ -1,6 +1,6 @@
 import type React from "react";
 import OptionElement from "./Option";
-import type { IValue } from "../Create2/types";
+import type { IValue } from "../Create/types";
 
 interface InputBarProps extends React.PropsWithChildren {
   input: string;
@@ -11,7 +11,7 @@ interface InputBarProps extends React.PropsWithChildren {
   placeholder: string;
   center?: boolean;
   promptType?: IValue;
-  promptOptions: IValue[];
+  promptOptions?: IValue[];
   setPromptType?: React.Dispatch<React.SetStateAction<IValue>>;
 }
 
@@ -78,13 +78,15 @@ const InputBar = ({
             }}
             aria-labelledby="dropdownPromptMenuClickable"
           >
-            <OptionElement
-              title={"Prompt Type"}
-              values={promptOptions}
-              selected={promptType}
-              setSelected={setPromptType}
-              horizontal={false}
-            />
+            {promptOptions && (
+              <OptionElement
+                title={"Prompt Type"}
+                values={promptOptions}
+                selected={promptType}
+                setSelected={setPromptType}
+                horizontal={false}
+              />
+            )}
           </ul>
         </div>
       )}

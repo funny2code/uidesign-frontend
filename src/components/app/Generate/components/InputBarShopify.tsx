@@ -1,5 +1,5 @@
 import type React from "react";
-import type { ISopifyPages } from "../Create2/types";
+import type { ISopifyPages } from "../Create/types";
 
 interface InputBarProps extends React.PropsWithChildren {
   input: string;

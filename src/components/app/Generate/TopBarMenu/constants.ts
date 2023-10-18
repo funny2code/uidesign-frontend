@@ -1,14 +1,14 @@
 import type { UIDesignAdminPage, UIDesignPage } from "./types";
 
 export const PAGES: Record<UIDesignPage, UIDesignPage> = {
-  Create: "Create",
+  Old: "Old",
   Copy: "Copy",
   Remix: "Remix",
 };
 export const ADMIN_PAGES: Record<UIDesignAdminPage, UIDesignAdminPage> = {
   Shopify: "Shopify",
   Build: "Build",
-  Create2: "Create2",
+  Create: "Create",
 };
 
 export type PagesType = UIDesignPage | UIDesignAdminPage;

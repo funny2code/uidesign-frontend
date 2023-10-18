@@ -7,7 +7,7 @@ interface InputBarProps extends React.PropsWithChildren {
   isDisabled: boolean;
   processing: boolean;
   inputRef: React.RefObject<HTMLInputElement>;
-  pages: ISopifyPages[];
+  pages: Record<string, any> | undefined;
   page: string;
   handlePageChange: (e: any) => void;
   themes: ISopifyPages[];
@@ -40,6 +40,7 @@ const InputBar = ({
   isDownload,
   downloadTheme,
 }: InputBarProps) => {
+  console.log(pages);
   return (
     <div
       className="hstack gap-2 designer-form form-control p-1"
@@ -80,13 +81,13 @@ const InputBar = ({
           aria-label="Default select Page"
           style={{ height: "100%", width: "130px" }}
         >
-          {pages.map((page, i) => (
-            <option key={page._id} value={page.name}>
-              {page.name === "index&settings=style"
-                ? "SELECT PAGE"
-                : page.name.replace("-", " ").replace("_", " ").toLocaleUpperCase()}
-            </option>
-          ))}
+          {
+            pages.map((p:Record<string, any>) => (
+              <option key={p._id} value={p.name}>
+                  {p.name}
+              </option>
+            ))
+          }
         </select>
       )}
       <div

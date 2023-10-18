@@ -24,8 +24,7 @@ const Shopify = () => {
 
   const [input, setInput] = useState("");
   const [themeId, setThemeId] = useState<string>("64dcd06b0db1077c79970cec");
-  const [page, setPage] = useState<string>("index&settings=style");
-  const [shopifyPage, setShopifyPage] = useState<ISopifyPages[] | []>([]);
+  const [currentPage, setcurrentPage] = useState<string>("index"); 
   const [shopifyThemes, setShopifyThemes] = useState<ISopifyPages[] | []>([]);
   const [isSettingsSchema, setSettingsSchema] = useState<ISchema[] | []>([]);
   const [isThemes, setIsThemes] = useState<IThemes>({});
@@ -54,7 +53,7 @@ const Shopify = () => {
 
     const queryParams = parseConfigParams(input, {
       theme_id: themeId,
-      page: page,
+      page: currentPage,
     });
 
     await executeShopify(control.signal, queryParams, tokens.id_token, async (ok, data) => {
@@ -66,7 +65,7 @@ const Shopify = () => {
       const { main, themeContent, subtype } = data;
 
       const html = await updateShopitTheme(
-        `${MAKE_UI_API_VIEW}?id=${themeId}&page=${page}`,
+        `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
         themeId,
         isThemes[themeId]?.settings_data,
         main,
@@ -82,7 +81,7 @@ const Shopify = () => {
             ...prevThemes,
             [themeId]: {
               settings_data: isThemes[themeId]?.settings_data,
-              templates: { [page]: main },
+              templates: { [currentPage]: main },
               themeContent: themeContent,
             },
           };
@@ -102,7 +101,7 @@ const Shopify = () => {
     try {
       const pageValue = e.target.value;
       setProcessing(true);
-      setPage(pageValue);
+      setcurrentPage(pageValue);
       const splitSchema =
         STYLES[pageValue] &&
         isSettingsSchema.filter((s: ISchema) => STYLES[pageValue].includes(s.name.toLowerCase()));
@@ -123,25 +122,22 @@ const Shopify = () => {
 
   const addThemesCall = async (id: string) => {
     const getShopify = await getThemeNamesAndPages(id);
-    const { pages, themeNames, settingsData, settingsSchema } = getShopify?.response || {};
-    const resPages = pages?.length && pages;
-    resPages?.length && resPages.push({ _id: resPages[0]._id + "3", name: "index&settings=style" });
+    const { templates, themeNames, settingsData, settingsSchema } = getShopify || {};
     if (themeNames?.length && Object.keys(isThemes).length === 0) setShopifyThemes(themeNames);
-    resPages?.length && setShopifyPage(resPages);
     if (settingsData && isThemes[id] === undefined)
       setIsThemes(prevThemes => {
         return {
           ...prevThemes,
           [id]: {
             settings_data: settingsData.presets[settingsData.current],
-            templates: {},
+            templates: templates,
             themeContent: {},
           },
         };
       });
     settingsSchema?.length && setSettingsSchema(settingsSchema);
     const splitSchema =
-      STYLES[page] && settingsSchema.filter((s: ISchema) => STYLES[page].includes(s.name.toLowerCase()));
+      STYLES[currentPage] && settingsSchema.filter((s: ISchema) => STYLES[currentPage].includes(s.name.toLowerCase()));
     setFilterSchema(splitSchema || []);
   };
 
@@ -153,10 +149,10 @@ const Shopify = () => {
       setThemeId(id);
       await addThemesCall(id);
       const html = await updateShopitTheme(
-        `${MAKE_UI_API_VIEW}?id=${id}&page=${page}`,
+        `${MAKE_UI_API_VIEW}?id=${id}&page=${currentPage}`,
         id,
         isThemes[id]?.settings_data,
-        isThemes[id]?.templates[page],
+        isThemes[id]?.templates[currentPage],
         isThemes[id]?.themeContent
       );
       updateIframeContent(html);
@@ -212,10 +208,10 @@ const Shopify = () => {
   const sendSettingsFunc = async () => {
     setProcessing(true);
     const html = await updateShopitTheme(
-      `${MAKE_UI_API_VIEW}?id=${themeId}&page=${page}`,
+      `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
       themeId,
       isThemes[themeId]?.settings_data,
-      isThemes[themeId]?.templates[page],
+      isThemes[themeId]?.templates[currentPage],
       isThemes[themeId]?.templates
     );
     updateIframeContent(html);
@@ -228,10 +224,10 @@ const Shopify = () => {
       try {
         await addThemesCall(themeId);
         const html = await updateShopitTheme(
-          `${MAKE_UI_API_VIEW}?id=${themeId}&page=${page}`,
+          `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
           themeId,
           isThemes[themeId]?.settings_data,
-          isThemes[themeId]?.templates[page],
+          isThemes[themeId]?.templates[currentPage],
           isThemes[themeId]?.templates
         );
         updateIframeContent(html);
@@ -316,8 +312,8 @@ const Shopify = () => {
           processing={processing}
           placeholder="Describe your design"
           inputRef={inputRef}
-          pages={shopifyPage}
-          page={page}
+          pages={isThemes[themeId]?.templates}
+          page={currentPage}
           handlePageChange={handlePageChange}
           themes={shopifyThemes}
           themeId={themeId}

@@ -24,8 +24,9 @@ const Shopify = () => {
 
   const [input, setInput] = useState("");
   const [themeId, setThemeId] = useState<string>("64dcd06b0db1077c79970cec");
+  const [pages, setPages] = useState<ISopifyPages[] | undefined>(undefined)
   const [currentPage, setcurrentPage] = useState<string>("index"); 
-  const [shopifyThemes, setShopifyThemes] = useState<ISopifyPages[] | []>([]);
+  const [shopifyThemes, setShopifyThemes] = useState<ISopifyPages[] | undefined>(undefined);
   const [isSettingsSchema, setSettingsSchema] = useState<ISchema[] | []>([]);
   const [isThemes, setIsThemes] = useState<IThemes>({});
   const [filterSchema, setFilterSchema] = useState<ISchema[] | []>([]);
@@ -63,25 +64,53 @@ const Shopify = () => {
         return;
       }
       const { main, themeContent, subtype } = data;
-
-      const html = await updateShopitTheme(
-        `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
-        themeId,
-        isThemes[themeId]?.settings_data,
-        main,
-        themeContent
-      );
-
-      ok === 2 ? updateIframeContent(html, subtype) : updateIframeContent(html);
-
+      // if (ok === 1) {
+      //   if(Object.keys(main).length > 0){
+      //     Object.entries(main).forEach(([tkey, template]:[string, any]) => {
+      //       if(Object.keys(template.sections).length > 0){
+      //         Object.entries(template.sections).forEach(([skey, section]:[string, any]) => {
+      //           if(section.blocks && Object.keys(section.blocks).length > 0){
+      //             Object.entries(section.blocks).forEach(([bkey, block]:[string, any]) => {
+      //               console.log(isThemes[themeId].templates[tkey][skey][bkey].type, "CHECK DAV");
+      //               block.type = isThemes[themeId].templates[tkey][skey][bkey].type
+      //             })
+      //           }
+      //         })
+      //       }
+      //     })
+      //   }
+      // }
+      // setIsThemes(prevThemes => {
+        
+      //   return {
+      //     ...prevThemes,
+      //     [themeId]: {
+      //       settings_data: isThemes[themeId]?.settings_data,
+      //       templates: { [currentPage]: main },
+      //       themeContent: themeContent,
+      //     },
+      //   };
+      // });
+      console.log(main);
+      
+      // ok === 2 ? updateIframeContent(html, subtype) : updateIframeContent(html);
+      
       if (ok === 1) {
+        const html = await updateShopitTheme(
+          `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
+          themeId,
+          isThemes[themeId]?.settings_data,
+          main[currentPage],
+          themeContent
+        );
+        updateIframeContent(html);
         console.log(ok, main);
         setIsThemes(prevThemes => {
           return {
             ...prevThemes,
             [themeId]: {
               settings_data: isThemes[themeId]?.settings_data,
-              templates: { [currentPage]: main },
+              templates: main,
               themeContent: themeContent,
             },
           };
@@ -122,9 +151,10 @@ const Shopify = () => {
 
   const addThemesCall = async (id: string) => {
     const getShopify = await getThemeNamesAndPages(id);
-    const { templates, themeNames, settingsData, settingsSchema } = getShopify || {};
+    const { pages, templates, themeNames, settingsData, settingsSchema } = getShopify || {};
+    if (pages?.length) setPages(pages);
     if (themeNames?.length && Object.keys(isThemes).length === 0) setShopifyThemes(themeNames);
-    if (settingsData && isThemes[id] === undefined)
+    if (settingsData && isThemes[id] === undefined){
       setIsThemes(prevThemes => {
         return {
           ...prevThemes,
@@ -135,6 +165,7 @@ const Shopify = () => {
           },
         };
       });
+    }
     settingsSchema?.length && setSettingsSchema(settingsSchema);
     const splitSchema =
       STYLES[currentPage] && settingsSchema.filter((s: ISchema) => STYLES[currentPage].includes(s.name.toLowerCase()));
@@ -271,8 +302,8 @@ const Shopify = () => {
     const anchor = document.createElement("a");
     const objectURL = URL.createObjectURL(blob);
     anchor.href = objectURL;
-    const currentThemeName = shopifyThemes.filter(theme => theme._id === themeId);
-    anchor.download = `${currentThemeName[0].name || "theme"}.zip`;
+    const currentThemeName = shopifyThemes?.filter(theme => theme._id === themeId);
+    if(currentThemeName) anchor.download = `${currentThemeName[0].name || "theme"}.zip`;
     anchor.click();
     URL.revokeObjectURL(objectURL);
     setIsDownload(false);
@@ -312,10 +343,10 @@ const Shopify = () => {
           processing={processing}
           placeholder="Describe your design"
           inputRef={inputRef}
-          pages={isThemes[themeId]?.templates}
+          pages={pages}
           page={currentPage}
           handlePageChange={handlePageChange}
-          themes={shopifyThemes}
+          themes={shopifyThemes || undefined}
           themeId={themeId}
           handleThemeChange={handleThemeChange}
           buttonRef={buttonRef}

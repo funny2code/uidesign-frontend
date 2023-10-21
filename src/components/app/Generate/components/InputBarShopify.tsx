@@ -7,10 +7,10 @@ interface InputBarProps extends React.PropsWithChildren {
   isDisabled: boolean;
   processing: boolean;
   inputRef: React.RefObject<HTMLInputElement>;
-  pages: Record<string, any> | undefined;
+  pages: ISopifyPages[] | undefined;
   page: string;
   handlePageChange: (e: any) => void;
-  themes: ISopifyPages[];
+  themes: ISopifyPages[] | undefined;
   themeId: string;
   handleThemeChange: (e: any) => void;
   buttonRef: React.RefObject<HTMLButtonElement>;
@@ -40,7 +40,6 @@ const InputBar = ({
   isDownload,
   downloadTheme,
 }: InputBarProps) => {
-  console.log(pages);
   return (
     <div
       className="hstack gap-2 designer-form form-control p-1"
@@ -82,7 +81,7 @@ const InputBar = ({
           style={{ height: "100%", width: "130px" }}
         >
           {
-            pages.map((p:Record<string, any>) => (
+            pages.map((p) => (
               <option key={p._id} value={p.name}>
                   {p.name}
               </option>
@@ -140,7 +139,7 @@ const InputBar = ({
         className="btn btn-primary px-2"
         style={{ height: "100%", width: "310px" }}
       >
-        {isDownload ? (
+        {/* {isDownload ? (
           <>
             <span className="spinner-border spinner-border-md" aria-hidden="true"></span>
             <span className="visually-hidden" role="status">
@@ -149,7 +148,7 @@ const InputBar = ({
           </>
         ) : (
           <span>Download Theme</span>
-        )}
+        )} */}
       </button>
     </div>
   );

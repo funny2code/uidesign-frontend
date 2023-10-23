@@ -8,6 +8,7 @@ import Old from "./Old";
 import Build from "./Build";
 import Remix from "./Remix";
 import Copy from "./Copy";
+import Components from "./Component";
 
 const HEIGHT_OFFSET = 68;
 const Generate = () => {
@@ -26,6 +27,7 @@ const Generate = () => {
     [ADMIN_PAGES.Shopify]: <Shopify />,
     [ADMIN_PAGES.Build]: <></>, // Build
     [ADMIN_PAGES.Create]: <Create />,
+    [ADMIN_PAGES.Components]: <Components />,
   };
   useEffect(() => {
     // Load the Stackblitz iframe on this Component's render to avoid re-creating on page change.

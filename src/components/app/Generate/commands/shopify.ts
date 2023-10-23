@@ -81,14 +81,18 @@ export const updateShopitTheme = async (
   URL: string,
   id: string,
   settings: Record<string, any>,
-  main: Record<string, any> | undefined = undefined,
-  themeContent: Record<string, any> | undefined = undefined
+  main?: Record<string, any>,
+  headerGroup?: Record<string, any>,
+  footerGroup?: Record<string, any>,
+  themeContent?: Record<string, any>
 ) => {
   const body: IViewReq = {
     theme_id: id,
     settings_data: settings,
-    main: main,
-    themeContent: themeContent,
+    headerGroup: headerGroup || undefined,
+    footerGroup: footerGroup || undefined,
+    main: main || undefined,
+    themeContent: themeContent || undefined,
   };
   const request = await fetch(URL, {
     method: "POST",

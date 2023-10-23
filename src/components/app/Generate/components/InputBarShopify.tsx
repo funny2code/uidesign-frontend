@@ -132,24 +132,6 @@ const InputBar = ({
           <span>Send</span>
         )}
       </button>
-      <button
-        type="button"
-        disabled={processing}
-        onClick={downloadTheme}
-        className="btn btn-primary px-2"
-        style={{ height: "100%", width: "310px" }}
-      >
-        {/* {isDownload ? (
-          <>
-            <span className="spinner-border spinner-border-md" aria-hidden="true"></span>
-            <span className="visually-hidden" role="status">
-              Loading...
-            </span>
-          </>
-        ) : (
-          <span>Download Theme</span>
-        )} */}
-      </button>
     </div>
   );
 };

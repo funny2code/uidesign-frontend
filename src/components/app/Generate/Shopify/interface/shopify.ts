@@ -59,6 +59,8 @@ export interface IThemeBody {
 export interface IViewReq {
     theme_id?: string;
     settings_data: Record<string, any>;
+    headerGroup?: Record<string, any>
+    footerGroup?: Record<string, any>
     main?: Record<string, any>;
     themeContent?: Record<string, any>;
 }

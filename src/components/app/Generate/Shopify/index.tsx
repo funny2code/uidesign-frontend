@@ -91,7 +91,6 @@ const Shopify = () => {
       //     },
       //   };
       // });
-      console.log(main);
       
       // ok === 2 ? updateIframeContent(html, subtype) : updateIframeContent(html);
       
@@ -101,6 +100,8 @@ const Shopify = () => {
           themeId,
           isThemes[themeId]?.settings_data,
           main[currentPage],
+          main['header_group'],
+          main['footer_group'],
           themeContent
         );
         updateIframeContent(html);
@@ -140,6 +141,8 @@ const Shopify = () => {
         themeId,
         isThemes[themeId]?.settings_data,
         isThemes[themeId]?.templates[pageValue],
+        isThemes[themeId]?.templates['header_group'],
+        isThemes[themeId]?.templates['footer_group'],
         isThemes[themeId]?.themeContent
       );
       updateIframeContent(html);
@@ -184,6 +187,8 @@ const Shopify = () => {
         id,
         isThemes[id]?.settings_data,
         isThemes[id]?.templates[currentPage],
+        isThemes[id]?.templates['header_group'],
+        isThemes[id]?.templates['footer_group'],
         isThemes[id]?.themeContent
       );
       updateIframeContent(html);
@@ -243,6 +248,8 @@ const Shopify = () => {
       themeId,
       isThemes[themeId]?.settings_data,
       isThemes[themeId]?.templates[currentPage],
+      isThemes[themeId]?.templates['header_group'],
+      isThemes[themeId]?.templates['footer_group'],
       isThemes[themeId]?.templates
     );
     updateIframeContent(html);

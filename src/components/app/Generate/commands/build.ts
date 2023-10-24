@@ -56,13 +56,14 @@ export const executeBuild = async (
       default:
         if (data === "[DONE]") return;
         vm.applyFsDiff({ create: { [type]: data }, destroy: [] });
-        vm.applyFsDiff({
-          create: {
-            'api/axios.ts': axiosFile(),
-            'api/api.ts': apiFile(mockData.url),
-            'a-components/Table.ts': tableFile(),
-            '.env': envFile(mockData.base_url)
-          }, destroy: [] });
+        if(type == "tailwind.config.js")
+          vm.applyFsDiff({
+            create: {
+              'src/api/axios.ts': axiosFile(),
+              'src/api/api.ts': apiFile(mockData.url),
+              'src/a-components/index.tsx': tableFile(),
+              '.env': envFile(mockData.base_url)
+            }, destroy: [] });
         return;
     }
   });

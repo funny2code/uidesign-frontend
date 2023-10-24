@@ -91,11 +91,12 @@ export const getData = async() => { \n \
 };"
 
 export const envFile = (baseUrl: string) =>
-`VITE_BASE_URL=${baseUrl}`
+`VITE_BASE_URL=${baseUrl}
+VITE_API_KEY=${import.meta.env.PUBLIC_VITE_API_KEY}`
 
 export const tableFile = () : string =>
 `import React, { useState, useEffect, ReactElement } from "react";
-import { getData } from "@/api/api";
+import { getData } from "../api/api";
 import {
   Table,
   TableBody,

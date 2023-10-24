@@ -29,7 +29,6 @@ const makeComponent =async (userInput: string): Promise<MakeComponentResponse> =
           }
         ],
         temperature: 0,
-        max_tokens: 1024,
       });
       if(!(response?.choices && response?.choices.length))  
       return {'success':false, data:''}

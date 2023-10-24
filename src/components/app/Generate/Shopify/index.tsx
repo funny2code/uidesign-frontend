@@ -31,6 +31,8 @@ const Shopify = () => {
   const [isThemes, setIsThemes] = useState<IThemes>({});
   const [filterSchema, setFilterSchema] = useState<ISchema[] | []>([]);
   const [iframeContent, setIframeContent] = useState<string>("");
+  const [globalPrompt, setGlobalPrompt] = useState<string[]>([]);
+  const [pagesPrompt, setPagesPrompt] = useState<string[]>([]);
   // Refs
   const inputRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -54,7 +56,8 @@ const Shopify = () => {
 
     const queryParams = parseConfigParams(input, {
       theme_id: themeId,
-      page: currentPage,
+      pages: encodeURIComponent(pagesPrompt.join('+')),
+      globals: encodeURIComponent(globalPrompt.join('+'))
     });
 
     await executeShopify(control.signal, queryParams, tokens.id_token, async (ok, data) => {
@@ -63,7 +66,7 @@ const Shopify = () => {
         setProcessing(false);
         return;
       }
-      const { main, themeContent, subtype } = data;
+      const { settings_data, main, themeContent, subtype } = data;
       // if (ok === 1) {
       //   if(Object.keys(main).length > 0){
       //     Object.entries(main).forEach(([tkey, template]:[string, any]) => {
@@ -91,31 +94,40 @@ const Shopify = () => {
       //     },
       //   };
       // });
-      
+      console.log(settings_data, "CHECK DAV");
       // ok === 2 ? updateIframeContent(html, subtype) : updateIframeContent(html);
       
       if (ok === 1) {
         const html = await updateShopitTheme(
           `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
           themeId,
-          isThemes[themeId]?.settings_data,
-          main[currentPage],
-          main['header_group'],
-          main['footer_group'],
+          {
+            ...isThemes[themeId].settings_data, 
+            ...settings_data
+          },
+          main[currentPage] || isThemes[themeId].templates[currentPage],
+          main['header_group'] || isThemes[themeId].templates['header_group'],
+          main['footer_group'] || isThemes[themeId].templates['footer_group'],
           themeContent
         );
-        updateIframeContent(html);
-        console.log(ok, main);
         setIsThemes(prevThemes => {
           return {
             ...prevThemes,
             [themeId]: {
-              settings_data: isThemes[themeId]?.settings_data,
-              templates: main,
+              settings_data: {
+                ...prevThemes[themeId].settings_data,
+                ...settings_data
+              },
+              templates: {
+                ...prevThemes[themeId].templates,
+                ...main
+              },
               themeContent: themeContent,
             },
           };
         });
+        updateIframeContent(html);
+        console.log(ok, main);
         setIsDisabled(false);
         setProcessing(false);
       }
@@ -197,6 +209,35 @@ const Shopify = () => {
       console.log(err);
     }
   };
+
+  /* ===================================================================================================
+  *     PROMPT FOR SHOPIFY GLOBAL SETTINGS CHANGE FUNCTION
+  * ================================================================================================= */
+  const changeGloablPrompt = (event:any) => {
+    const { name, checked } = event.target;
+    if (checked) {
+      setGlobalPrompt((prevCheckedItems) => [...prevCheckedItems, name]);
+    } else {
+      setGlobalPrompt((prevCheckedItems) =>
+        prevCheckedItems.filter((item) => item !== name)
+      );
+    }
+    console.log(globalPrompt, "CHECK DAV G");
+  };
+  /* ===================================================================================================
+  *     PROMPT FOR SHOPIFY PAGES CHANGE FUNCTION
+  * ================================================================================================= */
+  const changePagesPrompt = (event:any) => {
+    const { name, checked } = event.target;
+    if (checked) {
+      setPagesPrompt((prevCheckedItems) => [...prevCheckedItems, name]);
+    } else {
+      setPagesPrompt((prevCheckedItems) =>
+        prevCheckedItems.filter((item) => item !== name)
+      );
+    }
+    console.log(pagesPrompt, "CHECK DAV");
+  }
 
   const handleChangeFields = async (e: any) => {
     if (!e && processing) return;
@@ -366,12 +407,56 @@ const Shopify = () => {
               width: "360px",
               transform: "translateX(-50%)",
               height: "400px",
-              overflow: "auto",
+              overflowY: "auto",
             }}
             aria-labelledby="dropdownMenuClickable"
           >
             <div className="position-relative" style={{ paddingBottom: "70px" }}>
-              {filterSchema &&
+            {pages && (
+              <div className="p-1">
+                <h5 className="mb-1">SELECT PAGE OR PAGES</h5>  
+                <div className="btn-group flex-wrap gap-2" role="group" aria-label="Basic checkbox toggle button group">
+                  {
+                    pages.map((p) => (
+                      <div key={p._id}>
+                         <input 
+                          type="checkbox" 
+                          name={p.name} 
+                          checked={pagesPrompt.includes(p.name)} 
+                          onChange={changePagesPrompt} 
+                          className="btn-check" 
+                          id={p.name} 
+                        />
+                        <label className="btn btn-outline-primary" htmlFor={p.name}>{p.name}</label>
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
+            )}
+            {isSettingsSchema && (
+              <div className="p-1">
+                <h5 className="mb-1">SELECT STYLE OR STYLES</h5> 
+                <div className="btn-group flex-wrap gap-2" role="group" aria-label="Basic checkbox toggle button group">
+                  {
+                    isSettingsSchema.map((i:any, key:number) => (
+                      <div key={key}>
+                        <input 
+                          type="checkbox" 
+                          name={i.name} 
+                          checked={globalPrompt.includes(i.name)} 
+                          onChange={changeGloablPrompt} 
+                          className="btn-check" 
+                          id={i.name} 
+                        />
+                        <label className="btn btn-outline-primary" htmlFor={i.name}>{i.name}</label>
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
+            )}
+              {/* {filterSchema &&
                 isThemes[themeId]?.settings_data &&
                 filterSchema.map(
                   (item: ISchema) =>
@@ -416,7 +501,7 @@ const Shopify = () => {
                         </div>
                       </div>
                     )
-                )}
+                )} */}
             </div>
           </div>
         </InputBar>

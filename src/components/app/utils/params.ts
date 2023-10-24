@@ -1,12 +1,7 @@
 export interface IConfigParams {
   theme_id?: string;
-  page?: string;
-  font_size?: string;
-  font_family?: string;
-  spacing_values?: string;
-  border_radius?: string;
-  background_color?: string;
-  style?: string;
+  pages?: string;
+  globals?: string;
 }
 
 export const parseConfigParams = (prompt: string, config: IConfigParams) => {

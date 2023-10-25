@@ -6,40 +6,38 @@ import type { ISopifyPages } from "../Create/types";
 import InputBar from "../components/InputBarShopify";
 import { executeShopify, getThemeNamesAndPages, updateShopitTheme } from "../commands";
 import { MAKE_UI_API_VIEW } from "../../constants";
-// import { ClipLoader } from "react-spinners";
 import type { ISchema, IThemes } from "./interface/shopify";
-import Settings from "./settings";
 import { downloadShopitTheme } from "../commands/shopify";
-
 import ClipLoader from "react-spinners/ClipLoader";
 
 const Shopify = () => {
-  // Auth
-  const { getSession } = useSession();
-  // Flow
+  /* ==================== AUTH AND USER ==================== */ 
+  const { getSession, getUserData } = useSession();
+  /* ==================== REACT USESTATE CONSTANTS ==================== */ 
   const [isLoading, setLoading] = useState<boolean>(true);
   const [processing, setProcessing] = useState<boolean>(true);
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
   const [isDownload, setIsDownload] = useState<boolean>(false);
-
   const [input, setInput] = useState("");
   const [themeId, setThemeId] = useState<string>("64dcd06b0db1077c79970cec");
   const [pages, setPages] = useState<ISopifyPages[] | undefined>(undefined)
-  const [currentPage, setcurrentPage] = useState<string>("index"); 
+  const [currentPage, setCurrentPage] = useState<string>("index"); 
   const [shopifyThemes, setShopifyThemes] = useState<ISopifyPages[] | undefined>(undefined);
   const [isSettingsSchema, setSettingsSchema] = useState<ISchema[] | []>([]);
   const [isThemes, setIsThemes] = useState<IThemes>({});
-  const [filterSchema, setFilterSchema] = useState<ISchema[] | []>([]);
   const [iframeContent, setIframeContent] = useState<string>("");
   const [globalPrompt, setGlobalPrompt] = useState<string[]>([]);
   const [pagesPrompt, setPagesPrompt] = useState<string[]>([]);
-  // Refs
+  const [userName, setUserName] = useState<string | undefined>(undefined);
+  /* ==================== REACT REFS ==================== */ 
   const inputRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [controller, setController] = useState<AbortController | undefined>(undefined);
-
+  /* ===================================================================================================
+  *     GPT REQUEST AND RESPONSE FUNCTION
+  * ================================================================================================= */
   async function initGenerate() {
     if (controller && processing) {
       controller.abort();
@@ -108,9 +106,26 @@ const Shopify = () => {
           main[currentPage] || isThemes[themeId].templates[currentPage],
           main['header_group'] || isThemes[themeId].templates['header_group'],
           main['footer_group'] || isThemes[themeId].templates['footer_group'],
-          themeContent
-        );
+          themeContent || isThemes[themeId].themeContent
+          );
         setIsThemes(prevThemes => {
+          setLocalThemes(`${userName}-themes`, JSON.stringify( {
+              ...prevThemes,
+              [themeId]: {
+                settings_data: {
+                  ...prevThemes[themeId].settings_data,
+                  ...settings_data
+                },
+                templates: {
+                  ...prevThemes[themeId].templates,
+                  ...main
+                },
+                themeContent: {
+                  ...prevThemes[themeId].themeContent,
+                  ...themeContent
+                }
+              },
+          }));
           return {
             ...prevThemes,
             [themeId]: {
@@ -122,12 +137,14 @@ const Shopify = () => {
                 ...prevThemes[themeId].templates,
                 ...main
               },
-              themeContent: themeContent,
+              themeContent: {
+                ...prevThemes[themeId].themeContent,
+                ...themeContent
+              }
             },
           };
         });
         updateIframeContent(html);
-        console.log(ok, main);
         setIsDisabled(false);
         setProcessing(false);
       }
@@ -137,17 +154,17 @@ const Shopify = () => {
     e.preventDefault();
     await initGenerate();
   };
-
+  /* ===================================================================================================
+  *     PAGE CHANGE FUNCTION
+  * ================================================================================================= */
   const handlePageChange = async (e: any) => {
     if (!e) return;
     try {
       const pageValue = e.target.value;
       setProcessing(true);
-      setcurrentPage(pageValue);
-      const splitSchema =
-        STYLES[pageValue] &&
-        isSettingsSchema.filter((s: ISchema) => STYLES[pageValue].includes(s.name.toLowerCase()));
-      setFilterSchema(splitSchema || []);
+      setCurrentPage(pageValue);
+      setLocalThemes(`${userName}-page`, pageValue);
+      console.log("PAGE CHANGE");
       const html = await updateShopitTheme(
         `${MAKE_UI_API_VIEW}?id=${themeId}&page=${pageValue}`,
         themeId,
@@ -163,37 +180,18 @@ const Shopify = () => {
       console.log(err);
     }
   };
-
-  const addThemesCall = async (id: string) => {
-    const getShopify = await getThemeNamesAndPages(id);
-    const { pages, templates, themeNames, settingsData, settingsSchema } = getShopify || {};
-    if (pages?.length) setPages(pages);
-    if (themeNames?.length && Object.keys(isThemes).length === 0) setShopifyThemes(themeNames);
-    if (settingsData && isThemes[id] === undefined){
-      setIsThemes(prevThemes => {
-        return {
-          ...prevThemes,
-          [id]: {
-            settings_data: settingsData.presets[settingsData.current],
-            templates: templates,
-            themeContent: {},
-          },
-        };
-      });
-    }
-    settingsSchema?.length && setSettingsSchema(settingsSchema);
-    const splitSchema =
-      STYLES[currentPage] && settingsSchema.filter((s: ISchema) => STYLES[currentPage].includes(s.name.toLowerCase()));
-    setFilterSchema(splitSchema || []);
-  };
-
+  /* ===================================================================================================
+  *     THEME CHANGE FUNCTION
+  * ================================================================================================= */
   const handleThemeChange = async (e: any) => {
     if (!e) return;
     try {
       let id = e.target.value;
       setProcessing(true);
       setThemeId(id);
+      setLocalThemes(`${userName}-id`, id);
       await addThemesCall(id);
+      console.log("THEME CHANGE");
       const html = await updateShopitTheme(
         `${MAKE_UI_API_VIEW}?id=${id}&page=${currentPage}`,
         id,
@@ -211,6 +209,19 @@ const Shopify = () => {
   };
 
   /* ===================================================================================================
+  *     SET LOCAL STORAGE FUNCTION
+  * ================================================================================================= */
+  const setLocalThemes = (username: string, data:string) => {
+    localStorage.setItem(username, data);
+  }
+  /* ===================================================================================================
+  *     GET LOCAL STORAGE FUNCTION
+  * ================================================================================================= */
+  const getLocalThemes = (username:string) => {
+    const data = localStorage.getItem(username);
+    return data ? data : undefined;
+  }
+  /* ===================================================================================================
   *     PROMPT FOR SHOPIFY GLOBAL SETTINGS CHANGE FUNCTION
   * ================================================================================================= */
   const changeGloablPrompt = (event:any) => {
@@ -222,7 +233,6 @@ const Shopify = () => {
         prevCheckedItems.filter((item) => item !== name)
       );
     }
-    console.log(globalPrompt, "CHECK DAV G");
   };
   /* ===================================================================================================
   *     PROMPT FOR SHOPIFY PAGES CHANGE FUNCTION
@@ -236,51 +246,52 @@ const Shopify = () => {
         prevCheckedItems.filter((item) => item !== name)
       );
     }
-    console.log(pagesPrompt, "CHECK DAV");
   }
-
-  const handleChangeFields = async (e: any) => {
-    if (!e && processing) return;
-    const { name, value, checked, type } = e.target;
-    if (!name) return;
-    const valueByType = type === "checkbox" ? checked : type === "range" ? parseInt(value, 10) : value;
-    const splitName = name.split(".");
-    setIsThemes(prevThemes => {
-      if (splitName.length === 1) {
-        return {
-          ...prevThemes,
-          [themeId]: {
-            ...prevThemes[themeId],
-            settings_data: {
-              ...prevThemes[themeId].settings_data,
-              [name]: valueByType,
-            },
-          },
-        };
-      } else if (splitName.length === 4) {
-        return {
-          ...prevThemes,
-          [themeId]: {
-            ...prevThemes[themeId],
-            settings_data: {
-              ...prevThemes[themeId].settings_data,
-              [splitName[0]]: {
-                ...prevThemes[themeId].settings_data[splitName[0]],
-                [splitName[1]]: {
-                  ...prevThemes[themeId].settings_data[splitName[0]][splitName[1]],
-                  [splitName[2]]: {
-                    ...prevThemes[themeId].settings_data[splitName[0]][splitName[1]][splitName[2]],
-                    [splitName[3]]: valueByType,
-                  },
-                },
-              },
-            },
-          },
-        };
-      }
-      return prevThemes;
-    });
-  };
+  /* ===================================================================================================
+  *     CHANGE GLOBAL SETTINGS FUNCTION
+  * ================================================================================================= */
+  // const handleChangeFields = async (e: any) => {
+  //   if (!e && processing) return;
+  //   const { name, value, checked, type } = e.target;
+  //   if (!name) return;
+  //   const valueByType = type === "checkbox" ? checked : type === "range" ? parseInt(value, 10) : value;
+  //   const splitName = name.split(".");
+  //   setIsThemes(prevThemes => {
+  //     if (splitName.length === 1) {
+  //       return {
+  //         ...prevThemes,
+  //         [themeId]: {
+  //           ...prevThemes[themeId],
+  //           settings_data: {
+  //             ...prevThemes[themeId].settings_data,
+  //             [name]: valueByType,
+  //           },
+  //         },
+  //       };
+  //     } else if (splitName.length === 4) {
+  //       return {
+  //         ...prevThemes,
+  //         [themeId]: {
+  //           ...prevThemes[themeId],
+  //           settings_data: {
+  //             ...prevThemes[themeId].settings_data,
+  //             [splitName[0]]: {
+  //               ...prevThemes[themeId].settings_data[splitName[0]],
+  //               [splitName[1]]: {
+  //                 ...prevThemes[themeId].settings_data[splitName[0]][splitName[1]],
+  //                 [splitName[2]]: {
+  //                   ...prevThemes[themeId].settings_data[splitName[0]][splitName[1]][splitName[2]],
+  //                   [splitName[3]]: valueByType,
+  //                 },
+  //               },
+  //             },
+  //           },
+  //         },
+  //       };
+  //     }
+  //     return prevThemes;
+  //   });
+  // };
 
   const sendSettingsFunc = async () => {
     setProcessing(true);
@@ -296,8 +307,55 @@ const Shopify = () => {
     updateIframeContent(html);
     setProcessing(false);
   };
+  /* ===================================================================================================
+  *     PROMPT FOR SHOPIFY PAGES CHANGE FUNCTION
+  * ================================================================================================= */
+  const addThemesCall = async (id: string) => {
+    
+  };
+  /* ===================================================================================================
+  *     FIRST TIME PAGE LOAD FUNCTION
+  * ================================================================================================= */
+  useEffect(() => {
+    (async () => {
+      try {
+        const tokens = await getSession();
+        if (!tokens) throw new Error("Relogin please.");
+        const User = getUserData(tokens.id_token);
+        if(User) setUserName(User.username);
+        const getThemeId = getLocalThemes(`${User.username}-id`);
+        if(getThemeId !== undefined) setThemeId(getThemeId);
+        const getCurrentPage = getLocalThemes(`${User.username}-page`);
+        if(getCurrentPage !== undefined) setCurrentPage(getCurrentPage);
+        const getThemes = getLocalThemes(`${User.username}-themes`);
+        if(getThemes !== undefined){ 
+          const parseThemes = JSON.parse(getThemes);
+          setIsThemes(parseThemes);
+        } else {
+          const getShopify = await getThemeNamesAndPages(themeId);
+          const { pages, templates, themeNames, settingsData, settingsSchema } = getShopify || {};
+          if (pages?.length) setPages(pages);
+          if (themeNames?.length && Object.keys(isThemes).length === 0) setShopifyThemes(themeNames);
+          if (settingsData && isThemes[themeId] === undefined){
+            setIsThemes(prevThemes => {
+              return {
+                ...prevThemes,
+                [themeId]: {
+                  settings_data: settingsData.presets[settingsData.current],
+                  templates: templates,
+                  themeContent: {},
+                },
+              };
+            });
+          }
+          settingsSchema?.length && setSettingsSchema(settingsSchema);
+        }
+      } catch (err) {
+        console.error(err, "ERROR WHEN START");
+      }
+    })();
+  }, []);
 
-  // Generate
   useEffect(() => {
     (async () => {
       try {
@@ -307,7 +365,6 @@ const Shopify = () => {
           themeId,
           isThemes[themeId]?.settings_data,
           isThemes[themeId]?.templates[currentPage],
-          isThemes[themeId]?.templates
         );
         updateIframeContent(html);
         setLoading(false);
@@ -316,8 +373,10 @@ const Shopify = () => {
         console.error(err, "ERROR WHEN START");
       }
     })();
-  }, []);
-
+  }, [isThemes])
+  /* ===================================================================================================
+  *     UPDATE IFRAME CONTENT FUNCTION
+  * ================================================================================================= */
   const updateIframeContent = (htmlContent: string, section: string | undefined = undefined) => {
     try {
       if (section) {
@@ -337,7 +396,9 @@ const Shopify = () => {
       console.error("Error:", err);
     }
   };
-
+  /* ===================================================================================================
+  *     DOWNLOAD THEME FUNCTION
+  * ================================================================================================= */
   const handleThemeDownload = async (e: any) => {
     if (!e) return;
     setIsDownload(true);
@@ -456,52 +517,6 @@ const Shopify = () => {
                 </div>
               </div>
             )}
-              {/* {filterSchema &&
-                isThemes[themeId]?.settings_data &&
-                filterSchema.map(
-                  (item: ISchema) =>
-                    item.settings && (
-                      <div className="my-1 px-3 pt-1" key={item.name}>
-                        <div
-                          className="accordion"
-                          id={`accordion-${item.name.replace(" ", "-").toLowerCase()}`}
-                        >
-                          <div className="accordion-item">
-                            <h2 className="accordion-header">
-                              <button
-                                className="accordion-button"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target={`#collapseOne-${item.name
-                                  .replace(" ", "-")
-                                  .toLowerCase()}`}
-                                aria-expanded="true"
-                                aria-controls={`collapseOne-${item.name
-                                  .replace(" ", "-")
-                                  .toLowerCase()}`}
-                              >
-                                {item.name}
-                              </button>
-                            </h2>
-                            <div
-                              id={`collapseOne-${item.name.replace(" ", "-").toLowerCase()}`}
-                              className="accordion-collapse collapse"
-                              data-bs-parent={`#accordion-${item.name.replace(" ", "-").toLowerCase()}`}
-                            >
-                              <div className="accordion-body px-2">
-                                <Settings
-                                  data={isThemes[themeId].settings_data}
-                                  schema={item.settings}
-                                  handleChangeFields={handleChangeFields}
-                                  sendSettingsFunc={sendSettingsFunc}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                )} */}
             </div>
           </div>
         </InputBar>

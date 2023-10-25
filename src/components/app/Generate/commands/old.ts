@@ -2,6 +2,7 @@ import { oldHTML, oldCSS } from "../../../../atoms";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import type { DataType, StatusCallback } from "./types";
 import { formatters, parsers } from "./utils";
+import { generatedProjectsIds } from "../../../../atoms";
 
 const EVENT_COUNT_LIMIT = 5 + 1;
 
@@ -38,7 +39,7 @@ export const executeOld = async (
         callback(false, undefined);
         return;
       }
-      const { type, data }: { type: DataType | "error"; data: string } = JSON.parse(e.data);
+      const { type, data }: { type: DataType | "error" | "id"; data: string } = JSON.parse(e.data);
       // DELETE ME
       // console.log(data);
       console.log(type, data);
@@ -48,6 +49,14 @@ export const executeOld = async (
         // eventStream.close();
         callback(false, undefined);
         return;
+      } else if (type === "id") {
+        generatedProjectsIds.set({ ...generatedProjectsIds.get(), Old: data });
+
+        oldCSS.set(streamData.css);
+        oldHTML.set(formatters.html(streamData.html));
+        eventStream.close();
+        console.log("END_STREAM", data);
+        return callback(true, stores);
       }
       if (data === "[DONE]") {
         eventCount += 1;

@@ -3,11 +3,19 @@ import sdk from "@stackblitz/sdk";
 import InputBar from "../components/InputBar";
 import makeComponent from "../commands/component";
 import type { VM } from "@stackblitz/sdk";
+import ToggleButton from "../components/ToggleButton";
+import ApiKeyInputBar from "../components/ApiKeyInputBar";
+import SettingElement from "../components/SettingElement";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { DEFAULT_SYSTEM_PROMPT, BASE_PROJECT } from "./constants";
 
 const Components = () => {
-  const project = "emanation-ai/vite-ts-react-shadcn-tw/tree/component-base"; //example
-
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState<string>("");
+  const [apiKey, setApiKey] = useState<string>("");
+  const [engineType, setEngineType] = useState<boolean>(false);
+  const [apiKeyError, setApiKeyError] = useState<boolean>(false);
+  const [systemPrompt, setSystemPrompt] = useState<string>(DEFAULT_SYSTEM_PROMPT);
   const [processing, setProcessing] = useState(false);
   const [vm, setVM] = useState<VM | undefined>(undefined);
 
@@ -16,7 +24,7 @@ const Components = () => {
 
   useEffect(() => {
     const initializeVMConnection = async () => {
-      const vm = await sdk.embedGithubProject("embed", project, {
+      const vm = await sdk.embedGithubProject("embed", BASE_PROJECT, {
         clickToLoad: false,
         height: "100%",
         view: "default",
@@ -34,8 +42,19 @@ const Components = () => {
   const handleSubmit = async (e: any) => {
     if (!vm) return;
     e.preventDefault();
+    if (apiKey == "") {
+      toast.error("Need to input OpenAI Api Key");
+      setApiKeyError(true);
+      return;
+    }
+    if (input == "") {
+      toast.error("Need to input prompts");
+      return;
+    }
+
+    setApiKeyError(false);
     setProcessing(true);
-    const result = await makeComponent(input);
+    const result = await makeComponent(engineType, systemPrompt, input, apiKey);
     if (result.success)
       vm.applyFsDiff({ create: { "src/components/index.tsx": result.data }, destroy: [] });
     setProcessing(false);
@@ -43,6 +62,7 @@ const Components = () => {
 
   return (
     <>
+      <ToastContainer />
       <section
         className="designer-window hstack flex-grow-1"
         style={{
@@ -66,7 +86,33 @@ const Components = () => {
           placeholder="Create Component"
           inputRef={inputRef}
           buttonRef={buttonRef}
-        ></InputBar>
+        >
+          <ul
+            className="dropdown-menu px-3 pb-1 pt-2"
+            style={{
+              width: "600px",
+              transform: "translateX(-50%)",
+            }}
+            aria-labelledby="dropdownMenuClickable"
+          >
+            <SettingElement title="Engine Type">
+              <ToggleButton engineType={engineType} setEngineType={setEngineType} />
+            </SettingElement>
+            <SettingElement title="System Prompt">
+              <textarea
+                className="form-control"
+                style={{
+                  height: "200px",
+                }}
+                value={systemPrompt}
+                onChange={e => setSystemPrompt(e.target.value)}
+              ></textarea>
+            </SettingElement>
+            <SettingElement title="API KEY">
+              <ApiKeyInputBar error={apiKeyError} value={apiKey} setValue={setApiKey} />
+            </SettingElement>
+          </ul>
+        </InputBar>
       </form>
     </>
   );

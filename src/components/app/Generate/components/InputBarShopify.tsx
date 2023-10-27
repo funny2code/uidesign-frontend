@@ -7,7 +7,7 @@ interface InputBarProps extends React.PropsWithChildren {
   isDisabled: boolean;
   processing: boolean;
   inputRef: React.RefObject<HTMLInputElement>;
-  pages: ISopifyPages[] | undefined;
+  pages: string[] | undefined;
   page: string;
   handlePageChange: (e: any) => void;
   themes: ISopifyPages[] | undefined;
@@ -82,8 +82,8 @@ const InputBar = ({
         >
           {
             pages.map((p) => (
-              <option key={p._id} value={p.name}>
-                  {p.name}
+              <option key={p} value={p}>
+                  {p}
               </option>
             ))
           }

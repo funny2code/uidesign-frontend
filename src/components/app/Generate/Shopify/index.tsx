@@ -4,7 +4,7 @@ import { useSession } from "../../../auth/useSession";
 import { useState, useRef, useEffect } from "react";
 import type { ISopifyPages } from "../Create/types";
 import InputBar from "../components/InputBarShopify";
-import { executeShopify, getThemeNamesAndPages, updateShopitTheme } from "../commands";
+import { executeShopify, getTheme, getThemeNames, updateShopitTheme } from "../commands";
 import { MAKE_UI_API_VIEW } from "../../constants";
 import type { ISchema, IThemes } from "./interface/shopify";
 import { downloadShopitTheme } from "../commands/shopify";
@@ -20,7 +20,8 @@ const Shopify = () => {
   const [isDownload, setIsDownload] = useState<boolean>(false);
   const [input, setInput] = useState("");
   const [themeId, setThemeId] = useState<string>("64dcd06b0db1077c79970cec");
-  const [pages, setPages] = useState<ISopifyPages[] | undefined>(undefined)
+  const [pages, setPages] = useState<string[] | undefined>(undefined);
+  const [pageSettings, setPageSettings] = useState<string[]>(["Texts","Images","Settings","Products","Collections","Blogs","Menus"]);
   const [currentPage, setCurrentPage] = useState<string>("index"); 
   const [shopifyThemes, setShopifyThemes] = useState<ISopifyPages[] | undefined>(undefined);
   const [isSettingsSchema, setSettingsSchema] = useState<ISchema[] | []>([]);
@@ -28,6 +29,7 @@ const Shopify = () => {
   const [iframeContent, setIframeContent] = useState<string>("");
   const [globalPrompt, setGlobalPrompt] = useState<string[]>([]);
   const [pagesPrompt, setPagesPrompt] = useState<string[]>([]);
+  const [pagesSettingsPrompt, setPagesSettingsPrompt] = useState<string[]>([]);
   const [userName, setUserName] = useState<string | undefined>(undefined);
   /* ==================== REACT REFS ==================== */ 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -55,6 +57,7 @@ const Shopify = () => {
     const queryParams = parseConfigParams(input, {
       theme_id: themeId,
       pages: encodeURIComponent(pagesPrompt.join('+')),
+      pagesSettings: encodeURIComponent(pagesSettingsPrompt.join('+')),
       globals: encodeURIComponent(globalPrompt.join('+'))
     });
 
@@ -96,56 +99,38 @@ const Shopify = () => {
       // ok === 2 ? updateIframeContent(html, subtype) : updateIframeContent(html);
       
       if (ok === 1) {
-        const html = await updateShopitTheme(
-          `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
-          themeId,
-          {
-            ...isThemes[themeId].settings_data, 
-            ...settings_data
-          },
-          main[currentPage] || isThemes[themeId].templates[currentPage],
-          main['header_group'] || isThemes[themeId].templates['header_group'],
-          main['footer_group'] || isThemes[themeId].templates['footer_group'],
-          themeContent || isThemes[themeId].themeContent
-          );
         setIsThemes(prevThemes => {
-          setLocalThemes(`${userName}-themes`, JSON.stringify( {
-              ...prevThemes,
-              [themeId]: {
-                settings_data: {
-                  ...prevThemes[themeId].settings_data,
-                  ...settings_data
-                },
-                templates: {
-                  ...prevThemes[themeId].templates,
-                  ...main
-                },
-                themeContent: {
-                  ...prevThemes[themeId].themeContent,
-                  ...themeContent
-                }
-              },
-          }));
           return {
             ...prevThemes,
             [themeId]: {
               settings_data: {
-                ...prevThemes[themeId].settings_data,
+                ...prevThemes[themeId]?.settings_data,
                 ...settings_data
               },
               templates: {
-                ...prevThemes[themeId].templates,
+                ...prevThemes[themeId]?.templates,
                 ...main
               },
               themeContent: {
-                ...prevThemes[themeId].themeContent,
+                ...prevThemes[themeId]?.themeContent,
                 ...themeContent
-              }
+              },
+              settingsSchema: isSettingsSchema
             },
           };
         });
+        console.log({...settings_data, ...isThemes[themeId]?.settings_data});
+        const html = await updateShopitTheme(
+          `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
+          themeId,
+          {...isThemes[themeId]?.settings_data, ...settings_data},
+          main[currentPage] || isThemes[themeId]?.templates[currentPage],
+          main['header_group'] || isThemes[themeId]?.templates['header_group'],
+          main['footer_group'] || isThemes[themeId]?.templates['footer_group'],
+          themeContent || isThemes[themeId]?.themeContent
+        );
         updateIframeContent(html);
-        setIsDisabled(false);
+        setLoading(false);
         setProcessing(false);
       }
     });
@@ -164,7 +149,7 @@ const Shopify = () => {
       setProcessing(true);
       setCurrentPage(pageValue);
       setLocalThemes(`${userName}-page`, pageValue);
-      console.log("PAGE CHANGE");
+      setLocalThemes(`${userName}-id`, themeId);
       const html = await updateShopitTheme(
         `${MAKE_UI_API_VIEW}?id=${themeId}&page=${pageValue}`,
         themeId,
@@ -189,9 +174,9 @@ const Shopify = () => {
       let id = e.target.value;
       setProcessing(true);
       setThemeId(id);
+      setLocalThemes(`${userName}-page`, currentPage);
       setLocalThemes(`${userName}-id`, id);
-      await addThemesCall(id);
-      console.log("THEME CHANGE");
+      await getThemeById(id);
       const html = await updateShopitTheme(
         `${MAKE_UI_API_VIEW}?id=${id}&page=${currentPage}`,
         id,
@@ -202,6 +187,7 @@ const Shopify = () => {
         isThemes[id]?.themeContent
       );
       updateIframeContent(html);
+      setLoading(false);
       setProcessing(false);
     } catch (err) {
       console.log(err);
@@ -234,6 +220,19 @@ const Shopify = () => {
       );
     }
   };
+  /* ===================================================================================================
+  *     PROMPT FOR SHOPIFY PAGE SETTINGS CHANGE FUNCTION
+  * ================================================================================================= */
+  const changePagesSettingsPrompt = (event:any) => {
+    const { name, checked } = event.target;
+    if (checked) {
+      setPagesSettingsPrompt((prevCheckedItems) => [...prevCheckedItems, name]);
+    } else {
+      setPagesSettingsPrompt((prevCheckedItems) =>
+        prevCheckedItems.filter((item) => item !== name)
+      );
+    }
+  }
   /* ===================================================================================================
   *     PROMPT FOR SHOPIFY PAGES CHANGE FUNCTION
   * ================================================================================================= */
@@ -293,25 +292,41 @@ const Shopify = () => {
   //   });
   // };
 
-  const sendSettingsFunc = async () => {
-    setProcessing(true);
-    const html = await updateShopitTheme(
-      `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
-      themeId,
-      isThemes[themeId]?.settings_data,
-      isThemes[themeId]?.templates[currentPage],
-      isThemes[themeId]?.templates['header_group'],
-      isThemes[themeId]?.templates['footer_group'],
-      isThemes[themeId]?.templates
-    );
-    updateIframeContent(html);
-    setProcessing(false);
-  };
+  // const sendSettingsFunc = async () => {
+  //   setProcessing(true);
+  //   const html = await updateShopitTheme(
+  //     `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
+  //     themeId,
+  //     isThemes[themeId]?.settings_data,
+  //     isThemes[themeId]?.templates[currentPage],
+  //     isThemes[themeId]?.templates['header_group'],
+  //     isThemes[themeId]?.templates['footer_group'],
+  //     isThemes[themeId]?.templates
+  //   );
+  //   updateIframeContent(html);
+  //   setProcessing(false);
+  // };
   /* ===================================================================================================
   *     PROMPT FOR SHOPIFY PAGES CHANGE FUNCTION
   * ================================================================================================= */
-  const addThemesCall = async (id: string) => {
-    
+  const getThemeById = async (id: string) => {
+    const res = await getTheme(id);
+    const { templates, settingsData, settingsSchema } = res;
+    if (templates && Object.keys(templates).length > 0) setPages(Object.keys(templates));
+    if (settingsData && isThemes[id] === undefined){
+      setIsThemes(prevThemes => {
+        return {
+          ...prevThemes,
+          [id]: {
+            settings_data: settingsData.presets[settingsData.current],
+            templates: templates,
+            themeContent: {},
+            settingsSchema: settingsSchema
+          },
+        };
+      });
+    }
+    settingsSchema?.length && setSettingsSchema(settingsSchema.filter((item:any) => item.settings));
   };
   /* ===================================================================================================
   *     FIRST TIME PAGE LOAD FUNCTION
@@ -328,52 +343,52 @@ const Shopify = () => {
         const getCurrentPage = getLocalThemes(`${User.username}-page`);
         if(getCurrentPage !== undefined) setCurrentPage(getCurrentPage);
         const getThemes = getLocalThemes(`${User.username}-themes`);
-        if(getThemes !== undefined){ 
+        const themeNames = await getThemeNames();
+        if (themeNames?.length && Object.keys(isThemes).length === 0) setShopifyThemes(themeNames);
+        if(getThemes && getCurrentPage && getThemeId){ 
           const parseThemes = JSON.parse(getThemes);
           setIsThemes(parseThemes);
+          if(parseThemes[getThemeId]?.settingsSchema) setSettingsSchema(parseThemes[getThemeId].settingsSchema);
+          if(parseThemes[getThemeId]?.templates) setPages(Object.keys(parseThemes[getThemeId].templates)); 
+          const html = await updateShopitTheme(
+            `${MAKE_UI_API_VIEW}?id=${getThemeId}&page=${getCurrentPage}`,
+            getThemeId,
+            parseThemes[getThemeId]?.settings_data,
+            parseThemes[getThemeId]?.templates[getCurrentPage],
+            parseThemes[getThemeId]?.templates['header_group'],
+            parseThemes[getThemeId]?.templates['footer_group'],
+            parseThemes[getThemeId]?.themeContent
+          );
+          updateIframeContent(html);
+          setLoading(false);
+          setProcessing(false);
         } else {
-          const getShopify = await getThemeNamesAndPages(themeId);
-          const { pages, templates, themeNames, settingsData, settingsSchema } = getShopify || {};
-          if (pages?.length) setPages(pages);
-          if (themeNames?.length && Object.keys(isThemes).length === 0) setShopifyThemes(themeNames);
-          if (settingsData && isThemes[themeId] === undefined){
-            setIsThemes(prevThemes => {
-              return {
-                ...prevThemes,
-                [themeId]: {
-                  settings_data: settingsData.presets[settingsData.current],
-                  templates: templates,
-                  themeContent: {},
-                },
-              };
-            });
-          }
-          settingsSchema?.length && setSettingsSchema(settingsSchema);
+          await getThemeById(themeId);
+          const html = await updateShopitTheme(
+            `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
+            themeId,
+            isThemes[themeId]?.settings_data,
+            isThemes[themeId]?.templates[currentPage],
+            isThemes[themeId]?.templates['header_group'],
+            isThemes[themeId]?.templates['footer_group'],
+            isThemes[themeId]?.themeContent
+          );
+          updateIframeContent(html);
+          setLoading(false);
+          setProcessing(false);
         }
       } catch (err) {
         console.error(err, "ERROR WHEN START");
       }
     })();
   }, []);
-
+  /* ===================================================================================================
+  *     WHEN THEMES IS UPDATED SAVE LOCAL STORAGE
+  * ================================================================================================= */
   useEffect(() => {
-    (async () => {
-      try {
-        await addThemesCall(themeId);
-        const html = await updateShopitTheme(
-          `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
-          themeId,
-          isThemes[themeId]?.settings_data,
-          isThemes[themeId]?.templates[currentPage],
-        );
-        updateIframeContent(html);
-        setLoading(false);
-        setProcessing(false);
-      } catch (err) {
-        console.error(err, "ERROR WHEN START");
-      }
-    })();
-  }, [isThemes])
+    setLocalThemes(`${userName}-themes`, JSON.stringify(isThemes));
+    console.log("works Is Themes");
+  }, [isThemes]);
   /* ===================================================================================================
   *     UPDATE IFRAME CONTENT FUNCTION
   * ================================================================================================= */
@@ -479,16 +494,38 @@ const Shopify = () => {
                 <div className="btn-group flex-wrap gap-2" role="group" aria-label="Basic checkbox toggle button group">
                   {
                     pages.map((p) => (
-                      <div key={p._id}>
+                      <div key={p}>
                          <input 
                           type="checkbox" 
-                          name={p.name} 
-                          checked={pagesPrompt.includes(p.name)} 
+                          name={p} 
+                          checked={pagesPrompt.includes(p)} 
                           onChange={changePagesPrompt} 
                           className="btn-check" 
-                          id={p.name} 
+                          id={p} 
                         />
-                        <label className="btn btn-outline-primary" htmlFor={p.name}>{p.name}</label>
+                        <label className="btn btn-outline-primary" htmlFor={p}>{p}</label>
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
+            )}
+            {pageSettings && (
+              <div className="p-1">
+                <h5 className="mb-1">SELECT PROMPTS FOR PAGE OR PAGES</h5>  
+                <div className="btn-group flex-wrap gap-2" role="group" aria-label="Basic checkbox toggle button group">
+                  {
+                    pageSettings.map((p) => (
+                      <div key={p}>
+                         <input 
+                          type="checkbox" 
+                          name={p} 
+                          checked={pagesSettingsPrompt.includes(p)} 
+                          onChange={changePagesSettingsPrompt} 
+                          className="btn-check" 
+                          id={p} 
+                        />
+                        <label className="btn btn-outline-primary" htmlFor={p}>{p}</label>
                       </div>
                     ))
                   }

@@ -1,6 +1,7 @@
 export interface IConfigParams {
   theme_id?: string;
   pages?: string;
+  pagesSettings?: string,
   globals?: string;
 }
 

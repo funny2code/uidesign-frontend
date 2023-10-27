@@ -7,11 +7,11 @@ Must provide only code.";
 
 export const ENGINE_TYPE = [
     {
-        name: "GPT3.5",
+        name: "GPT 3.5 Turbo",
         value: "gpt-3.5-turbo",
     },
     {
-        name: "GPT4",
+        name: "GPT 4",
         value: "gpt-4",
     }
 ];

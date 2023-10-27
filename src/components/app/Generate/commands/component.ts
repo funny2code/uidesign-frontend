@@ -6,14 +6,13 @@ export type MakeComponentResponse = {
   "data": string
 }
 
-const makeComponent =async (engineType:boolean, systemPrompt:string, userInput: string, apiKey: string): Promise<MakeComponentResponse> => {
-    const engine = engineType ? ENGINE_TYPE[0].value : ENGINE_TYPE[1].value;
+const makeComponent =async (engineType:string, systemPrompt:string, userInput: string, apiKey: string): Promise<MakeComponentResponse> => {
     const openai = new OpenAI({
         apiKey: apiKey,
         dangerouslyAllowBrowser: true
       });
     const response = await openai.chat.completions.create({
-        model: engine,
+        model: engineType,
         messages: 
         [
           {
@@ -32,13 +31,13 @@ const makeComponent =async (engineType:boolean, systemPrompt:string, userInput: 
 
       const content = response?.choices[0]?.message?.content;
       const regex = /```([^`]+)```/g;
-
       if(content){
+        if(engineType == ENGINE_TYPE[0].value)  return {'success': true, data: content}
         const matches = content.match(regex);
         
         if(!(matches && matches.length))  
           return {'success':false, data:''}
-        const data = matches[0].replace(/```/g, '').replace('jsx', '')
+        const data = matches[0].replace(/```/g, '').replace('jsx\n', '')
         return {'success': true, data}
       }
       return {'success':false, data:''}

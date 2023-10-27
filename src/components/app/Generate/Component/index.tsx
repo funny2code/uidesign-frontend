@@ -1,19 +1,20 @@
 import { useEffect, useState, useRef } from "react";
 import sdk from "@stackblitz/sdk";
-import InputBar from "../components/InputBar";
-import makeComponent from "../commands/component";
 import type { VM } from "@stackblitz/sdk";
-import ToggleButton from "../components/ToggleButton";
-import ApiKeyInputBar from "../components/ApiKeyInputBar";
-import SettingElement from "../components/SettingElement";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { DEFAULT_SYSTEM_PROMPT, BASE_PROJECT } from "./constants";
+import ClipLoader from "react-spinners/ClipLoader";
+
+import InputBar from "../components/InputBar";
+import makeComponent from "../commands/component";
+import ApiKeyInputBar from "../components/ApiKeyInputBar";
+import SettingElement from "../components/SettingElement";
+import { DEFAULT_SYSTEM_PROMPT, BASE_PROJECT, ENGINE_TYPE } from "./constants";
 
 const Components = () => {
   const [input, setInput] = useState<string>("");
   const [apiKey, setApiKey] = useState<string>("");
-  const [engineType, setEngineType] = useState<boolean>(false);
+  const [engineType, setEngineType] = useState<string>(ENGINE_TYPE[0].value);
   const [apiKeyError, setApiKeyError] = useState<boolean>(false);
   const [systemPrompt, setSystemPrompt] = useState<string>(DEFAULT_SYSTEM_PROMPT);
   const [processing, setProcessing] = useState(false);
@@ -28,7 +29,7 @@ const Components = () => {
         clickToLoad: false,
         height: "100%",
         view: "default",
-        openFile: "tailwind.config.js",
+        openFile: "src/components/index.tsx",
       });
       vm.editor.setView("default");
       setVM(vm);
@@ -64,13 +65,20 @@ const Components = () => {
     <>
       <ToastContainer />
       <section
-        className="designer-window hstack flex-grow-1"
+        className="designer-window hstack flex-grow-1 position-relative"
         style={{
           opacity: 1,
           pointerEvents: "auto",
           height: "100%",
         }}
       >
+        <div
+          className={`d-flex justify-content-center align-items-center position-absolute z-1 text-bg-dark w-100 h-100 opacity-50 ${
+            processing ? "visible" : "invisible"
+          }`}
+        >
+          <ClipLoader color={"#123abc"} loading={true} size={100} />
+        </div>
         <div
           id="embed"
           style={{
@@ -96,7 +104,17 @@ const Components = () => {
             aria-labelledby="dropdownMenuClickable"
           >
             <SettingElement title="Engine Type">
-              <ToggleButton engineType={engineType} setEngineType={setEngineType} />
+              <select
+                className="form-select"
+                onChange={e => {
+                  setEngineType(e.target.value);
+                }}
+              >
+                <option value={ENGINE_TYPE[0].value}>{ENGINE_TYPE[0].name}</option>
+                <option value={ENGINE_TYPE[1].value} selected>
+                  {ENGINE_TYPE[1].name}
+                </option>
+              </select>
             </SettingElement>
             <SettingElement title="System Prompt">
               <textarea

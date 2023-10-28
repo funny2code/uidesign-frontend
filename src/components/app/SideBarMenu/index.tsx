@@ -10,11 +10,11 @@ interface Props {
 }
 
 const SidebarMenu = ({ currentPage, handlePageChange }: Props) => {
-  const [pages, setPages] = useState(["Generate", "History"]);
+  const [pages, setPages] = useState(["Generate", "History", "Projects"]);
   const { getSession } = useSession();
   useEffect(() => {
     getSession().then(tokens => {
-      tokens.is_admin && setPages(["Generate", "History", "Admin"]);
+      tokens.is_admin && setPages(["Generate", "History", "Admin", "Projects"]);
     });
   }, []);
   return (

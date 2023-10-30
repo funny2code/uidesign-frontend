@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, Fragment } from "react";
 import { PROJECT_PAGES } from '../ProjectTopBarMenu/constants.ts';
 import type { UIProjectsPage } from '../ProjectTopBarMenu/types.ts'
-import ProjectTopBarMenu from "../ProjectTopBarMenu/index.tsx";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useSession } from "../../../auth/useSession.tsx";
 import { V2ProjectsService } from "../../../../client/index.ts";
@@ -35,11 +34,14 @@ const Websites =  () => {
       ["projects"],
       async ({ pageParam = 0 }) => {
         const tokens = await getSession();
-        const data = await V2ProjectsService.readUserProjectsV2UserProjectsGet(
+        const data = await V2ProjectsService.readPublicProjectsV2PublicProjectsGet(
           pageParam,
           pageSize,
           undefined
         );
+
+        console.log("PUBLIC PROJECTS: ", data);
+
         setDepleted(data.result.length < pageSize);
         return { data: data.result, previousId: pageParam - pageSize, nextId: pageParam + pageSize };
       },

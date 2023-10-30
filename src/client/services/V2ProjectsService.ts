@@ -15,6 +15,40 @@ import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 
 export class V2ProjectsService {
+    /**
+     * Read Public Projects
+     * Requires Authentication. Always returns previews.
+     * @param offset Offset for pagination.
+     * @param limit Limit for pagination.
+     * @param type Project type filter. Returns any if it is none. Defaults to none.
+     * @param description Used for similarity search if provided. Defaults to none. If not set, similarity search is not used, and result's similarity is null.
+     * @param threshold When using similarity search, return only results above this threshold.
+     * @returns MultipleResults_ProjectSimilarityResult_ Successful Response
+     * @throws ApiError
+     */
+    public static readPublicProjectsV2PublicProjectsGet(
+        offset?: number,
+        limit: number = 5,
+        type?: PROJECT_TYPE,
+        description?: string,
+        threshold: number = 0.85,
+    ): CancelablePromise<MultipleResults_ProjectSimilarityResult_> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/v2/public/projects/',
+            query: {
+                'offset': offset,
+                'limit': limit,
+                'type': type,
+                'description': description,
+                'threshold': threshold,
+            },
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
 
     /**
      * Read User Projects

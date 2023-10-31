@@ -32,11 +32,10 @@ const makeComponent =async (engineType:string, systemPrompt:string, userInput: s
       const content = response?.choices[0]?.message?.content;
       const regex = /```([^`]+)```/g;
       if(content){
-        if(engineType == ENGINE_TYPE[0].value)  return {'success': true, data: content}
         const matches = content.match(regex);
         
         if(!(matches && matches.length))  
-          return {'success':false, data:''}
+          return {'success':true, data: content}
         const data = matches[0].replace(/```/g, '').replace('jsx\n', '')
         return {'success': true, data}
       }

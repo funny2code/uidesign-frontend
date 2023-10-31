@@ -338,40 +338,39 @@ const Shopify = () => {
         if (!tokens) throw new Error("Relogin please.");
         const User = getUserData(tokens.id_token);
         if(User) setUserName(User.username);
-        const getThemeId = getLocalThemes(`${User.username}-id`);
-        if(getThemeId !== undefined) setThemeId(getThemeId);
-        const getCurrentPage = getLocalThemes(`${User.username}-page`);
-        if(getCurrentPage !== undefined) setCurrentPage(getCurrentPage);
         const getThemes = getLocalThemes(`${User.username}-themes`);
         const themeNames = await getThemeNames();
+        const randomIndex = Math.floor(Math.random() * themeNames.length);
+        const randomItem = themeNames[randomIndex];
+        setThemeId(randomItem._id);
         if (themeNames?.length && Object.keys(isThemes).length === 0) setShopifyThemes(themeNames);
-        if(getThemes && getCurrentPage && getThemeId){ 
+        if(getThemes && getThemes[randomItem._id]){ 
           const parseThemes = JSON.parse(getThemes);
           setIsThemes(parseThemes);
-          if(parseThemes[getThemeId]?.settingsSchema) setSettingsSchema(parseThemes[getThemeId].settingsSchema);
-          if(parseThemes[getThemeId]?.templates) setPages(Object.keys(parseThemes[getThemeId].templates)); 
+          if(parseThemes[randomItem._id]?.settingsSchema) setSettingsSchema(parseThemes[randomItem._id].settingsSchema);
+          if(parseThemes[randomItem._id]?.templates) setPages(Object.keys(parseThemes[randomItem._id].templates)); 
           const html = await updateShopitTheme(
-            `${MAKE_UI_API_VIEW}?id=${getThemeId}&page=${getCurrentPage}`,
-            getThemeId,
-            parseThemes[getThemeId]?.settings_data,
-            parseThemes[getThemeId]?.templates[getCurrentPage],
-            parseThemes[getThemeId]?.templates['header_group'],
-            parseThemes[getThemeId]?.templates['footer_group'],
-            parseThemes[getThemeId]?.themeContent
+            `${MAKE_UI_API_VIEW}?id=${randomItem._id}&page=${currentPage}`,
+            randomItem._id,
+            parseThemes[randomItem._id]?.settings_data,
+            parseThemes[randomItem._id]?.templates[currentPage],
+            parseThemes[randomItem._id]?.templates['header_group'],
+            parseThemes[randomItem._id]?.templates['footer_group'],
+            parseThemes[randomItem._id]?.themeContent
           );
           updateIframeContent(html);
           setLoading(false);
           setProcessing(false);
         } else {
-          await getThemeById(themeId);
+          await getThemeById(randomItem._id);
           const html = await updateShopitTheme(
-            `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
-            themeId,
-            isThemes[themeId]?.settings_data,
-            isThemes[themeId]?.templates[currentPage],
-            isThemes[themeId]?.templates['header_group'],
-            isThemes[themeId]?.templates['footer_group'],
-            isThemes[themeId]?.themeContent
+            `${MAKE_UI_API_VIEW}?id=${randomItem._id}&page=${currentPage}`,
+            randomItem._id,
+            isThemes[randomItem._id]?.settings_data,
+            isThemes[randomItem._id]?.templates[currentPage],
+            isThemes[randomItem._id]?.templates['header_group'],
+            isThemes[randomItem._id]?.templates['footer_group'],
+            isThemes[randomItem._id]?.themeContent
           );
           updateIframeContent(html);
           setLoading(false);

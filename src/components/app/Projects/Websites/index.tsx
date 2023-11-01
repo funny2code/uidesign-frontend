@@ -6,6 +6,7 @@ import { useSession } from "../../../auth/useSession.tsx";
 import { V2ProjectsService } from "../../../../client/index.ts";
 import Document from "./Document.tsx";
 import { useInView } from "react-intersection-observer";
+import { PROJECT_TYPE } from '../../../../client';
 
 const Websites =  () => {
     const [currentPage, setCurrentPage] = useState<UIProjectsPage>(PROJECT_PAGES.Websites);
@@ -16,6 +17,7 @@ const Websites =  () => {
     const pageSize = 10;
     const { ref, inView } = useInView();
     const sectionRef = useRef<HTMLDivElement>(null);
+    const iframeRef = useRef<HTMLDivElement>(null);
     const [depleted, setDepleted] = useState(false);
 
     // Get all projects
@@ -50,14 +52,68 @@ const Websites =  () => {
         getNextPageParam: lastPage => lastPage.nextId ?? undefined,
       }
     );
+
     useEffect(() => {
       if (inView && !depleted) {
         fetchNextPage();
       }
     }, [inView]);
-
     return (
       <section className="designer d-flex flex-column justify-content-between">
+        <section className="d-flex flex-wrap justify-content-end align-content-start gap-3" >
+          <div>
+            <input type="text" name="projectName" placeholder="Project Name"/>
+            <input type="text" name="tags" placeholder="Tag1, Tag2, Tag3"/>
+            <input type="text" name="projectDescription" placeholder="Project Description"/>
+          </div>
+          <button className="btn btn-primary"
+            onClick = {async () => {
+              // Create a Project
+              const data = await V2ProjectsService.createUserProjectV2UserProjectsPost({
+                name: "testproject", 
+                public: true, 
+                tags: ["Tag1", "Tag2", "Tag3"], 
+                description: "TESTESTESTESTES",
+                url: "",
+                img_url: "",
+                type: PROJECT_TYPE.HTML_CSS,
+                data: {
+                  content: [],
+                  styles: [],
+                  other: []
+                }
+              });
+              console.log("Create Project data", data);
+              const tokens = await getSession();
+              console.log(tokens)
+              const res = await fetch("http://127.0.0.1:5000/display", {
+                method: "POST",
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  refresh_token: tokens.refresh_token,
+                  project_id: data.id
+                })
+              });
+              const html_text = await res.text();
+              // Open project in GrapesJS Editor
+              let iframeSection = iframeRef.current;
+              iframeSection.innerHTML = "";
+              let iframe = document.createElement("iframe");
+              iframe.width = "100%";
+              iframe.height = "600px";
+              iframe.srcdoc = html_text;//"http://127.0.0.1:5000/newproject";
+              // "https://make-ui.herokuapp.com/view/6306f8e7db2cbec8c440f780?page=index";
+              iframeSection.appendChild(iframe);
+            }}>
+              CREATE PROJECT
+            </button>
+        </section>
+        <section ref={iframeRef} className="d-flex flex-wrap justify-content-start align-content-start gap-3">
+          
+        </section>
         <section className="history d-flex flex-wrap justify-content-start align-content-start gap-3">
           {status === "loading" ? (
             [...Array(pageSize).keys()].map(x => (

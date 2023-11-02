@@ -17,6 +17,9 @@ const Websites =  () => {
     const pageSize = 10;
     const { ref, inView } = useInView();
     const sectionRef = useRef<HTMLDivElement>(null);
+    const project_nameRef = useRef<HTMLInputElement>(null);
+    const project_tagRef = useRef<HTMLInputElement>(null);
+    const project_descriptionRef = useRef<HTMLInputElement>(null);
     const iframeRef = useRef<HTMLDivElement>(null);
     const [depleted, setDepleted] = useState(false);
 
@@ -62,18 +65,18 @@ const Websites =  () => {
       <section className="designer d-flex flex-column justify-content-between">
         <section className="d-flex flex-wrap justify-content-end align-content-start gap-3" >
           <div>
-            <input type="text" name="projectName" placeholder="Project Name"/>
-            <input type="text" name="tags" placeholder="Tag1, Tag2, Tag3"/>
-            <input type="text" name="projectDescription" placeholder="Project Description"/>
+            <input ref={project_nameRef} type="text" name="projectName" placeholder="Project Name"/>
+            <input ref={project_tagRef} type="text" name="tags" placeholder="Tag1, Tag2, Tag3"/>
+            <input ref={project_descriptionRef} type="text" name="projectDescription" placeholder="Project Description"/>
           </div>
           <button className="btn btn-primary"
             onClick = {async () => {
               // Create a Project
               const data = await V2ProjectsService.createUserProjectV2UserProjectsPost({
-                name: "testproject", 
+                name: project_nameRef.current?.value ?? "test project by grapesjs", 
                 public: true, 
-                tags: ["Tag1", "Tag2", "Tag3"], 
-                description: "TESTESTESTESTES",
+                tags: ["Grapesjs", "Tag2", "Tag3"], 
+                description: project_descriptionRef.current?.value ?? "test_project description",
                 url: "",
                 img_url: "",
                 type: PROJECT_TYPE.HTML_CSS,
@@ -86,7 +89,7 @@ const Websites =  () => {
               console.log("Create Project data", data);
               const tokens = await getSession();
               console.log(tokens)
-              const res = await fetch("http://127.0.0.1:5000/display", {
+              const res = await fetch("http://3.135.207.187/display", {
                 method: "POST",
                 headers: {
                   'Accept': 'application/json',

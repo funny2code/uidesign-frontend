@@ -40,25 +40,19 @@ export interface ITheme {
     templates: {
         [key: string]: Record<string, any>;
     },
-    themeContent: ThemeContent;
+    themeContent?: ThemeContent;
+    settingsSchema?: Record<string, any>;
 };
 
 export interface IThemes {
     [key: string]: ITheme;
 }
 
-export interface IThemeBody {
-    id?: string | undefined;
-    themeNames?: boolean;
-    currentPage?: string;
-    pages?: boolean;
-    settingsData?: boolean;
-    settingsSchema?: boolean;
-}
-
 export interface IViewReq {
     theme_id?: string;
     settings_data: Record<string, any>;
+    headerGroup?: Record<string, any>
+    footerGroup?: Record<string, any>
     main?: Record<string, any>;
     themeContent?: Record<string, any>;
 }

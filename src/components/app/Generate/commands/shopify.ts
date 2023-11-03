@@ -1,6 +1,6 @@
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { BASE_URL, MAKE_UI_URL, MAKE_UI_API } from "../../constants";
-import type { IThemeBody, IViewReq, IDownloadReq } from "../Shopify/interface/shopify";
+import type { IViewReq, IDownloadReq } from "../Shopify/interface/shopify";
 
 export type DataTypeShopify = "main" | "section";
 export type ResType = DataTypeShopify | "error" | "info" | "id";
@@ -54,24 +54,29 @@ export const executeShopify = async (
   });
 };
 
-export const getThemeNamesAndPages = async (id: string | undefined = undefined) => {
-  const url = `${MAKE_UI_URL}/api/theme`;
-  const body: IThemeBody = {
-    id: id ? id : undefined,
-    themeNames: true,
-    currentPage: "index",
-    pages: true,
-    settingsData: true,
-    settingsSchema: true,
-  };
+export const getThemeNames = async () => {
+  const url = `${MAKE_UI_URL}/api/themenames`;
   const request = await fetch(url, {
-    method: "POST",
+    method: "GET",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
       Authorization: MAKE_UI_API,
-    },
-    body: JSON.stringify(body),
+    }
+  });
+  const response = await request.json();
+  return response;
+}
+
+export const getTheme = async (id: string) => {
+  const url = `${MAKE_UI_URL}/api/theme/${id}`;
+  const request = await fetch(url, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: MAKE_UI_API,
+    }
   });
   const response = await request.json();
   return response;
@@ -81,12 +86,16 @@ export const updateShopitTheme = async (
   URL: string,
   id: string,
   settings: Record<string, any>,
-  main: Record<string, any> | undefined = undefined,
-  themeContent: Record<string, any> | undefined = undefined
+  main?: Record<string, any>,
+  headerGroup?: Record<string, any>,
+  footerGroup?: Record<string, any>,
+  themeContent?: Record<string, any>
 ) => {
   const body: IViewReq = {
     theme_id: id,
     settings_data: settings,
+    headerGroup: headerGroup,
+    footerGroup: footerGroup,
     main: main,
     themeContent: themeContent,
   };

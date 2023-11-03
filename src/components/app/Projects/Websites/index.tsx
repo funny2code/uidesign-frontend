@@ -19,10 +19,18 @@ const Websites =  () => {
     const sectionRef = useRef<HTMLDivElement>(null);
     const project_nameRef = useRef<HTMLInputElement>(null);
     const project_tagRef = useRef<HTMLInputElement>(null);
-    const project_descriptionRef = useRef<HTMLInputElement>(null);
+    const project_descriptionRef = useRef<HTMLTextAreaElement>(null);
+    const project_privacyRef = useRef<HTMLSelectElement>(null);
     const iframeRef = useRef<HTMLDivElement>(null);
     const [depleted, setDepleted] = useState(false);
-
+    const [isCreateProject, setIsCreateProject] = useState(false);
+    const [privacyValue, setPrivacyValue] = useState("public");
+    const toggle = () => {
+      setIsCreateProject((isCreateProject) => !isCreateProject);
+    }
+    const handleChange = (e) => {
+      setPrivacyValue(e.target.value);
+    };
     // Get all projects
     const {
       status,
@@ -42,11 +50,9 @@ const Websites =  () => {
         const data = await V2ProjectsService.readPublicProjectsV2PublicProjectsGet(
           pageParam,
           pageSize,
-          undefined
+          PROJECT_TYPE.WEBSITE_PAGES
         );
-
-        console.log("PUBLIC PROJECTS: ", data);
-
+        console.log("projects: ", data);
         setDepleted(data.result.length < pageSize);
         return { data: data.result, previousId: pageParam - pageSize, nextId: pageParam + pageSize };
       },
@@ -55,7 +61,7 @@ const Websites =  () => {
         getNextPageParam: lastPage => lastPage.nextId ?? undefined,
       }
     );
-
+    
     useEffect(() => {
       if (inView && !depleted) {
         fetchNextPage();
@@ -63,107 +69,164 @@ const Websites =  () => {
     }, [inView]);
     return (
       <section className="designer d-flex flex-column justify-content-between">
-        <section className="d-flex flex-wrap justify-content-end align-content-start gap-3" >
+        {!isCreateProject && 
           <div>
-            <input ref={project_nameRef} type="text" name="projectName" placeholder="Project Name"/>
-            <input ref={project_tagRef} type="text" name="tags" placeholder="Tag1, Tag2, Tag3"/>
-            <input ref={project_descriptionRef} type="text" name="projectDescription" placeholder="Project Description"/>
-          </div>
-          <button className="btn btn-primary"
-            onClick = {async () => {
-              // Create a Project
-              const data = await V2ProjectsService.createUserProjectV2UserProjectsPost({
-                name: project_nameRef.current?.value ?? "test project by grapesjs", 
-                public: true, 
-                tags: ["Grapesjs", "Tag2", "Tag3"], 
-                description: project_descriptionRef.current?.value ?? "test_project description",
-                url: "",
-                img_url: "",
-                type: PROJECT_TYPE.HTML_CSS,
-                data: {
-                  content: [],
-                  styles: [],
-                  other: []
-                }
-              });
-              console.log("Create Project data", data);
-              const tokens = await getSession();
-              console.log(tokens)
-              const res = await fetch("http://3.135.207.187/display", {
-                method: "POST",
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  refresh_token: tokens.refresh_token,
-                  project_id: data.id
-                })
-              });
-              const html_text = await res.text();
-              // Open project in GrapesJS Editor
-              let iframeSection = iframeRef.current;
-              iframeSection.innerHTML = "";
-              let iframe = document.createElement("iframe");
-              iframe.width = "100%";
-              iframe.height = "600px";
-              iframe.srcdoc = html_text;//"http://127.0.0.1:5000/newproject";
-              // "https://make-ui.herokuapp.com/view/6306f8e7db2cbec8c440f780?page=index";
-              iframeSection.appendChild(iframe);
-            }}>
-              CREATE PROJECT
-            </button>
-        </section>
-        <section ref={iframeRef} className="d-flex flex-wrap justify-content-start align-content-start gap-3">
-          
-        </section>
-        <section className="history d-flex flex-wrap justify-content-start align-content-start gap-3">
-          {status === "loading" ? (
-            [...Array(pageSize).keys()].map(x => (
-              <Document
-                key={x}
-                {...({
-                  id: "",
-                  url: "",
-                  img_url: "",
-                  name: "",
-                } as any)}
-              />
-            ))
-          ) : status === "error" ? (
-            <span>Error: {(error as any).message}</span>
-          ) : (
-            <>
-              {data
-                ? data.pages.map(page => (
-                    <Fragment key={page.nextId}>
-                      {page.data.map(document => (
-                        <Document key={document.id} {...document} sectionRef={sectionRef} />
-                      ))}
-                    </Fragment>
-                  ))
-                : null}
-              <div className="menu" style={{ margin: "0px 33% 0px 0px", opacity: 1, pointerEvents: "none" }}>
-                <button
-                  ref={ref}
-                  onClick={() => fetchNextPage()}
-                  disabled={depleted || isFetchingNextPage} // !hasNextPage
-                >
-                  {isFetchingNextPage
-                    ? "Loading..."
-                    : !depleted // hasNextPage
-                    ? "Load More Data"
-                    : "No More Data"}
-                </button>
+          <section className="d-flex flex-wrap justify-content-end align-content-start gap-3" >
+            <button className="btn btn-primary" onClick={toggle}>CREATE PROJECT</button>
+          </section>
+          <section className="history d-flex flex-wrap justify-content-start align-content-start gap-3">
+            {status === "loading" ? (
+              [...Array(pageSize).keys()].map(x => (
+                <Document
+                  key={x}
+                  {...({
+                    id: "",
+                    url: "",
+                    img_url: "",
+                    name: "",
+                  } as any)}
+                />
+              ))
+            ) : status === "error" ? (
+              <span>Error: {(error as any).message}</span>
+            ) : (
+              <>
+                {data
+                  ? data.pages.map(page => (
+                      <Fragment key={page.nextId}>
+                        {page.data.map(document => (
+                          <Document key={document.id} {...document} sectionRef={sectionRef} />
+                        ))}
+                      </Fragment>
+                    ))
+                  : null}
+                <div className="menu" style={{ margin: "0px 33% 0px 0px", opacity: 1, pointerEvents: "none" }}>
+                  <button
+                    ref={ref}
+                    onClick={() => fetchNextPage()}
+                    disabled={depleted || isFetchingNextPage} // !hasNextPage
+                  >
+                    {isFetchingNextPage
+                      ? "Loading..."
+                      : !depleted // hasNextPage
+                      ? "Load More Data"
+                      : "No More Data"}
+                  </button>
+                </div>
+              </>
+            )}
+            <div
+              className="modal"
+              id="viewModal"
+              tabIndex={-1}
+              aria-labelledby="viewModalLabel"
+              aria-hidden="true"
+            >
+              <div className="modal-dialog modal-xl">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <button
+                      type="button"
+                      className="btn-close"
+                      style={{ fontSize: ".82rem" }}
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div className="modal-body p-0">
+                    <section ref={sectionRef} style={{ height: "80vh" }}></section>
+                  </div>
+                </div>
               </div>
-            </>
-          )}
+            </div>
+          </section>
+          </div>
+        }
+        {isCreateProject && <div>
+          <button className="btn btn-primary" onClick={toggle}>Back to list</button>
+          <section className="d-flex flex-wrap justify-content-start align-content-start gap-3" >
+            <div>
+            <form>
+              <ul className="form-style-1">
+                  <li>
+                    <label>Name <span className="required">*</span></label>
+                    <input type="text" ref={project_nameRef} name="field1" className="field-divided" placeholder="Project Name" />
+                    
+                    <label>Privacy</label>
+                    <select name="field4" className="field-select" onChange={handleChange}>
+                      <option value="public">Public</option>
+                      <option value="private">Private</option>
+                    </select>
+                  </li>
+                  <li>
+                      <label>Tags <span className="required">*</span></label>
+                      <input type="email" ref={project_tagRef} name="field3" className="field-long" placeholder="Tag1, Tag2, Tag3" />
+                  </li>
+                  <li>
+                      <label>Description <span className="required">*</span></label>
+                      <textarea ref={project_descriptionRef} name="field5" id="field5" className="field-long field-textarea"></textarea>
+                  </li>
+                  <li>
+                      <button type="button" data-bs-toggle="modal" className="btn btn-primary"
+                        data-bs-target="#iframeModal"
+                        onClick = {async () => {
+                          let tags = project_tagRef.current?.value.split(",");
+                          
+                          // Create a Project
+                          // const data = await V2ProjectsService.createUserProjectV2UserProjectsPost({
+                          //   name: project_nameRef.current?.value ?? "test project by grapesjs", 
+                          //   public: privacyValue == "public"? true: false, 
+                          //   tags: project_tagRef.current?.value.split(",") ?? [], 
+                          //   description: project_descriptionRef.current?.value ?? "test_project description",
+                          //   url: "",
+                          //   img_url: "",
+                          //   type: PROJECT_TYPE.WEBSITE_PAGES,
+                          //   data: {
+                          //     content: [],
+                          //     styles: [],
+                          //     other: []
+                          //   }
+                          // });
+
+                          const tokens = await getSession();
+                          const res = await fetch("http://127.0.0.1:5000/display", {
+                          // const res = await fetch("http://3.135.207.187/display", {
+                            method: "POST",
+                            headers: {
+                              'Accept': 'application/json',
+                              'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                              refresh_token: tokens.refresh_token,
+                              action: "create_project"
+                            })
+                          });
+                          const html_text = await res.text();
+                          // Open project in GrapesJS Editor
+                          let iframeSection = sectionRef.current;
+                          iframeSection.innerHTML = "";
+                          let iframe = document.createElement("iframe");
+                          iframe.width = "100%";
+                          iframe.height = "600px";
+                          iframe.srcdoc = html_text;
+                          iframeSection.appendChild(iframe);
+                        }}>CREATE PROJECT 
+                      </button>
+                  </li>
+                </ul>
+            </form>
+              <br />
+            </div>
+            
+          </section>
+          
           <div
-            className="modal"
-            id="viewModal"
+            className="modal background"
+            id="iframeModal"
             tabIndex={-1}
             aria-labelledby="viewModalLabel"
             aria-hidden="true"
+            style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
           >
             <div className="modal-dialog modal-xl">
               <div className="modal-content">
@@ -182,7 +245,10 @@ const Websites =  () => {
               </div>
             </div>
           </div>
-        </section>
+          
+          </div>
+        }
+        
       </section> 
     );
 }

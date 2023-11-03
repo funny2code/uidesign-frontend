@@ -1,17 +1,27 @@
 import { STYLES } from "../Create/constants";
 import { parseConfigParams } from "../../utils/params";
 import { useSession } from "../../../auth/useSession";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from "react";
 import type { ISopifyPages } from "../Create/types";
 import InputBar from "../components/InputBarShopify";
 import { executeShopify, getTheme, getThemeNames, updateShopitTheme } from "../commands";
 import { MAKE_UI_API_VIEW, MAKE_UI_URL } from "../../constants";
-import type { ISchema, IThemes } from "./interface/shopify";
+import type { ISchema, IThemes, IViewReq } from "./interface/shopify";
 import { downloadShopitTheme } from "../commands/shopify";
 import ClipLoader from "react-spinners/ClipLoader";
 import { DOCUMENT_TYPE, OpenAPI, PROJECT_TYPE, V2ProjectsService } from "../../../../client";
 
-const Shopify = () => {
+interface shopifyProps {
+  isSaved: boolean,
+  setSaved: (e:boolean) => void
+  project: any[]
+}
+
+export interface shopifyRef {
+  saveProjectHandle: () => Promise<void>;
+}
+
+const Shopify = (({isSaved, setSaved, project} : shopifyProps) => {
   /* ==================== AUTH AND USER ==================== */ 
   const { getSession, getUserData } = useSession();
   /* ==================== REACT USESTATE CONSTANTS ==================== */ 
@@ -19,7 +29,6 @@ const Shopify = () => {
   const [processing, setProcessing] = useState<boolean>(true);
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
   const [isDownload, setIsDownload] = useState<boolean>(false);
-  const [isSaved, setSaved] = useState<boolean>(false);
   const [input, setInput] = useState("");
   const [themeId, setThemeId] = useState<string>("64dcd06b0db1077c79970cec");
   const [pages, setPages] = useState<string[] | undefined>(undefined);
@@ -121,7 +130,7 @@ const Shopify = () => {
             },
           };
         });
-        console.log({...settings_data, ...isThemes[themeId]?.settings_data});
+
         const html = await updateShopitTheme(
           `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
           themeId,
@@ -347,7 +356,7 @@ const Shopify = () => {
         setThemeId(randomItem._id);
         const parseThemes = getThemes ? JSON.parse(getThemes) : null;
         setIsThemes(parseThemes);
-        if (themeNames?.length && Object.keys(isThemes).length === 0) setShopifyThemes(themeNames);
+        if (themeNames?.length) setShopifyThemes(themeNames);
         if(parseThemes && parseThemes[randomItem._id]){ 
           if(parseThemes[randomItem._id]?.settingsSchema) setSettingsSchema(parseThemes[randomItem._id].settingsSchema);
           if(parseThemes[randomItem._id]?.templates) setPages(Object.keys(parseThemes[randomItem._id].templates)); 
@@ -388,7 +397,6 @@ const Shopify = () => {
   * ================================================================================================= */
   useEffect(() => {
     setLocalThemes(`${userName}-themes`, JSON.stringify(isThemes));
-    console.log("works Is Themes");
   }, [isThemes]);
   /* ===================================================================================================
   *     UPDATE IFRAME CONTENT FUNCTION
@@ -437,13 +445,10 @@ const Shopify = () => {
   /* ===================================================================================================
   *     SAVE PROJECT FUNCTION FUNCTION
   * ================================================================================================= */
-  const saveProjectHandle = async (e:any) => {
-    if(!e) return;
-    setSaved(true);
+  const saveProjectHandle = async () => {
     const tokens = await getSession();
     if (!tokens) throw new Error("Relogin please.");
     OpenAPI.TOKEN = tokens.id_token;
-    // Content
     const data = {
       name: "New Shopify",
       description: "Description",
@@ -451,7 +456,7 @@ const Shopify = () => {
       url: `${MAKE_UI_URL}/themes/${themeId}?page=${currentPage}`,
       img_url: "",
       tags: ["Shopify"],
-      type: PROJECT_TYPE.HTML_CSS,
+      type: PROJECT_TYPE.SHOPIFY,
       data:{
         content: [],
         styles: [],
@@ -469,10 +474,18 @@ const Shopify = () => {
         ]
       }
     };
-    const res = await V2ProjectsService.createUserProjectV2UserProjectsPost(data);
-    console.log(res, "CHECK DAV");
-    setSaved(false);
+    await V2ProjectsService.createUserProjectV2UserProjectsPost(data);
+    setSaved(false)
   }
+
+  useEffect(() => {
+    if(isSaved === true){
+      saveProjectHandle();
+    }
+    if(project?.length){
+      console.log(project, "CHECK DAV");
+    }
+  }, [isSaved, project]);
 
   return (
     <>
@@ -516,8 +529,6 @@ const Shopify = () => {
           buttonRef={buttonRef}
           isDownload={isDownload}
           downloadTheme={handleThemeDownload}
-          isSaved={isSaved}
-          saveProjectHandle={saveProjectHandle}
         >
           <div
             className="dropdown-menu mb-3 p-1 pb-2"
@@ -602,5 +613,5 @@ const Shopify = () => {
       </form>
     </>
   );
-};
+});
 export default Shopify;

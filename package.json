@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@astrojs/react": "^3.0.3",
+    "@code-wallet/elements": "^1.1.1",
     "@codemirror/lang-css": "^6.2.0",
     "@codemirror/lang-html": "^6.4.5",
     "@codemirror/lang-json": "^6.0.1",

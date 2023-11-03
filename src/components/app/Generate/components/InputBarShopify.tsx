@@ -19,8 +19,6 @@ interface InputBarProps extends React.PropsWithChildren {
   center?: boolean;
   isDownload: boolean;
   downloadTheme: (e: any) => void;
-  isSaved: boolean;
-  saveProjectHandle: (e: any) => void;
 }
 
 const InputBar = ({
@@ -40,9 +38,7 @@ const InputBar = ({
   children,
   center = true,
   isDownload,
-  downloadTheme,
-  isSaved,
-  saveProjectHandle
+  downloadTheme
 }: InputBarProps) => {
   return (
     <div
@@ -134,25 +130,6 @@ const InputBar = ({
           </>
         ) : (
           <span>Send</span>
-        )}
-      </button>
-      <button
-        ref={buttonRef}
-        className="btn btn-primary px-2"
-        style={{ height: "100%", width: "188px" }}
-        disabled={processing}
-        type="button"
-        onClick={saveProjectHandle}
-      >
-        {isSaved ? (
-          <>
-            <span className="spinner-border spinner-border-md" aria-hidden="true"></span>
-            <span className="visually-hidden" role="status">
-              Loading...
-            </span>
-          </>
-        ) : (
-          <span>Save</span>
         )}
       </button>
     </div>

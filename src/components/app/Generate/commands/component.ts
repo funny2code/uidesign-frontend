@@ -1,16 +1,24 @@
 import OpenAI from "openai";
-import { ENGINE_TYPE } from "../Component/constants";
+import { EXTRA_USER_PROMPT, LIST_COUNT, STAGE } from "../Component/constants";
+import { WebContainer } from "@webcontainer/api";
 
-export type MakeComponentResponse = {
-  "success": boolean,
-  "data": string
+type makeComponentRequest = {
+  webcontainer: WebContainer,
+  engineType:string,
+  systemPrompt:string,
+  input: string,
+  apiKey: string,
+  stage: STAGE,
+  selectedComponent: number
 }
-
-const makeComponent =async (engineType:string, systemPrompt:string, userInput: string, apiKey: string): Promise<MakeComponentResponse> => {
+const makeComponent = async ({webcontainer, engineType, systemPrompt, input, apiKey, stage, selectedComponent}:makeComponentRequest): Promise<boolean> => {
     const openai = new OpenAI({
         apiKey: apiKey,
         dangerouslyAllowBrowser: true
       });
+    const selectedFile = await webcontainer.fs.readFile(`src/component${selectedComponent}.tsx`, 'utf-8');
+    if(!selectedFile) return false;
+console.log(stage)
     const response = await openai.chat.completions.create({
         model: engineType,
         messages: 
@@ -21,26 +29,39 @@ const makeComponent =async (engineType:string, systemPrompt:string, userInput: s
           },
           {
             "role": "user",
-            "content": userInput
+            "content": (stage !== STAGE.First ? selectedFile + "\n \ " : "") + input + (stage === STAGE.First ? EXTRA_USER_PROMPT : "")
           }
         ],
         temperature: 0,
       });
       if(!(response?.choices && response?.choices.length))  
-      return {'success':false, data:''}
+      return false;
 
       const content = response?.choices[0]?.message?.content;
-      const regex = /```([^`]+)```/g;
-      if(content){
-        const matches = content.match(regex);
-        
-        if(!(matches && matches.length))  
-          return {'success':true, data: content}
-        const data = matches[0].replace(/```/g, '').replace('jsx\n', '')
-        return {'success': true, data}
-      }
-      return {'success':false, data:''}
+      if(!content) return false
 
+      const regex = /```jsx(.*?)```/gs;
+      const matches = content.match(regex);
+      const length = matches?.length;
+
+      if(stage != STAGE.First){
+        if(length)
+        await webcontainer.fs.writeFile(`/src/component0.tsx`, matches[0].replace(/```/g, '').replace('jsx\n', ''));
+        else await webcontainer.fs.writeFile(`/src/component0.tsx`, content);
+        return true;
+      }
+
+      if(!length) return false
+
+      if(length == LIST_COUNT)
+      for(let i = 0; i < LIST_COUNT; i++)
+        await webcontainer.fs.writeFile(`/src/component${i}.tsx`, matches[i].replace(/```/g, '').replace('jsx\n', ''));
+
+      if(length == 1)
+        for(let i = 0; i < LIST_COUNT; i++)
+          await webcontainer.fs.writeFile(`/src/component${i}.tsx`, matches[0].replace(/```/g, '').replace('jsx\n', ''));
+
+      return true
 }
 
 export default makeComponent;

@@ -187,6 +187,15 @@ body {
 	font-weight: 400;
 }
 
+.buttonIframe {
+	width: 200% !important;
+	height: 200% !important;
+	-webkit-transform: scale(0.5);
+	transform: scale(0.5);
+	-webkit-transform-origin: 0 0;
+	transform-origin: 0 0;
+}
+
 @keyframes loading-skeleton {
 	0% {
 		opacity: 0.3;

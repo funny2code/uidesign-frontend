@@ -18,80 +18,32 @@ export const files = {
             },
             'component0.tsx': {
             file: {
-                contents: `
-                const Component = () => {
-                    return "Components will                                                                                                             display";
-                  };
+                contents: 
+`const Component = () => {
+  return "Components will display";
+};
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                  
-                export default Component;                  
-                `,
+export default Component;`,
             },
             },
             'component1.tsx': {
                 file: {
-                    contents: `
-                    const Component = () => {
-                        return <div className="bg-blue-400 text-lg">Hello1</div>;
-                      };
-                      
-                    export default Component;
-                    `,
+                    contents: 
+`const Component = () => {
+    return <div className="bg-blue-400 text-lg">Hello1</div>;
+  };
+
+export default Component;`,
                 },
             },
             'component2.tsx': {
                 file: {
-                    contents: `
-                    const Component = () => {
-                        return <div className="bg-blue-400 text-lg">Hello2</div>;
-                      };
-                      
-                    export default Component;  
-                    `,
+                    contents: 
+`const Component = () => {
+    return <div className="bg-blue-400 text-lg">Hello2</div>;
+  };
+
+export default Component;`,
                 },
             },
             'index.css': {

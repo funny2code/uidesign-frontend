@@ -24,7 +24,8 @@ const Components = () => {
   const [promptType, setPromptType] = useState<PromptType>("Chat");
   const [apiKeyError, setApiKeyError] = useState<boolean>(false);
   const [systemPrompt, setSystemPrompt] = useState<string>(SYSTEM_PROMPT.Chat[STAGE.First]);
-  const [processing, setProcessing] = useState(true);
+  const [processing, setProcessing] = useState(false);
+  const [isWebContainerLoaded, setIsWebContainerLoaded] = useState<boolean>(false);
   const [srcURL, setSrcURL] = useState("");
   const [webcontainer, setWebcontainer] = useState<WebContainer | null>(null);
   const [selectedComponent, setSelectedComponent] = useState<number>(0);
@@ -50,7 +51,7 @@ const Components = () => {
     await webcontainer.spawn("npm", ["run", "dev"]);
     webcontainer.on("server-ready", (port, url) => {
       setSrcURL(url);
-      setProcessing(false);
+      setIsWebContainerLoaded(true);
     });
   };
 
@@ -99,7 +100,7 @@ const Components = () => {
   }, [selectedComponent]);
 
   useEffect(() => {
-    setSystemPrompt(SYSTEM_PROMPT[promptType][stage]);
+    setSystemPrompt(SYSTEM_PROMPT[promptType][`${stage == STAGE.First ? STAGE.First : STAGE.Second}`]);
   }, [promptType]);
 
   const handleSubmit = async (e: any) => {
@@ -113,9 +114,12 @@ const Components = () => {
       toast.error("Need to input prompts");
       return;
     }
-
     if (promptType == PROMPT_TYPE.Image && !images.length && stage != STAGE.First) {
       toast.error("Need to add image");
+      return;
+    }
+    if (!isWebContainerLoaded) {
+      toast.error("Webcontainer is loading, wait a sec");
       return;
     }
     if (!webcontainer) return;
@@ -186,7 +190,12 @@ const Components = () => {
 
   const canvasView = (
     <>
-      <IFrame src={`${srcURL}/${selectedComponent}`} classNames="w-100 h-100" />
+      {isWebContainerLoaded ? (
+        <IFrame src={`${srcURL}/${selectedComponent}`} classNames="w-100 h-100" />
+      ) : (
+        <div className="w-100 h-100"></div>
+      )}
+
       <div
         className="d-flex flex-column m-2 py-3 justify-content-between align-items-center h-100"
         style={{

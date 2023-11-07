@@ -1,3 +1,4 @@
+import React from "react";
 import ExportButton from "./Export";
 import EditButton from "./Edit";
 import { PAGES, ADMIN_PAGES } from "./constants";
@@ -6,6 +7,7 @@ import { useSession } from "../../../auth/useSession";
 import type { UIDesignAdminPage, UIDesignPage } from "./types";
 import PaymentButton from "../Shopify/components/paymentButton";
 import ShopifyProjects from "./shopifyProjects";
+import Generate from "../../SideBarMenu/generate";
 
 interface Props {
   currentPage: UIDesignPage | UIDesignAdminPage;
@@ -17,15 +19,15 @@ interface Props {
 const TopBarMenu = ({ currentPage, handlePageChange, handleSaveProjectBtn, setProject }: Props) => {
   const [pages, setPages] = useState(() => PAGES);
   const { getSession } = useSession();
-  const Buttons = () => {
+  const Buttons = ({ icon } : { icon?: React.ReactNode} = {}) => {
     return Object.values(pages).map((page, index) => (
       <li key={index}>
         <button
-          className={`${currentPage === page ? "active mb-0" : "mb-0"}`}
-          onClick={() => (handlePageChange ? handlePageChange(page) : () => {})}
+          className={`topbar-button ${currentPage === page ? "topbar-button-active" : ""}`}
         >
+          {icon || null}  
           {page}
-        </button>
+        </button> 
       </li>
     ));
   };
@@ -37,7 +39,7 @@ const TopBarMenu = ({ currentPage, handlePageChange, handleSaveProjectBtn, setPr
   return (
     <section className="topbar d-flex align-items-center justify-content-between gap-2">
       <section className="d-none d-md-block">
-        <ul className="menu d-flex justify-content-center gap-2">{Buttons()}</ul>
+        <ul className="no-identation d-flex justify-content-center gap-2 no-bullets">{Buttons()}</ul>
       </section>
       <section className="d-block d-md-none menu justify-content-center gap-2 dropdown">
         <button

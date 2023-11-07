@@ -2,12 +2,14 @@ import { useState, useRef, useEffect } from "react";
 import { PAGES, ADMIN_PAGES } from "./TopBarMenu/constants";
 import type { UIDesignAdminPage, UIDesignPage } from "./TopBarMenu/types";
 import TopBarMenu from "./TopBarMenu";
-import Shopify from "./Shopify";
+import Shopify, { type shopifyRef } from "./Shopify";
 import Create from "./Create";
 import Old from "./Old";
 import Build from "./Build";
 import Remix from "./Remix";
 import Copy from "./Copy";
+import Components from "./Component";
+import type { BlobLike } from "openai/uploads.mjs";
 
 const HEIGHT_OFFSET = 68;
 const Generate = () => {
@@ -16,17 +18,29 @@ const Generate = () => {
   const handlePageChange = (page: UIDesignPage | UIDesignAdminPage) => {
     setCurrentPage(page);
   };
-  const [runBuild, setRunBuild] = useState(false);
+  const [runBuild, setRunBuild] = useState<boolean>(false);
   const stackblitzRef = useRef<HTMLDivElement>(null);
   const otherRef = useRef<HTMLDivElement>(null);
+  
+  const [isSaved, setSaved] = useState<boolean>(false);
+  const [project, setProject] = useState<any[]|[]>([]);
+  
+
+  const handleSaveProjectBtn = () => {
+    setSaved(true);
+  };
+
   const pages = {
     [PAGES.Old]: <Old />,
     [PAGES.Copy]: <Copy />,
     [PAGES.Remix]: <Remix />,
-    [ADMIN_PAGES.Shopify]: <Shopify />,
+    [ADMIN_PAGES.Shopify]: <Shopify isSaved={isSaved} setSaved={setSaved} project={project} />,
     [ADMIN_PAGES.Build]: <></>, // Build
     [ADMIN_PAGES.Create]: <Create />,
+    [ADMIN_PAGES.Components]: <Components />,
   };
+
+
   useEffect(() => {
     // Load the Stackblitz iframe on this Component's render to avoid re-creating on page change.
     const stackblitz = stackblitzRef.current;
@@ -49,9 +63,10 @@ const Generate = () => {
       other.style.pointerEvents = "auto";
     }
   }, [currentPage]);
+
   return (
     <section className="designer d-flex flex-column justify-content-between">
-      <TopBarMenu currentPage={currentPage} handlePageChange={handlePageChange} />
+      <TopBarMenu currentPage={currentPage} handlePageChange={handlePageChange} handleSaveProjectBtn={handleSaveProjectBtn} setProject={setProject} />
       <section ref={otherRef} className="d-flex flex-column flex-grow-1">
         {pages[currentPage]}
       </section>

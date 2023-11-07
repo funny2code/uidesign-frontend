@@ -1,5 +1,4 @@
 import React from "react"
-import styles from '../../../styles/App.scss'
 
 const Generate = ({ isActive }: { isActive: boolean }) => {
   let fillOpac = isActive ? '1' : '.62'

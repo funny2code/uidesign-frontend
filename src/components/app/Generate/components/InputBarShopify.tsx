@@ -7,10 +7,10 @@ interface InputBarProps extends React.PropsWithChildren {
   isDisabled: boolean;
   processing: boolean;
   inputRef: React.RefObject<HTMLInputElement>;
-  pages: ISopifyPages[];
+  pages: string[] | undefined;
   page: string;
   handlePageChange: (e: any) => void;
-  themes: ISopifyPages[];
+  themes: ISopifyPages[] | undefined;
   themeId: string;
   handleThemeChange: (e: any) => void;
   buttonRef: React.RefObject<HTMLButtonElement>;
@@ -38,7 +38,7 @@ const InputBar = ({
   children,
   center = true,
   isDownload,
-  downloadTheme,
+  downloadTheme
 }: InputBarProps) => {
   return (
     <div
@@ -80,13 +80,13 @@ const InputBar = ({
           aria-label="Default select Page"
           style={{ height: "100%", width: "130px" }}
         >
-          {pages.map((page, i) => (
-            <option key={page._id} value={page.name}>
-              {page.name === "index&settings=style"
-                ? "SELECT PAGE"
-                : page.name.replace("-", " ").replace("_", " ").toLocaleUpperCase()}
-            </option>
-          ))}
+          {
+            pages.map((p) => (
+              <option key={p} value={p}>
+                  {p}
+              </option>
+            ))
+          }
         </select>
       )}
       <div
@@ -130,24 +130,6 @@ const InputBar = ({
           </>
         ) : (
           <span>Send</span>
-        )}
-      </button>
-      <button
-        type="button"
-        disabled={processing}
-        onClick={downloadTheme}
-        className="btn btn-primary px-2"
-        style={{ height: "100%", width: "310px" }}
-      >
-        {isDownload ? (
-          <>
-            <span className="spinner-border spinner-border-md" aria-hidden="true"></span>
-            <span className="visually-hidden" role="status">
-              Loading...
-            </span>
-          </>
-        ) : (
-          <span>Download Theme</span>
         )}
       </button>
     </div>

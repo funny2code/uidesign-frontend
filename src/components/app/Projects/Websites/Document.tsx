@@ -22,8 +22,8 @@ const Document = (props: DocumentItemProps) => {
     props.sectionRef.current.innerHTML = ""; // deals with flash of previous view
     const tokens = await getSession();
     
-    const res = await fetch("http://127.0.0.1:5000/display", {
-    // const res = await fetch("http://3.135.207.187/display", {
+    // const res = await fetch("http://127.0.0.1:5000/display", {
+    const res = await fetch("http://3.135.207.187/display", {
       method: "POST",
       headers: {
         'Accept': 'application/json',

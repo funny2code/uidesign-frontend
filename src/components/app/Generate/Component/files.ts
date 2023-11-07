@@ -30,8 +30,8 @@ export default Component;`,
                 file: {
                     contents: 
 `const Component = () => {
-    return <div className="bg-blue-400 text-lg">Hello1</div>;
-  };
+  return "Components will display";
+};
 
 export default Component;`,
                 },
@@ -40,8 +40,8 @@ export default Component;`,
                 file: {
                     contents: 
 `const Component = () => {
-    return <div className="bg-blue-400 text-lg">Hello2</div>;
-  };
+  return "Components will display";
+};
 
 export default Component;`,
                 },

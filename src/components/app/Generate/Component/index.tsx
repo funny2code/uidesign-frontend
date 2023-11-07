@@ -6,13 +6,14 @@ import { javascript } from "@codemirror/lang-javascript";
 import { okaidia } from "@uiw/codemirror-theme-okaidia";
 import ClipLoader from "react-spinners/ClipLoader";
 import InputBar from "../components/InputBar";
-import makeComponent from "../commands/component";
+import makeComponent, { type PromptType } from "../commands/component";
 import ApiKeyInputBar from "../components/ApiKeyInputBar";
 import SettingElement from "../components/SettingElement";
 import IFrame from "../components/IFrame";
-import { SYSTEM_PROMPT, BASE_PROJECT, ENGINE_TYPE, STAGE } from "./constants";
+import { SYSTEM_PROMPT, PROMPT_TYPE, ENGINE_TYPE, STAGE } from "./constants";
 import { WebContainer } from "@webcontainer/api";
 import { files } from "./files";
+import ImageUploading, { type ImageListType } from "react-images-uploading";
 
 const Components = () => {
   const componentsList = [0, 1, 2];
@@ -20,14 +21,16 @@ const Components = () => {
   const [input, setInput] = useState<string>("");
   const [apiKey, setApiKey] = useState<string>("");
   const [engineType, setEngineType] = useState<string>(ENGINE_TYPE[0].value);
+  const [promptType, setPromptType] = useState<PromptType>("Chat");
   const [apiKeyError, setApiKeyError] = useState<boolean>(false);
-  const [systemPrompt, setSystemPrompt] = useState<string>(SYSTEM_PROMPT[STAGE.First]);
+  const [systemPrompt, setSystemPrompt] = useState<string>(SYSTEM_PROMPT.Chat[STAGE.First]);
   const [processing, setProcessing] = useState(true);
   const [srcURL, setSrcURL] = useState("");
   const [webcontainer, setWebcontainer] = useState<WebContainer | null>(null);
   const [selectedComponent, setSelectedComponent] = useState<number>(0);
   const [selectedFile, setSelectedFile] = useState<string>("");
   const [isCodeDisplay, setIsCodeDisplay] = useState<boolean>(false);
+  const [images, setImages] = useState([]);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -55,7 +58,7 @@ const Components = () => {
     setProcessing(true);
     initWebcontainer();
     setStage(STAGE.First);
-    setSystemPrompt(SYSTEM_PROMPT[STAGE.Second]);
+    setSystemPrompt(SYSTEM_PROMPT[promptType][STAGE.Second]);
     setInput("");
   };
 
@@ -71,6 +74,10 @@ const Components = () => {
     setSelectedFile(file);
   };
   //Useeffect
+
+  const handleImageChange = (imageList: ImageListType) => {
+    setImages(imageList as never[]);
+  };
 
   useEffect(() => {
     const bootWebContainer = async () => {
@@ -91,6 +98,10 @@ const Components = () => {
     updateSelectedFile();
   }, [selectedComponent]);
 
+  useEffect(() => {
+    setSystemPrompt(SYSTEM_PROMPT[promptType][stage]);
+  }, [promptType]);
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (apiKey == "") {
@@ -98,8 +109,13 @@ const Components = () => {
       setApiKeyError(true);
       return;
     }
-    if (input == "") {
+    if (promptType == PROMPT_TYPE.Chat && input == "") {
       toast.error("Need to input prompts");
+      return;
+    }
+
+    if (promptType == PROMPT_TYPE.Image && !images.length && stage != STAGE.First) {
+      toast.error("Need to add image");
       return;
     }
     if (!webcontainer) return;
@@ -114,8 +130,14 @@ const Components = () => {
       apiKey,
       stage,
       selectedComponent,
+      promptType,
+      image: images[0]?.dataURL,
     });
     if (result) {
+      if (promptType == PROMPT_TYPE.Image) {
+        setPromptType("Chat");
+        setStage(STAGE.Last);
+      }
       setSrcURL(" " + srcURL);
       updateSelectedFile();
       if (stage == STAGE.Second) setSelectedComponent(0);
@@ -124,8 +146,10 @@ const Components = () => {
         if (prev == STAGE.Second) return STAGE.Last;
         return STAGE.Last;
       });
-      setSystemPrompt(SYSTEM_PROMPT[STAGE.Second]);
+      setSystemPrompt(SYSTEM_PROMPT[promptType][STAGE.Second]);
       setInput("");
+    } else {
+      toast.error("The sever had an error while processing your request.");
     }
     setProcessing(false);
   };
@@ -237,6 +261,45 @@ const Components = () => {
             }}
             aria-labelledby="dropdownMenuClickable"
           >
+            <SettingElement title="Prompt Type">
+              <select
+                className="form-select"
+                onChange={e => {
+                  if (e.target.value == "Image" || e.target.value == "Chat")
+                    setPromptType(e.target.value);
+                }}
+                defaultValue={PROMPT_TYPE.Chat}
+                value={promptType}
+              >
+                <option value="Chat">Chat</option>
+                <option value="Image">Image</option>
+              </select>
+            </SettingElement>
+            {promptType === PROMPT_TYPE.Image && (
+              <SettingElement title="Image">
+                <ImageUploading value={images} onChange={handleImageChange}>
+                  {({ imageList, onImageUpload }) => (
+                    <div className="d-flex flex-row gap-3">
+                      <button
+                        className="btn btn-secondary h-50"
+                        onClick={e => {
+                          e.preventDefault();
+                          onImageUpload();
+                        }}
+                      >
+                        Upload image
+                      </button>
+                      {imageList.map((image, index) => (
+                        <div key={index} className="image-item">
+                          <img src={image.dataURL} alt="" width="250" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </ImageUploading>
+              </SettingElement>
+            )}
+
             <SettingElement title="Engine Type">
               <select
                 className="form-select"
@@ -256,7 +319,6 @@ const Components = () => {
                   height: "200px",
                 }}
                 value={systemPrompt}
-                disabled
                 onChange={e => setSystemPrompt(e.target.value)}
               ></textarea>
             </SettingElement>

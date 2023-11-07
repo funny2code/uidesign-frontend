@@ -78,11 +78,20 @@ const Old = () => {
           style={{ height: "100%", width: "100%" }}
         ></section>
       </section>
-      <div className="hstack gap-2 designer-form">
+      <div className="hstack designer-form">
         <input
           ref={inputRef}
           className="form-control"
-          style={{ height: "100%" }}
+          style={{
+            height: "100%",
+            borderRadius: "4px 0px 0px 4px",
+            border: "1px solid #fff",
+            borderRight: '0px',
+            backgroundColor: 'rgba(255, 255, 255, 0.5)',
+            backdropFilter: 'blur(5px)',
+            WebkitBackdropFilter: 'blur(5px)',
+            outline: 'none'
+          }}
           type="text"
           placeholder={"Describe your design"}
           value={input}
@@ -92,10 +101,18 @@ const Old = () => {
         <button
           ref={buttonRef}
           className="btn btn-primary"
-          style={{ height: "100%", width: "200px" }}
+          style={{
+            height: "100%",
+            width: "114px",
+            borderRadius: "0px 4px 4px 0px",
+            backgroundColor: '#117255',
+            border: 'none',
+            fontWeight: 700,
+            fontSize: '16px'
+          }}
           type="button"
         >
-          {processing ? "Stop" : "Create Design"}
+          {processing ? "Stop" : "Send"}
         </button>
       </div>
     </>

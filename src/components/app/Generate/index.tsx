@@ -11,7 +11,6 @@ import Copy from "./Copy";
 import Components from "./Component";
 import type { BlobLike } from "openai/uploads.mjs";
 
-const HEIGHT_OFFSET = 68;
 const Generate = () => {
   // Flow
   const [currentPage, setCurrentPage] = useState<UIDesignPage | UIDesignAdminPage>(PAGES.Old);

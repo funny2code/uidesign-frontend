@@ -21,11 +21,12 @@ const TopBarMenu = ({ currentPage, handlePageChange, handleSaveProjectBtn, setPr
     return Object.values(pages).map((page, index) => (
       <li key={index}>
         <button
-          className={`${currentPage === page ? "active mb-0" : "mb-0"}`}
+          // className={`${currentPage === page ? "active mb-0" : "mb-0"}`}
+          className={`topbar-button ${currentPage === page ? "topbar-button-active" : ""}`}
           onClick={() => (handlePageChange ? handlePageChange(page) : () => {})}
         >
           {page}
-        </button>
+        </button> 
       </li>
     ));
   };
@@ -37,7 +38,8 @@ const TopBarMenu = ({ currentPage, handlePageChange, handleSaveProjectBtn, setPr
   return (
     <section className="topbar d-flex align-items-center justify-content-between gap-2">
       <section className="d-none d-md-block">
-        <ul className="menu d-flex justify-content-center gap-2">{Buttons()}</ul>
+        {/* <div style={{ width: '50px', height: '50px', backgroundColor: 'green' }}></div> */}
+        <ul className="no-identation d-flex justify-content-center gap-2 no-bullets">{Buttons()}</ul>
       </section>
       <section className="d-block d-md-none menu justify-content-center gap-2 dropdown">
         <button

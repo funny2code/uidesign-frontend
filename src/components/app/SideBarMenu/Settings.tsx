@@ -16,10 +16,15 @@ const Settings = () => {
   };
   return (
     <div className="menu dropdown">
-      <button className="settings" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <button
+        className="settings"
+        type="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
         Settings
       </button>
-      <ul className="dropdown-menu settings-dropdown w-100">
+      <ul className="dropdown-menu settings-dropdown w-100 settings-form">
         {settings.map((setting, index) => (
           <li key={index}>
             <button className={`dropdown-item`} onClick={() => handleSettingChange(setting)}>

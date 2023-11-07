@@ -84,7 +84,7 @@ const Old = () => {
           className="form-control"
           style={{
             height: "100%",
-            borderRadius: "8px 0px 0px 8px",
+            borderRadius: "4px 0px 0px 4px",
             border: "1px solid #fff",
             borderRight: '0px',
             backgroundColor: 'rgba(255, 255, 255, 0.5)',
@@ -104,7 +104,7 @@ const Old = () => {
           style={{
             height: "100%",
             width: "114px",
-            borderRadius: "0px 8px 8px 0px",
+            borderRadius: "0px 4px 4px 0px",
             backgroundColor: '#117255',
             border: 'none',
             fontWeight: 700,

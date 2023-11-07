@@ -1,3 +1,4 @@
+import React from "react";
 import ExportButton from "./Export";
 import EditButton from "./Edit";
 import { PAGES, ADMIN_PAGES } from "./constants";
@@ -6,6 +7,7 @@ import { useSession } from "../../../auth/useSession";
 import type { UIDesignAdminPage, UIDesignPage } from "./types";
 import PaymentButton from "../Shopify/components/paymentButton";
 import ShopifyProjects from "./shopifyProjects";
+import Generate from "../../SideBarMenu/generate";
 
 interface Props {
   currentPage: UIDesignPage | UIDesignAdminPage;
@@ -17,12 +19,13 @@ interface Props {
 const TopBarMenu = ({ currentPage, handlePageChange, handleSaveProjectBtn, setProject }: Props) => {
   const [pages, setPages] = useState(() => PAGES);
   const { getSession } = useSession();
-  const Buttons = () => {
+  const Buttons = ({ icon } : { icon?: React.ReactNode} = {}) => {
     return Object.values(pages).map((page, index) => (
       <li key={index}>
         <button
           className={`topbar-button ${currentPage === page ? "topbar-button-active" : ""}`}
         >
+          {icon || null}  
           {page}
         </button> 
       </li>

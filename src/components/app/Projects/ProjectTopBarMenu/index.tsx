@@ -1,7 +1,9 @@
+import React from "react";
 import { PROJECT_PAGES } from "./constants";
 import type { UIProjectsPage } from "./types";
 import { useState } from "react";
 import { useSession } from "../../../auth/useSession";
+import Generate from "../../SideBarMenu/generate";
 
 interface Props {
     currentPage: UIProjectsPage;

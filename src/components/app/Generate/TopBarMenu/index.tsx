@@ -17,11 +17,10 @@ const TopBarMenu = ({ currentPage, handlePageChange }: Props) => {
     return Object.values(pages).map((page, index) => (
       <li key={index}>
         <button
-          className={`${currentPage === page ? "active" : ""}`}
-          onClick={() => (handlePageChange ? handlePageChange(page) : () => {})}
+          className={`topbar-button ${currentPage === page ? "topbar-button-active" : ""}`}
         >
           {page}
-        </button>
+        </button> 
       </li>
     ));
   };
@@ -33,7 +32,8 @@ const TopBarMenu = ({ currentPage, handlePageChange }: Props) => {
   return (
     <section className="topbar d-flex justify-content-between gap-2">
       <section className="d-none d-md-block">
-        <ul className="menu d-flex justify-content-center gap-2">{Buttons()}</ul>
+        {/* <div style={{ width: '50px', height: '50px', backgroundColor: 'green' }}></div> */}
+        <ul className="no-identation d-flex justify-content-center gap-2 no-bullets">{Buttons()}</ul>
       </section>
       <section className="d-block d-md-none menu justify-content-center gap-2 dropdown">
         <button

@@ -9,7 +9,6 @@ import Build from "./Build";
 import Remix from "./Remix";
 import Copy from "./Copy";
 
-const HEIGHT_OFFSET = 68;
 const Generate = () => {
   // Flow
   const [currentPage, setCurrentPage] = useState<UIDesignPage | UIDesignAdminPage>(PAGES.Old);

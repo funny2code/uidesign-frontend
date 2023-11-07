@@ -9,6 +9,7 @@ import Generate from './generate';
 const GENERATE = 'Generate'
 const HISTORY = 'History'
 const ADMIN = 'Admin'
+const PROJECTS = 'Projects'
 
 interface Props {
   currentPage?: string;
@@ -28,11 +29,11 @@ function getIcon(iconName: string, isActive: boolean) {
   }
 }
 const SidebarMenu = ({ currentPage, handlePageChange }: Props) => {
-  const [pages, setPages] = useState([GENERATE, HISTORY]);
+  const [pages, setPages] = useState([GENERATE, HISTORY, PROJECTS]);
   const { getSession } = useSession();
   useEffect(() => {
     getSession().then(tokens => {
-      tokens.is_admin && setPages([GENERATE, HISTORY, ADMIN]);
+      tokens.is_admin && setPages([GENERATE, HISTORY, ADMIN, PROJECTS]);
     });
   }, []);
   return (

@@ -2,6 +2,8 @@ import SidebarMenu from "./SideBarMenu";
 import { useState } from "react";
 import Generate from "./Generate";
 import History from "./History";
+import Projects from "./Projects";
+
 
 const App = () => {
   const [currentPage, setCurrentPage] = useState("Generate");
@@ -15,6 +17,7 @@ const App = () => {
         {currentPage == "Generate" && <Generate />}
         {currentPage == "History" && <History />}
         {/* {currentPage == "Admin" && <Admin />} */}
+        {currentPage == "Projects" && <Projects />}
       </section>
     </section>
   );

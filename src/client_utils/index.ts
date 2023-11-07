@@ -32,6 +32,7 @@ export const saveProject = async (
       other: otherDocuments?.map(d => ({ ...sharedData, type: d.type, data: { text: d.text } })) || [],
     },
   };
+  console.log("DATA: ", data)
   const res = await V2ProjectsService.createUserProjectV2UserProjectsPost(data);
   return res;
 };

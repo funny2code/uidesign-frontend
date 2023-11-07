@@ -6,7 +6,6 @@ import { useSession } from "../../../auth/useSession.tsx";
 import { V2ProjectsService } from "../../../../client/index.ts";
 import Document from "./Document.tsx";
 import { useInView } from "react-intersection-observer";
-import { PROJECT_TYPE } from '../../../../client';
 
 const Websites =  () => {
     const [currentPage, setCurrentPage] = useState<UIProjectsPage>(PROJECT_PAGES.Websites);
@@ -25,12 +24,22 @@ const Websites =  () => {
     const [depleted, setDepleted] = useState(false);
     const [isCreateProject, setIsCreateProject] = useState(false);
     const [privacyValue, setPrivacyValue] = useState("public");
+
     const toggle = () => {
       setIsCreateProject((isCreateProject) => !isCreateProject);
     }
     const handleChange = (e) => {
       setPrivacyValue(e.target.value);
     };
+
+    const resetModal = () => {
+      if (sectionRef){
+        sectionRef.current.innerHTML = "";
+        project_descriptionRef.current.value = "";
+        project_tagRef.current.value = "";
+        project_nameRef.current.value = "";
+      }
+    }
     // Get all projects
     const {
       status,
@@ -47,14 +56,12 @@ const Websites =  () => {
       ["projects"],
       async ({ pageParam = 0 }) => {
         const tokens = await getSession();
-        const data = await V2ProjectsService.readPublicProjectsV2PublicProjectsGet(
+        const data = await V2ProjectsService.readPublicWebsiteProjects(
           pageParam,
-          pageSize,
-          PROJECT_TYPE.WEBSITE_PAGES
+          pageSize
         );
-        console.log("projects: ", data);
-        setDepleted(data.result.length < pageSize);
-        return { data: data.result, previousId: pageParam - pageSize, nextId: pageParam + pageSize };
+        setDepleted(data.results.length < pageSize);
+        return { data: data.results, previousId: pageParam - pageSize, nextId: pageParam + pageSize };
       },
       {
         getPreviousPageParam: firstPage => firstPage.previousId ?? undefined,
@@ -94,9 +101,13 @@ const Websites =  () => {
                 {data
                   ? data.pages.map(page => (
                       <Fragment key={page.nextId}>
-                        {page.data.map(document => (
-                          <Document key={document.id} {...document} sectionRef={sectionRef} />
-                        ))}
+                        {
+                          page.data.map(project => {
+                            return (
+                            <Document key={project.id} {...project} sectionRef={sectionRef} />
+                            )
+                          })
+                        }
                       </Fragment>
                     ))
                   : null}
@@ -171,22 +182,6 @@ const Websites =  () => {
                         data-bs-target="#iframeModal"
                         onClick = {async () => {
                           let tags = project_tagRef.current?.value.split(",");
-                          
-                          // Create a Project
-                          // const data = await V2ProjectsService.createUserProjectV2UserProjectsPost({
-                          //   name: project_nameRef.current?.value ?? "test project by grapesjs", 
-                          //   public: privacyValue == "public"? true: false, 
-                          //   tags: project_tagRef.current?.value.split(",") ?? [], 
-                          //   description: project_descriptionRef.current?.value ?? "test_project description",
-                          //   url: "",
-                          //   img_url: "",
-                          //   type: PROJECT_TYPE.WEBSITE_PAGES,
-                          //   data: {
-                          //     content: [],
-                          //     styles: [],
-                          //     other: []
-                          //   }
-                          // });
 
                           const tokens = await getSession();
                           const res = await fetch("http://127.0.0.1:5000/display", {
@@ -198,7 +193,14 @@ const Websites =  () => {
                             },
                             body: JSON.stringify({
                               refresh_token: tokens.refresh_token,
-                              action: "create_project"
+                              action: "create_project",
+                              data: {
+                                name: project_nameRef.current?.value ?? "test project by grapesjs", 
+                                public: privacyValue == "public"? true: false,
+                                tags: project_tagRef.current?.value.split(",") ?? [],
+                                description: project_descriptionRef.current?.value ?? "test_project description", 
+                                context: {}
+                              }
                             })
                           });
                           const html_text = await res.text();
@@ -237,6 +239,7 @@ const Websites =  () => {
                     style={{ fontSize: ".82rem" }}
                     data-bs-dismiss="modal"
                     aria-label="Close"
+                    onClick={resetModal}
                   ></button>
                 </div>
                 <div className="modal-body p-0">

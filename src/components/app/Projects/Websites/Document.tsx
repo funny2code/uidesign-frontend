@@ -1,10 +1,18 @@
 import { OpenAPI, V2ProjectsService } from "../../../../client";
-import { fetchDocuments, editDocuments, exportDocuments } from "../../utils/documents";
-import type { ProjectSimilarityResult } from "../../../../client";
+import { editDocuments, exportDocuments } from "../../utils/documents";
+import type { WebsiteProjectResult } from "../../../../client";
 import { useSession } from "../../../auth/useSession";
-import { initFrame } from "../../utils/frame";
 
-interface DocumentItemProps extends ProjectSimilarityResult {
+interface DocumentItemProps  {
+  id: string;
+  name: string;
+  public: boolean;
+  description: string;
+  /**
+   * Can be empty list.
+   */
+  tags: Array<string>;
+  context?: Record<string, any>;
   sectionRef?: React.MutableRefObject<HTMLDivElement | null>;
 }
 const Document = (props: DocumentItemProps) => {
@@ -13,9 +21,7 @@ const Document = (props: DocumentItemProps) => {
     if (!props.sectionRef || !props.sectionRef.current) return;
     props.sectionRef.current.innerHTML = ""; // deals with flash of previous view
     const tokens = await getSession();
-    // OpenAPI.TOKEN = tokens.id_token;
-    // const { content, styles } = await fetchDocuments(props.id);
-    console.log("project_id: ", props.id)
+    
     const res = await fetch("http://127.0.0.1:5000/display", {
     // const res = await fetch("http://3.135.207.187/display", {
       method: "POST",
@@ -25,7 +31,7 @@ const Document = (props: DocumentItemProps) => {
       },
       body: JSON.stringify({
         refresh_token: tokens.refresh_token,
-        project_id: "",
+        project_id: props.id,
         action: "edit_project"
       })
     });
@@ -39,38 +45,15 @@ const Document = (props: DocumentItemProps) => {
     iframe.height = "600px";
     iframe.srcdoc = html_text;
     iframeSection.appendChild(iframe);
-    // const iframe = initFrame(props.sectionRef.current);
-
-    // iframe.onload = async () => {
-      // iframe.src = "https://google.com";
-      // const contentWindow = iframe.contentWindow;
-      // if (!contentWindow) return;
-      // contentWindow.document.title = props.name;
-      // contentWindow.document.body.innerHTML = content.map(c => c.data?.text || "").join("\n");
-      // contentWindow.document.head.innerHTML = styles
-      //   ? `<style>${styles.map(s => s.data?.text || "").join("\n")}</style>`
-      //   : "";
-    // };
   };
-  const handleEdit = async () => {
-    if (!props.id) return;
-    const tokens = await getSession();
-    OpenAPI.TOKEN = tokens.id_token;
-    await editDocuments(props.id);
-  };
-  const handleExport = async () => {
-    if (!props.id) return;
-    const tokens = await getSession();
-    OpenAPI.TOKEN = tokens.id_token;
-    await exportDocuments(props.id);
-  };
+  
   const handleDelete = async () => {
     if (!props.id) return;
     const tokens = await getSession();
     OpenAPI.TOKEN = tokens.id_token;
     const confirm = window.confirm("Delete?");
     if (!confirm) return;
-    await V2ProjectsService.deleteUserProjectV2UserProjectsIdDelete(props.id);
+    await V2ProjectsService.deleteWebsiteProject(props.id);
   };
   return (
     <>
@@ -94,15 +77,9 @@ const Document = (props: DocumentItemProps) => {
             >
               Edit Project
             </button>
-            {/* <a className="link-primary" style={{ cursor: "pointer" }} onClick={handleEdit}>
-              Edit
-            </a>
-            <a className="link-primary" style={{ cursor: "pointer" }} onClick={handleExport}>
-              Export
-            </a>
             <a className="link-primary" style={{ cursor: "pointer" }} onClick={handleDelete}>
               Delete
-            </a> */}
+            </a> 
           </section>
         )}
       </section>

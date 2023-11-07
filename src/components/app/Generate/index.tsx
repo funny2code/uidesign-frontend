@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { PAGES, ADMIN_PAGES } from "./TopBarMenu/constants";
 import type { UIDesignAdminPage, UIDesignPage } from "./TopBarMenu/types";
 import TopBarMenu from "./TopBarMenu";
-import Shopify, { type shopifyRef } from "./Shopify";
+import Shopify from "./Shopify";
 import Create from "./Create";
 import Old from "./Old";
 import Build from "./Build";
@@ -23,6 +23,8 @@ const Generate = () => {
   const otherRef = useRef<HTMLDivElement>(null);
   
   const [isSaved, setSaved] = useState<boolean>(false);
+  const [isDisabled, setDisabled] = useState<boolean>(true);
+  const [intentId, setIntentId] = useState<string | undefined>(undefined);
   const [project, setProject] = useState<any[]|[]>([]);
   
 
@@ -34,7 +36,7 @@ const Generate = () => {
     [PAGES.Old]: <Old />,
     [PAGES.Copy]: <Copy />,
     [PAGES.Remix]: <Remix />,
-    [ADMIN_PAGES.Shopify]: <Shopify isSaved={isSaved} setSaved={setSaved} project={project} />,
+    [ADMIN_PAGES.Shopify]: <Shopify intentId={intentId} isSaved={isSaved} setProjectDisabled={setDisabled}  setSaved={setSaved} project={project} />,
     [ADMIN_PAGES.Build]: <></>, // Build
     [ADMIN_PAGES.Create]: <Create />,
     [ADMIN_PAGES.Components]: <Components />,
@@ -66,7 +68,7 @@ const Generate = () => {
 
   return (
     <section className="designer d-flex flex-column justify-content-between">
-      <TopBarMenu currentPage={currentPage} handlePageChange={handlePageChange} handleSaveProjectBtn={handleSaveProjectBtn} setProject={setProject} />
+      <TopBarMenu setIntentId={setIntentId} isSaved={isSaved} currentPage={currentPage} isDisabled={isDisabled} handlePageChange={handlePageChange} handleSaveProjectBtn={handleSaveProjectBtn} setProject={setProject} />
       <section ref={otherRef} className="d-flex flex-column flex-grow-1">
         {pages[currentPage]}
       </section>

@@ -13,32 +13,30 @@ import type { BlobLike } from "openai/uploads.mjs";
 
 const Generate = () => {
   // Flow
-  const [currentPage, setCurrentPage] = useState<UIDesignPage | UIDesignAdminPage>(PAGES.Old);
+  const [currentPage, setCurrentPage] = useState<UIDesignPage | UIDesignAdminPage>(PAGES.Components);
   const handlePageChange = (page: UIDesignPage | UIDesignAdminPage) => {
     setCurrentPage(page);
   };
   const [runBuild, setRunBuild] = useState<boolean>(false);
   const stackblitzRef = useRef<HTMLDivElement>(null);
   const otherRef = useRef<HTMLDivElement>(null);
-  
+
   const [isSaved, setSaved] = useState<boolean>(false);
-  const [project, setProject] = useState<any[]|[]>([]);
-  
+  const [project, setProject] = useState<any[] | []>([]);
 
   const handleSaveProjectBtn = () => {
     setSaved(true);
   };
 
   const pages = {
-    [PAGES.Old]: <Old />,
-    [PAGES.Copy]: <Copy />,
-    [PAGES.Remix]: <Remix />,
+    [ADMIN_PAGES.Old]: <Old />,
+    [ADMIN_PAGES.Copy]: <Copy />,
+    [ADMIN_PAGES.Remix]: <Remix />,
     [ADMIN_PAGES.Shopify]: <Shopify isSaved={isSaved} setSaved={setSaved} project={project} />,
     [ADMIN_PAGES.Build]: <></>, // Build
     [ADMIN_PAGES.Create]: <Create />,
-    [ADMIN_PAGES.Components]: <Components />,
+    [PAGES.Components]: <Components />,
   };
-
 
   useEffect(() => {
     // Load the Stackblitz iframe on this Component's render to avoid re-creating on page change.
@@ -65,7 +63,12 @@ const Generate = () => {
 
   return (
     <section className="designer d-flex flex-column justify-content-between">
-      <TopBarMenu currentPage={currentPage} handlePageChange={handlePageChange} handleSaveProjectBtn={handleSaveProjectBtn} setProject={setProject} />
+      <TopBarMenu
+        currentPage={currentPage}
+        handlePageChange={handlePageChange}
+        handleSaveProjectBtn={handleSaveProjectBtn}
+        setProject={setProject}
+      />
       <section ref={otherRef} className="d-flex flex-column flex-grow-1">
         {pages[currentPage]}
       </section>

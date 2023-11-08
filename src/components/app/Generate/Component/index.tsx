@@ -5,17 +5,21 @@ import CodeMirror from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { okaidia } from "@uiw/codemirror-theme-okaidia";
 import ClipLoader from "react-spinners/ClipLoader";
+import ImageUploading, { type ImageListType } from "react-images-uploading";
+import { WebContainer } from "@webcontainer/api";
+
+import { useSession } from "../../../auth/useSession";
 import InputBar from "../components/InputBar";
 import makeComponent, { type PromptType } from "../commands/component";
 import ApiKeyInputBar from "../components/ApiKeyInputBar";
 import SettingElement from "../components/SettingElement";
 import IFrame from "../components/IFrame";
 import { SYSTEM_PROMPT, PROMPT_TYPE, ENGINE_TYPE, STAGE } from "./constants";
-import { WebContainer } from "@webcontainer/api";
 import { files } from "./files";
-import ImageUploading, { type ImageListType } from "react-images-uploading";
 
 const Components = () => {
+  const { getSession } = useSession();
+
   const componentsList = [0, 1, 2];
   const [stage, setStage] = useState<STAGE>(STAGE.First);
   const [input, setInput] = useState<string>("");
@@ -39,16 +43,18 @@ const Components = () => {
   const initWebcontainer = async () => {
     if (!webcontainer) return;
     await webcontainer.mount(files);
-
     updateSelectedFile();
 
     const installProcess = await webcontainer.spawn("npm", ["install"]);
+
     const installExitCode = await installProcess.exit;
+
     if (installExitCode !== 0) {
       throw new Error("Unable to run npm install");
     }
     // `npm run dev`
     await webcontainer.spawn("npm", ["run", "dev"]);
+
     webcontainer.on("server-ready", (port, url) => {
       setSrcURL(url);
       setIsWebContainerLoaded(true);
@@ -83,7 +89,6 @@ const Components = () => {
   useEffect(() => {
     const bootWebContainer = async () => {
       // Call only once
-      if (webcontainer) return;
       const webcontainerInstance = await WebContainer.boot();
       setWebcontainer(webcontainerInstance);
     };
@@ -105,6 +110,15 @@ const Components = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+
+    getSession()
+      .then(tokens => {
+        // all good
+      })
+      .catch(err => {
+        window.location.replace("/login");
+      });
+
     if (apiKey == "") {
       toast.error("Need to input OpenAI Api Key");
       setApiKeyError(true);

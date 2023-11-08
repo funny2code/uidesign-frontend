@@ -1,2 +1,2 @@
-export type UIDesignPage = "Old" | "Copy" | "Remix";
-export type UIDesignAdminPage = "Shopify" | "Build" | "Create" | "Components";
+export type UIDesignPage = "Components";
+export type UIDesignAdminPage = "Old" | "Copy" | "Remix" | "Shopify" | "Build" | "Create";

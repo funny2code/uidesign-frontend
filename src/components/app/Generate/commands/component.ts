@@ -76,7 +76,7 @@ const makeComponent = async ({webcontainer, engineType, systemPrompt, input, api
           },
           {
             "role": "user",
-            "content": (stage !== STAGE.First ? selectedFile + "\n \ " : "") + input + (stage === STAGE.First ? EXTRA_USER_PROMPT : "")
+            "content": (stage !== STAGE.First ? selectedFile + "\n \ " : "") + input + "\n \ " + (stage === STAGE.First ? EXTRA_USER_PROMPT : "")
           }
         ],
         temperature: 0,

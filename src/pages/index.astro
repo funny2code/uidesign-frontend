@@ -12,13 +12,7 @@ import { getSession } from "../components/auth/session";
 import { OpenAPI } from "../client";
 
 OpenAPI.BASE = "https://api.uidesign.ai";
-getSession()
-.then(tokens => { 
-	// all good
-})
-.catch(err => {
-	window.location.replace("/login")
-})
+
 </script>
 <AppLayout title="UI Design">
 	<App api_url={api_url} client:load></App>

@@ -12,22 +12,24 @@ import Generate from "../../SideBarMenu/generate";
 interface Props {
   currentPage: UIDesignPage | UIDesignAdminPage;
   handlePageChange?: (page: UIDesignPage | UIDesignAdminPage) => void;
-  handleSaveProjectBtn: (e:any) => void;
-  setProject: (e:any) => void;
+  handleSaveProjectBtn: (e: any) => void;
+  setProject: (e: any) => void;
 }
 
 const TopBarMenu = ({ currentPage, handlePageChange, handleSaveProjectBtn, setProject }: Props) => {
   const [pages, setPages] = useState(() => PAGES);
   const { getSession } = useSession();
-  const Buttons = ({ icon } : { icon?: React.ReactNode} = {}) => {
+  const Buttons = ({ icon }: { icon?: React.ReactNode } = {}) => {
     return Object.values(pages).map((page, index) => (
       <li key={index}>
         <button
+          // className={`${currentPage === page ? "active mb-0" : "mb-0"}`}
           className={`topbar-button ${currentPage === page ? "topbar-button-active" : ""}`}
+          onClick={() => (handlePageChange ? handlePageChange(page) : () => {})}
         >
-          {icon || null}  
+          {icon || null}
           {page}
-        </button> 
+        </button>
       </li>
     ));
   };
@@ -53,15 +55,21 @@ const TopBarMenu = ({ currentPage, handlePageChange, handleSaveProjectBtn, setPr
         <ul className="dropdown-menu w-100">{Buttons()}</ul>
       </section>
       <section className="d-flex gap-2">
-        { currentPage === "Shopify" && (
+        {currentPage === "Shopify" && (
           <>
             <ShopifyProjects setProject={setProject} />
-            <button className="btn btn-primary px-2" style={{ height: "60px" }} onClick={handleSaveProjectBtn}>Save to Projects</button>
+            <button
+              className="btn btn-primary px-2"
+              style={{ height: "60px" }}
+              onClick={handleSaveProjectBtn}
+            >
+              Save to Projects
+            </button>
             <PaymentButton />
           </>
         )}
-        { currentPage !== "Shopify" && <EditButton currentPage={currentPage} />}
-        { currentPage !== "Shopify" && <ExportButton currentPage={currentPage} />}
+        {currentPage !== "Shopify" && <EditButton currentPage={currentPage} />}
+        {currentPage !== "Shopify" && <ExportButton currentPage={currentPage} />}
       </section>
     </section>
   );

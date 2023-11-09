@@ -1,9 +1,7 @@
-import { OpenAPI, V3WebsitesProjectsService } from "../../../../client";
-import { editDocuments, exportDocuments } from "../../utils/documents";
-import type { WebsiteProjectResult } from "../../../../client";
+import { OpenAPI, V3BravoProjectsService } from "../../../../client";
 import { useSession } from "../../../auth/useSession";
 
-interface DocumentItemProps  {
+interface DocumentItemProps {
   id: string;
   name: string;
   public: boolean;
@@ -11,49 +9,49 @@ interface DocumentItemProps  {
   /**
    * Can be empty list.
    */
-  tags: Array<string>;
-  context?: Record<string, any>;
+  tags: Array<string> | null;
   sectionRef?: React.MutableRefObject<HTMLDivElement | null>;
+  project_nameRef?: React.MutableRefObject<HTMLInputElement | null>;
+  project_idRef?: React.MutableRefObject<HTMLInputElement | null>;
+  project_tagRef?: React.MutableRefObject<HTMLInputElement | null>;
+  project_descriptionRef?: React.MutableRefObject<HTMLTextAreaElement | null>;
 }
-const Document = (props: DocumentItemProps) => {
-  const { getSession } = useSession();
-  const handleView = async () => {
-    if (!props.sectionRef || !props.sectionRef.current) return;
-    props.sectionRef.current.innerHTML = ""; // deals with flash of previous view
-    const tokens = await getSession();
-    
-    // const res = await fetch("http://127.0.0.1:5000/display", {
-    const res = await fetch("http://3.135.207.187/display", {
-      method: "POST",
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        refresh_token: tokens.refresh_token,
-        project_id: props.id,
-        action: "edit_project"
-      })
-    });
-    
-    const html_text = await res.text();
 
-    let iframeSection = props.sectionRef.current;
-    iframeSection.innerHTML = "";
-    let iframe = document.createElement("iframe");
-    iframe.width = "100%";
-    iframe.height = "600px";
-    iframe.srcdoc = html_text;
-    iframeSection.appendChild(iframe);
+const fetchProject = async (id: string, preview: boolean = false) => {
+  const project = await V3BravoProjectsService.readUserBravoProject(id);
+
+  return project;
+};
+
+const Project = (props: DocumentItemProps) => {
+  const { getSession } = useSession();
+  const handleEdit = async () => {
+    if (!props.id) return;
+    const tokens = await getSession();
+    OpenAPI.TOKEN = tokens.id_token;
+    const project_data = await fetchProject(props.id);
+    props.project_idRef.current.value = props.id;
+    props.project_descriptionRef.current.value = project_data.description;
+    let tags = project_data.tags;
+    if (tags != undefined) {
+      let tags_str = "";
+      for (let index in tags) {
+        tags_str += tags[index];
+      }
+      props.project_tagRef.current.value = tags_str;
+    } else {
+      props.project_tagRef.current.value = "Null";
+    }
+    props.project_nameRef.current.value = project_data.name;
   };
-  
+
   const handleDelete = async () => {
     if (!props.id) return;
     const tokens = await getSession();
     OpenAPI.TOKEN = tokens.id_token;
     const confirm = window.confirm("Delete?");
     if (!confirm) return;
-    await V3WebsitesProjectsService.deleteWebsiteProject(props.id);
+    await V3BravoProjectsService.deleteBravoProject(props.id);
   };
   return (
     <>
@@ -71,7 +69,7 @@ const Document = (props: DocumentItemProps) => {
             <button
               className="link-primary"
               style={{ cursor: "pointer" }}
-              onClick={handleView}
+              onClick={handleEdit}
               data-bs-toggle="modal"
               data-bs-target="#viewModal"
             >
@@ -79,7 +77,7 @@ const Document = (props: DocumentItemProps) => {
             </button>
             <a className="link-primary" style={{ cursor: "pointer" }} onClick={handleDelete}>
               Delete
-            </a> 
+            </a>
           </section>
         )}
       </section>
@@ -87,4 +85,4 @@ const Document = (props: DocumentItemProps) => {
   );
 };
 
-export default Document;
+export default Project;

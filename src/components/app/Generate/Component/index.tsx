@@ -16,6 +16,7 @@ import SettingElement from "../components/SettingElement";
 import IFrame from "../components/IFrame";
 import { SYSTEM_PROMPT, PROMPT_TYPE, ENGINE_TYPE, STAGE } from "./constants";
 import { files } from "./files";
+import { componentWebContainer } from "../../../../atoms";
 
 const Components = () => {
   const { getSession } = useSession();
@@ -31,7 +32,7 @@ const Components = () => {
   const [processing, setProcessing] = useState(false);
   const [isWebContainerLoaded, setIsWebContainerLoaded] = useState<boolean>(false);
   const [srcURL, setSrcURL] = useState("");
-  const [webcontainer, setWebcontainer] = useState<WebContainer | null>(null);
+  const [webcontainer, setWebcontainer] = useState<WebContainer | undefined>(undefined);
   const [selectedComponent, setSelectedComponent] = useState<number>(0);
   const [selectedFile, setSelectedFile] = useState<string>("");
   const [isCodeDisplay, setIsCodeDisplay] = useState<boolean>(false);
@@ -88,8 +89,13 @@ const Components = () => {
 
   useEffect(() => {
     const bootWebContainer = async () => {
+      if (componentWebContainer.get()) {
+        setWebcontainer(componentWebContainer.get());
+        return;
+      }
       // Call only once
       const webcontainerInstance = await WebContainer.boot();
+      componentWebContainer.set(webcontainerInstance || undefined);
       setWebcontainer(webcontainerInstance);
     };
     bootWebContainer();

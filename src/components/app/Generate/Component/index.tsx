@@ -116,6 +116,10 @@ const Components = () => {
     setSystemPrompt(SYSTEM_PROMPT[promptType][`${stage == STAGE.First ? STAGE.First : STAGE.Second}`]);
   }, [promptType]);
 
+  useEffect(() => {
+    setSystemPrompt(SYSTEM_PROMPT[promptType][`${stage == STAGE.First ? STAGE.First : STAGE.Second}`]);
+  }, [stage]);
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 

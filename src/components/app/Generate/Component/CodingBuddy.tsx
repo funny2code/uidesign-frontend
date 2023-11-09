@@ -54,19 +54,39 @@ const CodingBuddy = ({
     <>
       <ImageUploading value={images} onChange={handleImageChange}>
         {({ imageList, onImageUpload }) => (
-          <div className="d-flex flex-row gap-3">
-            <button
-              className="btn btn-secondary h-50"
-              onClick={e => {
-                e.preventDefault();
-                onImageUpload();
-              }}
-            >
-              Upload image
-            </button>
+          <div
+            className="mb-2 position-relative rounded d-flex justify-content-center align-items-center"
+            style={{
+              minHeight: "150px",
+              maxHeight: "250px",
+              borderStyle: "dashed",
+              borderWidth: "1px",
+              borderColor: "gray",
+              cursor: "pointer",
+            }}
+            onClick={e => {
+              e.preventDefault();
+              onImageUpload();
+            }}
+          >
+            <div className="btn bg-transparent w-100 text-light position-absolute top-0 d-flex flex-column justify-content-center align-items-center pt-4 z-1">
+              {imageList.length ? (
+                <></>
+              ) : (
+                <>
+                  <img src="images/upload.png"></img>
+                  <p className="pt-3 pb-0 mb-0">Upload an image</p>
+                  <p className="text-info">PNG, JPG</p>
+                </>
+              )}
+            </div>
             {imageList.map((image, index) => (
-              <div key={index} className="image-item">
-                <img src={image.dataURL} alt="" width="250" />
+              <div key={index} className="image-item text-center align-middle">
+                <img
+                  src={image.dataURL}
+                  alt=""
+                  style={{ maxWidth: "100%", width: "auto", maxHeight: "250px" }}
+                />
               </div>
             ))}
           </div>

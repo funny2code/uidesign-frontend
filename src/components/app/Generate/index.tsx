@@ -69,7 +69,7 @@ const Generate = () => {
         handleSaveProjectBtn={handleSaveProjectBtn}
         setProject={setProject}
       />
-      <section ref={otherRef} className="d-flex flex-column flex-grow-1">
+      <section ref={otherRef} className="d-flex flex-column flex-grow-1 position-relative">
         {pages[currentPage]}
       </section>
       <section ref={stackblitzRef}>

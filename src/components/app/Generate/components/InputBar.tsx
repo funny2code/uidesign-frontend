@@ -29,11 +29,20 @@ const InputBar = ({
   setPromptType,
 }: InputBarProps) => {
   return (
-    <div className="hstack gap-2 designer-form form-control p-1">
+    <div className="hstack designer-form p-1">
       <input
         ref={inputRef}
         className="form-control border-0"
-        style={{ height: "100%" }}
+        style={{
+          height: "100%",
+          borderRadius: "4px 0px 0px 4px",
+          border: "1px solid #fff",
+          borderRight: "0px",
+          backgroundColor: "rgba(255, 255, 255, 0.5)",
+          backdropFilter: "blur(5px)",
+          WebkitBackdropFilter: "blur(5px)",
+          outline: "none",
+        }}
         type="text"
         placeholder={placeholder || "Describe your design"}
         value={input}
@@ -98,10 +107,17 @@ const InputBar = ({
       >
         <button
           type={"button"}
-          className="btn btn-outline-secondary text-dark"
+          className="btn text-dark"
           data-bs-toggle="dropdown"
           aria-expanded="false"
-          style={{ height: "96%", width: "64px", marginTop: "1px", marginBottom: "1px" }}
+          style={{
+            height: "96%",
+            width: "64px",
+            marginTop: "1px",
+            marginBottom: "1px",
+            position: "absolute",
+            right: "0",
+          }}
           id="dropdownMenuClickable"
           data-bs-auto-close="false"
         >
@@ -116,7 +132,7 @@ const InputBar = ({
       </div>
       <button
         ref={buttonRef}
-        className="btn btn-primary px-2"
+        className="btn btn-success"
         style={{ height: "100%", width: "188px" }}
         type="submit"
       >

@@ -5,7 +5,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { okaidia } from "@uiw/codemirror-theme-okaidia";
 import ClipLoader from "react-spinners/ClipLoader";
-import ImageUploading, { type ImageListType } from "react-images-uploading";
+import { type ImageListType } from "react-images-uploading";
 import { WebContainer } from "@webcontainer/api";
 
 import { useSession } from "../../../auth/useSession";
@@ -17,18 +17,20 @@ import IFrame from "../components/IFrame";
 import { SYSTEM_PROMPT, PROMPT_TYPE, ENGINE_TYPE, STAGE } from "./constants";
 import { files } from "./files";
 import { componentWebContainer } from "../../../../atoms";
+import FrameSelect from "../components/FrameSelect";
+import CodingBuddy from "./CodingBuddy";
 
 const Components = () => {
   const { getSession } = useSession();
 
   const componentsList = [0, 1, 2];
-  const [stage, setStage] = useState<STAGE>(STAGE.First);
+  const [stage, setStage] = useState<STAGE>(STAGE.Init);
   const [input, setInput] = useState<string>("");
   const [apiKey, setApiKey] = useState<string>("");
   const [engineType, setEngineType] = useState<string>(ENGINE_TYPE[0].value);
   const [promptType, setPromptType] = useState<PromptType>("Chat");
   const [apiKeyError, setApiKeyError] = useState<boolean>(false);
-  const [systemPrompt, setSystemPrompt] = useState<string>(SYSTEM_PROMPT.Chat[STAGE.First]);
+  const [systemPrompt, setSystemPrompt] = useState<string>(SYSTEM_PROMPT.Chat[STAGE.Init]);
   const [processing, setProcessing] = useState(false);
   const [isWebContainerLoaded, setIsWebContainerLoaded] = useState<boolean>(false);
   const [srcURL, setSrcURL] = useState("");
@@ -65,9 +67,10 @@ const Components = () => {
   const handleInit = async () => {
     setProcessing(true);
     initWebcontainer();
-    setStage(STAGE.First);
-    setSystemPrompt(SYSTEM_PROMPT[promptType][STAGE.Second]);
+    setStage(STAGE.Init);
+    setSystemPrompt("");
     setInput("");
+    setProcessing(false);
   };
 
   const handleChangeCode = async (value: string) => {
@@ -81,7 +84,6 @@ const Components = () => {
     const file = await webcontainer.fs.readFile(`src/component${selectedComponent}.tsx`, "utf-8");
     setSelectedFile(file);
   };
-  //Useeffect
 
   const handleImageChange = (imageList: ImageListType) => {
     setImages(imageList as never[]);
@@ -125,6 +127,7 @@ const Components = () => {
         window.location.replace("/login");
       });
 
+    if (stage === STAGE.Init) return;
     if (apiKey == "") {
       toast.error("Need to input OpenAI Api Key");
       setApiKeyError(true);
@@ -134,7 +137,7 @@ const Components = () => {
       toast.error("Need to input prompts");
       return;
     }
-    if (promptType == PROMPT_TYPE.Image && !images.length && stage != STAGE.First) {
+    if (promptType == PROMPT_TYPE.Image && !images.length && stage == STAGE.First) {
       toast.error("Need to add image");
       return;
     }
@@ -183,7 +186,7 @@ const Components = () => {
       <div className="w-100 h-100 overflow-hidden">
         <CodeMirror
           value={selectedFile}
-          height="850px"
+          height="770px"
           theme={okaidia}
           extensions={[javascript({ jsx: true })]}
           onChange={value => handleChangeCode(value)}
@@ -196,14 +199,6 @@ const Components = () => {
         }}
       >
         <IFrame src={`${srcURL}/${selectedComponent}`} isButton />
-        <div className="d-flex flex-row gap-3 justify-content-center align-items-center w-100">
-          <button className="btn btn-primary" onClick={() => setIsCodeDisplay(prev => !prev)}>
-            Canvas
-          </button>
-          <button className="btn btn-primary" onClick={handleInit}>
-            New +
-          </button>
-        </div>
       </div>
     </>
   );
@@ -237,14 +232,6 @@ const Components = () => {
         ) : (
           <div></div>
         )}
-        <div className="d-flex flex-row gap-3 justify-content-center align-items-center w-100">
-          <button className="btn btn-primary" onClick={() => setIsCodeDisplay(prev => !prev)}>
-            Code
-          </button>
-          <button className="btn btn-primary" onClick={handleInit}>
-            New +
-          </button>
-        </div>
       </div>
     </>
   );
@@ -252,7 +239,21 @@ const Components = () => {
   return (
     <>
       <ToastContainer />
-
+      <div className="d-flex flex-row justify-content-between align-items-center py-3 ">
+        <div className="text-light fw-semibold">New Component Visual Chat</div>
+        <FrameSelect />
+        <div className="d-flex flex-row gap-3 justify-content-center align-items-center">
+          <button
+            className="btn btn-primary bg-info px-3"
+            onClick={() => setIsCodeDisplay(prev => !prev)}
+          >
+            {`${isCodeDisplay ? "View Canvas" : "View Code"}`}
+          </button>
+          <button className="btn btn-primary px-3 rounded bg-success" onClick={handleInit}>
+            New +
+          </button>
+        </div>
+      </div>
       <section
         className="designer-window hstack flex-grow-1 position-relative"
         style={{
@@ -273,7 +274,17 @@ const Components = () => {
           canvasView
         )}
       </section>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="z-2">
+        <CodingBuddy
+          setPromptType={setPromptType}
+          setInput={setInput}
+          promptType={promptType}
+          stage={stage}
+          setStage={setStage}
+          handleImageChange={handleImageChange}
+          images={images}
+          processing={processing}
+        />
         <InputBar
           input={input}
           setInput={setInput}
@@ -290,7 +301,7 @@ const Components = () => {
             }}
             aria-labelledby="dropdownMenuClickable"
           >
-            <SettingElement title="Prompt Type">
+            {/* <SettingElement title="Prompt Type">
               <select
                 className="form-select"
                 onChange={e => {
@@ -303,8 +314,8 @@ const Components = () => {
                 <option value="Chat">Chat</option>
                 <option value="Image">Image</option>
               </select>
-            </SettingElement>
-            {promptType === PROMPT_TYPE.Image && (
+            </SettingElement> */}
+            {/* {promptType === PROMPT_TYPE.Image && (
               <SettingElement title="Image">
                 <ImageUploading value={images} onChange={handleImageChange}>
                   {({ imageList, onImageUpload }) => (
@@ -327,9 +338,9 @@ const Components = () => {
                   )}
                 </ImageUploading>
               </SettingElement>
-            )}
+            )} */}
 
-            <SettingElement title="Engine Type">
+            {/* <SettingElement title="Engine Type">
               <select
                 className="form-select"
                 onChange={e => {
@@ -340,7 +351,7 @@ const Components = () => {
                 <option value={ENGINE_TYPE[0].value}>{ENGINE_TYPE[0].name}</option>
                 <option value={ENGINE_TYPE[1].value}>{ENGINE_TYPE[1].name}</option>
               </select>
-            </SettingElement>
+            </SettingElement> */}
             <SettingElement title="System Prompt">
               <textarea
                 className="form-control"

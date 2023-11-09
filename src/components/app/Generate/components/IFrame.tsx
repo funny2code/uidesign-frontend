@@ -10,7 +10,7 @@ interface IIFrame {
 const IFrame = ({ src, classNames, onClick, isButton = false }: IIFrame): React.ReactElement => {
   return (
     <div
-      className={`${classNames} position-relative rounded p-1 border overflow-hidden`}
+      className={`${classNames} position-relative rounded p-1 overflow-hidden frame-border`}
       onClick={onClick}
     >
       <iframe src={src} height="100%" width="100%" className={`${isButton ? "buttonIframe" : ""}`} />

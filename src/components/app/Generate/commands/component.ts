@@ -87,6 +87,18 @@ const makeComponent = async ({webcontainer, engineType, systemPrompt, input, api
       const content = response?.choices[0]?.message?.content;
       if(!content) return false
 
+      const packageJson = await webcontainer.fs.readFile(`package.json`, 'utf-8');
+      const newModules = getNewModules(content, packageJson)
+
+      let moduleLength = newModules.length;
+      for(let i = 0; i < moduleLength; i++){
+        const installProcess = await webcontainer.spawn("npm", ["install", newModules[i]]);
+        const installExitCode = await installProcess.exit;
+        if (installExitCode !== 0) {
+          throw new Error("Unable to run npm install");
+        }
+      }
+
       const regex = /```jsx(.*?)```/gs;
       const matches = content.match(regex);
       const length = matches?.length;
@@ -111,5 +123,20 @@ const makeComponent = async ({webcontainer, engineType, systemPrompt, input, api
       return true
     }
 }
+
+export const getNewModules = (code: string, packageJson: string): string[] => {
+  const packageData = JSON.parse(packageJson);
+  const { dependencies, devDependencies } = packageData;
+  const importRegex = /import\s+(?:[\w{},*\s]+)\s+from\s+['"]([^'"]+)['"]/g;
+  const npmModules = [];
+  let match;
+  while ((match = importRegex.exec(code)) !== null) {
+    const importedModuleName = match[1];
+    if (!dependencies[importedModuleName] && !devDependencies[importedModuleName]) {
+      npmModules.push(importedModuleName);
+    }
+  }
+  return npmModules;
+};
 
 export default makeComponent;

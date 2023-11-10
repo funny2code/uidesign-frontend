@@ -24,6 +24,9 @@ function getIcon(iconName: string, isActive: boolean) {
     case HISTORY: {
       return <Generate isActive={isActive} />
     }
+    case PROJECTS: {
+      return <Generate isActive={isActive} />
+    }
     default:
       return null
   }
@@ -33,7 +36,7 @@ const SidebarMenu = ({ currentPage, handlePageChange }: Props) => {
   const { getSession } = useSession();
   useEffect(() => {
     getSession().then(tokens => {
-      tokens.is_admin && setPages([GENERATE, HISTORY, ADMIN, PROJECTS]);
+      tokens.is_admin && setPages([GENERATE, HISTORY, PROJECTS, ADMIN]);
     });
   }, []);
   return (

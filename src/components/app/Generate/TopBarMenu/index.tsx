@@ -1,3 +1,4 @@
+import React from "react";
 import ExportButton from "./Export";
 import EditButton from "./Edit";
 import { PAGES, ADMIN_PAGES } from "./constants";
@@ -6,18 +7,19 @@ import { useSession } from "../../../auth/useSession";
 import type { UIDesignAdminPage, UIDesignPage } from "./types";
 import PaymentButton from "../Shopify/components/paymentButton";
 import ShopifyProjects from "./shopifyProjects";
+import Generate from "../../SideBarMenu/generate";
 
 interface Props {
   currentPage: UIDesignPage | UIDesignAdminPage;
   handlePageChange?: (page: UIDesignPage | UIDesignAdminPage) => void;
-  handleSaveProjectBtn: (e:any) => void;
-  setProject: (e:any) => void;
+  handleSaveProjectBtn: (e: any) => void;
+  setProject: (e: any) => void;
 }
 
 const TopBarMenu = ({ currentPage, handlePageChange, handleSaveProjectBtn, setProject }: Props) => {
   const [pages, setPages] = useState(() => PAGES);
   const { getSession } = useSession();
-  const Buttons = () => {
+  const Buttons = ({ icon }: { icon?: React.ReactNode } = {}) => {
     return Object.values(pages).map((page, index) => (
       <li key={index}>
         <button
@@ -25,8 +27,9 @@ const TopBarMenu = ({ currentPage, handlePageChange, handleSaveProjectBtn, setPr
           className={`topbar-button ${currentPage === page ? "topbar-button-active" : ""}`}
           onClick={() => (handlePageChange ? handlePageChange(page) : () => {})}
         >
+          {icon || null}
           {page}
-        </button> 
+        </button>
       </li>
     ));
   };
@@ -38,7 +41,6 @@ const TopBarMenu = ({ currentPage, handlePageChange, handleSaveProjectBtn, setPr
   return (
     <section className="topbar d-flex align-items-center justify-content-between gap-2">
       <section className="d-none d-md-block">
-        {/* <div style={{ width: '50px', height: '50px', backgroundColor: 'green' }}></div> */}
         <ul className="no-identation d-flex justify-content-center gap-2 no-bullets">{Buttons()}</ul>
       </section>
       <section className="d-block d-md-none menu justify-content-center gap-2 dropdown">
@@ -53,15 +55,21 @@ const TopBarMenu = ({ currentPage, handlePageChange, handleSaveProjectBtn, setPr
         <ul className="dropdown-menu w-100">{Buttons()}</ul>
       </section>
       <section className="d-flex gap-2">
-        { currentPage === "Shopify" && (
+        {currentPage === "Shopify" && (
           <>
             <ShopifyProjects setProject={setProject} />
-            <button className="btn btn-primary px-2" style={{ height: "60px" }} onClick={handleSaveProjectBtn}>Save to Projects</button>
+            <button
+              className="btn btn-primary px-2"
+              style={{ height: "60px" }}
+              onClick={handleSaveProjectBtn}
+            >
+              Save to Projects
+            </button>
             <PaymentButton />
           </>
         )}
-        { currentPage !== "Shopify" && <EditButton currentPage={currentPage} />}
-        { currentPage !== "Shopify" && <ExportButton currentPage={currentPage} />}
+        {currentPage !== "Shopify" && <EditButton currentPage={currentPage} />}
+        {currentPage !== "Shopify" && <ExportButton currentPage={currentPage} />}
       </section>
     </section>
   );

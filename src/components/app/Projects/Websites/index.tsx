@@ -3,7 +3,7 @@ import { PROJECT_PAGES } from '../ProjectTopBarMenu/constants.ts';
 import type { UIProjectsPage } from '../ProjectTopBarMenu/types.ts'
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useSession } from "../../../auth/useSession.tsx";
-import { V2ProjectsService } from "../../../../client/index.ts";
+import { V3WebsitesProjectsService } from "../../../../client/index.ts";
 import Document from "./Document.tsx";
 import { useInView } from "react-intersection-observer";
 
@@ -56,7 +56,7 @@ const Websites =  () => {
       ["projects"],
       async ({ pageParam = 0 }) => {
         const tokens = await getSession();
-        const data = await V2ProjectsService.readPublicWebsiteProjects(
+        const data = await V3WebsitesProjectsService.readPublicWebsiteProjects(
           pageParam,
           pageSize
         );

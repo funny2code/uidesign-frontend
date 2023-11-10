@@ -55,3 +55,5 @@ export { V1Service } from './services/V1Service';
 export { V2AssetsService } from './services/V2AssetsService';
 export { V2DocumentsService } from './services/V2DocumentsService';
 export { V2ProjectsService } from './services/V2ProjectsService';
+export { V3BravoProjectsService } from './services/V3BravoProjectsService';
+export { V3WebsitesProjectsService } from './services/V3WebsitesProjectsService';

@@ -3,4 +3,8 @@ export const PAGES = {
   Messages: "Messages",
   Users: "Users",
   Embeddings: "Embeddings",
+  FigmaProjects: "FigmaProjects",
+  FigmaAssets: "FigmaAssets",
+  BravoProjects: "BravoProjects",
+  BravoAssets: "BravoAssets"
 };

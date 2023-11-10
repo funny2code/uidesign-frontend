@@ -4,6 +4,28 @@ import { request as __request } from '../core/request';
 
 export class V3BravoProjectsService {
     /**
+     * Create User Project
+     * Create new project as Authenticated user.
+     * @param requestBody
+     * @returns ResourceID Successful Response
+     * @throws ApiError
+     */
+    public static createBravoProject(
+        requestBody: Object,
+    ): CancelablePromise<string> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/data/v3/user/bravo/projects/',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
+
+    /**
      * Read Website Projects
      * Requires Authentication. Always returns previews.
      * @param offset Offset for pagination.

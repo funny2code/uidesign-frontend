@@ -15,9 +15,9 @@ const BravoProjects = () => {
   const project_descriptionRef = useRef<HTMLTextAreaElement>(null);
   const project_idRef = useRef<HTMLInputElement>(null);
   const project_privacyRef = useRef<HTMLSelectElement>(null);
-  const iframeRef = useRef<HTMLDivElement>(null);
   const [depleted, setDepleted] = useState(false);
   const [isCreateProject, setIsCreateProject] = useState(false);
+  const [project_data, setProject_data] = useState(null);
   const [privacyValue, setPrivacyValue] = useState("public");
 
   const toggle = () => {
@@ -29,7 +29,6 @@ const BravoProjects = () => {
 
   const resetModal = () => {
     if (sectionRef) {
-      sectionRef.current.innerHTML = "";
       project_descriptionRef.current.value = "";
       project_tagRef.current.value = "";
       project_nameRef.current.value = "";
@@ -61,12 +60,27 @@ const BravoProjects = () => {
     }
   );
 
-  const updateProject = () => {
-    const data = {
+  const create_project = () => {
+    const request_data = {
       name: project_nameRef.current.value,
       description: project_descriptionRef.current.value,
-      tags: project_tagRef.current.value,
+      tags: project_tagRef.current.value.split(","),
+      public: privacyValue == "public",
+      screens: [],
     };
+    console.log("create request body: ", request_data);
+    V3BravoProjectsService.createBravoProject(request_data);
+    resetModal();
+  };
+
+  const updateProject = () => {
+    const data = {
+      ...project_data,
+      name: project_nameRef.current.value,
+      description: project_descriptionRef.current.value,
+      tags: project_tagRef.current.value.split(","),
+    };
+    console.log("data : ", data);
     V3BravoProjectsService.updateUserBravoProject(project_idRef.current.value, data);
   };
 
@@ -114,6 +128,8 @@ const BravoProjects = () => {
                               project_descriptionRef={project_descriptionRef}
                               project_tagRef={project_tagRef}
                               project_idRef={project_idRef}
+                              setProject_data={setProject_data}
+                              resetModal={resetModal}
                             />
                           );
                         })}
@@ -202,7 +218,12 @@ const BravoProjects = () => {
                           ></textarea>
                         </li>
                         <li>
-                          <button type="button" className="btn btn-primary" onClick={updateProject}>
+                          <button
+                            type="button"
+                            className="btn btn-primary"
+                            onClick={updateProject}
+                            data-bs-dismiss="modal"
+                          >
                             Update PROJECT
                           </button>
                         </li>
@@ -266,12 +287,7 @@ const BravoProjects = () => {
                     ></textarea>
                   </li>
                   <li>
-                    <button
-                      type="button"
-                      data-bs-toggle="modal"
-                      className="btn btn-primary"
-                      data-bs-target="#iframeModal"
-                    >
+                    <button type="button" className="btn btn-primary" onClick={create_project}>
                       CREATE PROJECT
                     </button>
                   </li>

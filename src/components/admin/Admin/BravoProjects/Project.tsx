@@ -15,6 +15,8 @@ interface DocumentItemProps {
   project_idRef?: React.MutableRefObject<HTMLInputElement | null>;
   project_tagRef?: React.MutableRefObject<HTMLInputElement | null>;
   project_descriptionRef?: React.MutableRefObject<HTMLTextAreaElement | null>;
+  setProject_data: void;
+  resetModal: void;
 }
 
 const fetchProject = async (id: string, preview: boolean = false) => {
@@ -27,6 +29,7 @@ const Project = (props: DocumentItemProps) => {
   const { getSession } = useSession();
   const handleEdit = async () => {
     if (!props.id) return;
+    props.resetModal();
     const tokens = await getSession();
     OpenAPI.TOKEN = tokens.id_token;
     const project_data = await fetchProject(props.id);
@@ -36,13 +39,14 @@ const Project = (props: DocumentItemProps) => {
     if (tags != undefined) {
       let tags_str = "";
       for (let index in tags) {
-        tags_str += tags[index];
+        tags_str += (index != 0 ? "," : "") + tags[index];
       }
       props.project_tagRef.current.value = tags_str;
     } else {
       props.project_tagRef.current.value = "Null";
     }
     props.project_nameRef.current.value = project_data.name;
+    props.setProject_data(project_data);
   };
 
   const handleDelete = async () => {

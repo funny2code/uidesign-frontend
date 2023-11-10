@@ -38,6 +38,7 @@ export class V3FigmaProjectsService {
     public static readPublicBravoProjects(
         offset?: number,
         limit: number = 10,
+        preview: boolean = false,
         description?: string,
         threshold: number = 0.75,
     ): CancelablePromise<{results: Array<Object>}> {
@@ -49,6 +50,7 @@ export class V3FigmaProjectsService {
                 'limit': limit,
                 'description': description,
                 'threshold': threshold,
+                'preview': preview
             },
             errors: {
                 422: `Validation Error`,

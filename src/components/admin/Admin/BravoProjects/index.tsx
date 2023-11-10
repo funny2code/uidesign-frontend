@@ -8,6 +8,7 @@ import { useInView } from "react-intersection-observer";
 const BravoProjects = () => {
   const { getSession } = useSession();
   const pageSize = 10;
+  const preview = true;
   const { ref, inView } = useInView();
   const sectionRef = useRef<HTMLDivElement>(null);
   const project_nameRef = useRef<HTMLInputElement>(null);
@@ -47,10 +48,10 @@ const BravoProjects = () => {
     hasNextPage,
     hasPreviousPage,
   } = useInfiniteQuery(
-    ["projects"],
+    ["bravoprojects"],
     async ({ pageParam = 0 }) => {
       const tokens = await getSession();
-      const data = await V3BravoProjectsService.readPublicBravoProjects(pageParam, pageSize);
+      const data = await V3BravoProjectsService.readPublicBravoProjects(pageParam, pageSize, preview);
       setDepleted(data.results.length < pageSize);
       return { data: data.results, previousId: pageParam - pageSize, nextId: pageParam + pageSize };
     },

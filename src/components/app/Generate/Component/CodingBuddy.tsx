@@ -3,7 +3,7 @@ import { type PromptType } from "../commands/component";
 import { PROMPT_TYPE, STAGE } from "./constants";
 import ImageUploading, { type ImageListType } from "react-images-uploading";
 
-interface CodingBuddyProps extends React.PropsWithChildren {
+interface CodingBuddyProps {
   setPromptType: React.Dispatch<React.SetStateAction<PromptType>>;
   setInput: React.Dispatch<React.SetStateAction<string>>;
   setStage: React.Dispatch<React.SetStateAction<STAGE>>;

@@ -19,6 +19,7 @@ import { files } from "./files";
 import { componentWebContainer } from "../../../../atoms";
 import FrameSelect from "../components/FrameSelect";
 import CodingBuddy from "./CodingBuddy";
+import ComponentSettings from "./ComponentSettings";
 
 const Components = () => {
   const { getSession } = useSession();
@@ -279,7 +280,7 @@ const Components = () => {
         )}
       </section>
       <form onSubmit={handleSubmit} className="z-2">
-        <CodingBuddy
+        {/* <CodingBuddy
           setPromptType={setPromptType}
           setInput={setInput}
           promptType={promptType}
@@ -288,7 +289,7 @@ const Components = () => {
           handleImageChange={handleImageChange}
           images={images}
           processing={processing}
-        />
+        /> */}
         <InputBar
           input={input}
           setInput={setInput}
@@ -297,9 +298,12 @@ const Components = () => {
           inputRef={inputRef}
           buttonRef={buttonRef}
         >
+          <ComponentSettings setApiKey={setApiKey} apiKey={apiKey} />
+
           <ul
             className="dropdown-menu px-3 pb-1 pt-2"
             style={{
+              display: "none",
               width: "600px",
               transform: "translateX(-50%)",
             }}

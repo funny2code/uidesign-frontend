@@ -1,12 +1,12 @@
 import type React from "react";
 import { useState } from "react";
 interface IApiKeyInputBar {
-  error: boolean;
+  error?: boolean;
   value: string;
   setValue: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const ApiKeyInputBar = ({ error, value, setValue }: IApiKeyInputBar): React.ReactElement => {
+const ApiKeyInputBar = ({ error = false, value, setValue }: IApiKeyInputBar): React.ReactElement => {
   const [show, setShow] = useState<boolean>(false);
 
   return (
@@ -19,7 +19,7 @@ const ApiKeyInputBar = ({ error, value, setValue }: IApiKeyInputBar): React.Reac
       />
       <span
         onClick={() => setShow(prev => !prev)}
-        style={{ cursor: "pointer", right: "28px" }}
+        style={{ cursor: "pointer", right: "15px", top: "5px", color: "black" }}
         className="position-absolute"
       >
         {show ? (

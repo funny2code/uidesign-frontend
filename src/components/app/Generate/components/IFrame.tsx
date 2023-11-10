@@ -15,7 +15,7 @@ const IFrame = ({ src, classNames, onClick, isButton = false }: IIFrame): React.
     >
       <iframe src={src} height="100%" width="100%" className={`${isButton ? "buttonIframe" : ""}`} />
       {isButton ? (
-        <div className="h-100 w-100 bg-transparent position-absolute top-0 start-0 rounded"></div>
+        <div className="h-100 w-100 bg-transparent position-absolute top-0 start-0 rounded z-3"></div>
       ) : (
         <></>
       )}

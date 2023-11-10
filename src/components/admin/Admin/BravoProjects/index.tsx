@@ -61,13 +61,14 @@ const BravoProjects = () => {
     }
   );
 
-  // const updateProject = async () => {
-  //   const res = await V3BravoProjectsService.updateUserBravoProject(project_idRef.current.value, {
-  //     name: project_nameRef.current.value,
-  //     description: project_descriptionRef.current.value,
-  //     tags: project_tagRef.current.value,
-  //   });
-  // };
+  const updateProject = () => {
+    const data = {
+      name: project_nameRef.current.value,
+      description: project_descriptionRef.current.value,
+      tags: project_tagRef.current.value,
+    };
+    V3BravoProjectsService.updateUserBravoProject(project_idRef.current.value, data);
+  };
 
   useEffect(() => {
     if (inView && !depleted) {
@@ -201,7 +202,7 @@ const BravoProjects = () => {
                           ></textarea>
                         </li>
                         <li>
-                          <button type="button" className="btn btn-primary">
+                          <button type="button" className="btn btn-primary" onClick={updateProject}>
                             Update PROJECT
                           </button>
                         </li>

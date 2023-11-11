@@ -226,23 +226,21 @@ const Components = () => {
       )}
 
       <div
-        className="d-flex flex-column m-2 py-3 justify-content-between align-items-center h-100"
+        className="m-2 py-3 h-100"
         style={{
           width: "250px",
         }}
       >
         {stage === STAGE.Second ? (
-          <div>
-            {componentsList.map(item => (
-              <IFrame
-                key={item}
-                src={`${srcURL}/${item}`}
-                onClick={() => setSelectedComponent(item)}
-                isButton
-                classNames={`${item == selectedComponent && "border border-3 border-primary mb-2"} mb-2`}
-              />
-            ))}
-          </div>
+          componentsList.map(item => (
+            <IFrame
+              key={item}
+              src={`${srcURL}/${item}`}
+              onClick={() => setSelectedComponent(item)}
+              isButton
+              classNames={`${item == selectedComponent && "border border-3 border-primary"} mb-2`}
+            />
+          ))
         ) : (
           <div></div>
         )}

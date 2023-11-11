@@ -1,6 +1,6 @@
-import type React from "react";
+import React, { useEffect, useState } from "react";
 import { type PromptType } from "../commands/component";
-import { PROMPT_TYPE, STAGE } from "./constants";
+import { PROMPT_TYPE, STAGE, SUGGEST_PROMPTS_FIRST_CHAT, SUGGEST_PROMPTS_SECOND } from "./constants";
 import ImageUploading, { type ImageListType } from "react-images-uploading";
 
 interface CodingBuddyProps {
@@ -24,6 +24,12 @@ const CodingBuddy = ({
   images,
   processing,
 }: CodingBuddyProps): React.ReactElement => {
+  const [random, setRandom] = useState<number[]>([1, 2, 3]);
+  useEffect(() => {
+    const ran = getRandomNumbers();
+    setRandom(ran);
+  }, []);
+
   const codingBuddyInit = (
     <>
       <p className="fs-5">Hey there! What can I help you build today?</p>
@@ -130,13 +136,23 @@ const CodingBuddy = ({
     "Build a simple component",
     "Something else",
   ];
-  const suggestPromptsFirstChat = ["Make a button", "Make a menu", "Make a table"];
 
-  const suggestPromptsSecond = [
-    "Make button bigger",
-    "Make background gradient",
-    "Make background transparent",
-  ];
+  const suggestPromptsFirstChat = () => {
+    return random.map(item => SUGGEST_PROMPTS_FIRST_CHAT[item]);
+  };
+
+  const suggestPromptsSecond = () => {
+    return random.map(item => SUGGEST_PROMPTS_SECOND[item]);
+  };
+
+  function getRandomNumbers() {
+    const randomNumbers = [];
+    for (let i = 0; i < 3; i++) {
+      const randomNumber = Math.floor(Math.random() * 100); // Generates a random number between 0 (inclusive) and 100 (exclusive)
+      randomNumbers.push(randomNumber);
+    }
+    return randomNumbers;
+  }
 
   let codingBuddy;
   let suggestedPrompts;
@@ -147,15 +163,15 @@ const CodingBuddy = ({
   }
   if (stage === STAGE.First && promptType == PROMPT_TYPE.Chat) {
     codingBuddy = codingBuddyFirstChat;
-    suggestedPrompts = suggestPromptsFirstChat;
+    suggestedPrompts = suggestPromptsFirstChat();
   }
   if (stage === STAGE.Second) {
     codingBuddy = codingBuddySecond;
-    suggestedPrompts = suggestPromptsSecond;
+    suggestedPrompts = suggestPromptsSecond();
   }
   if (stage === STAGE.Last) {
     codingBuddy = codingBuddyLast;
-    suggestedPrompts = suggestPromptsSecond;
+    suggestedPrompts = suggestPromptsSecond();
   }
 
   return (

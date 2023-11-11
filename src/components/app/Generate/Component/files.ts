@@ -7,7 +7,7 @@ export const files = {
                   function App({ children }: any) {
                     return (
                       <>
-                        <div className="text-center mt-10">{children}</div>
+                        <div className="text-center">{children}</div>
                       </>
                     );
                   }

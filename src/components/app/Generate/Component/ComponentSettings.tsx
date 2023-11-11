@@ -1,12 +1,6 @@
 import React from "react";
-import ApiKeyInputBar from "../components/ApiKeyInputBar";
 
-interface ComponentSettingsProps {
-  setApiKey: React.Dispatch<React.SetStateAction<string>>;
-  apiKey: string;
-}
-
-const ComponentSettings = ({ setApiKey, apiKey }: ComponentSettingsProps): React.ReactElement => {
+const ComponentSettings = (): React.ReactElement => {
   return (
     <ul
       className="dropdown-menu p-3 text-light"
@@ -53,9 +47,6 @@ const ComponentSettings = ({ setApiKey, apiKey }: ComponentSettingsProps): React
             <option value="tailwind">Tailwind</option>
           </select>
         </div>
-      </div>
-      <div className="mt-3 position-relative">
-        <ApiKeyInputBar value={apiKey} setValue={setApiKey} />
       </div>
     </ul>
   );

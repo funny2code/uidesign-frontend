@@ -181,8 +181,12 @@ const CodingBuddy = ({
                 <>
                   <p>Suggested Prompts</p>
                   <div className="d-flex flex-row gap-2 flex-wrap">
-                    {suggestedPrompts?.map(item => (
-                      <div className="btn btn-primary bg-info border-0" onClick={() => setInput(item)}>
+                    {suggestedPrompts?.map((item, index) => (
+                      <div
+                        className="btn btn-primary bg-info border-0"
+                        onClick={() => setInput(item)}
+                        key={index}
+                      >
                         {item}
                       </div>
                     ))}

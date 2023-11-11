@@ -11,7 +11,6 @@ import { WebContainer } from "@webcontainer/api";
 import { useSession } from "../../../auth/useSession";
 import InputBar from "../components/InputBar";
 import makeComponent, { type PromptType } from "../commands/component";
-import ApiKeyInputBar from "../components/ApiKeyInputBar";
 import SettingElement from "../components/SettingElement";
 import IFrame from "../components/IFrame";
 import { SYSTEM_PROMPT, PROMPT_TYPE, ENGINE_TYPE, STAGE } from "./constants";
@@ -27,10 +26,8 @@ const Components = () => {
   const componentsList = [0, 1, 2];
   const [stage, setStage] = useState<STAGE>(STAGE.Init);
   const [input, setInput] = useState<string>("");
-  const [apiKey, setApiKey] = useState<string>("");
   const [engineType, setEngineType] = useState<string>(ENGINE_TYPE[0].value);
   const [promptType, setPromptType] = useState<PromptType>("Chat");
-  const [apiKeyError, setApiKeyError] = useState<boolean>(false);
   const [systemPrompt, setSystemPrompt] = useState<string>(SYSTEM_PROMPT.Chat[STAGE.Init]);
   const [processing, setProcessing] = useState(false);
   const [isWebContainerLoaded, setIsWebContainerLoaded] = useState<boolean>(false);
@@ -152,11 +149,6 @@ const Components = () => {
       setPromptType("Chat");
     }
 
-    if (apiKey == "") {
-      toast.error("Need to input OpenAI Api Key");
-      setApiKeyError(true);
-      return;
-    }
     if (promptType == PROMPT_TYPE.Chat && input == "") {
       toast.error("Need to input prompts");
       return;
@@ -171,14 +163,12 @@ const Components = () => {
     }
     if (!webcontainer) return;
 
-    setApiKeyError(false);
     setProcessing(true);
     const result = await makeComponent({
       webcontainer,
       engineType,
       systemPrompt: stage == STAGE.Init ? SYSTEM_PROMPT["Chat"][STAGE.First] : systemPrompt,
       input,
-      apiKey,
       stage: stage == STAGE.Init ? STAGE.First : stage,
       selectedComponent,
       promptType: stage == STAGE.Init ? "Chat" : promptType,
@@ -320,7 +310,7 @@ const Components = () => {
           buttonRef={buttonRef}
           settingsRef={settingsRef}
         >
-          <ComponentSettings setApiKey={setApiKey} apiKey={apiKey} />
+          <ComponentSettings />
 
           <ul
             className="dropdown-menu px-3 pb-1 pt-2"
@@ -391,9 +381,6 @@ const Components = () => {
                 value={systemPrompt}
                 onChange={e => setSystemPrompt(e.target.value)}
               ></textarea>
-            </SettingElement>
-            <SettingElement title="API KEY">
-              <ApiKeyInputBar error={apiKeyError} value={apiKey} setValue={setApiKey} />
             </SettingElement>
           </ul>
         </InputBar>

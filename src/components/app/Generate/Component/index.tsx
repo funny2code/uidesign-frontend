@@ -162,6 +162,7 @@ const Components = () => {
       return;
     }
     if (!webcontainer) return;
+    if (handleSubscribe()) return;
 
     setProcessing(true);
     const result = await makeComponent({
@@ -193,6 +194,20 @@ const Components = () => {
       toast.error("The sever had an error while processing your request.");
     }
     setProcessing(false);
+  };
+
+  //This is temporary solution
+  const handleSubscribe = () => {
+    const count = localStorage.getItem("ui-design-subscribe");
+    if (Number(count) > 0) {
+      let c = Number(count);
+      c = c - 1;
+      localStorage.setItem("ui-design-subscribe", `${c}`);
+      return false;
+    } else {
+      console.log("HELlo");
+      return true;
+    }
   };
 
   const codeView = (

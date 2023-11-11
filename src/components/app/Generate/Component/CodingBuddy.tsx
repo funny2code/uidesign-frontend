@@ -28,7 +28,7 @@ const CodingBuddy = ({
   useEffect(() => {
     const ran = getRandomNumbers();
     setRandom(ran);
-  }, []);
+  }, [processing]);
 
   const codingBuddyInit = (
     <>

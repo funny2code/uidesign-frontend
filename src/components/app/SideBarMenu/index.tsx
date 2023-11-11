@@ -5,6 +5,7 @@ import { useSession } from "../../auth/useSession";
 import { ADMIN_PAGE } from "../../constants";
 
 import Generate from "./generate";
+import Subscribe from "./Subscribe";
 
 const GENERATE = "Generate";
 const HISTORY = "History";
@@ -70,7 +71,10 @@ const SidebarMenu = ({ currentPage, handlePageChange }: Props) => {
           })}
         </ul>
       </section>
-      <Settings />
+      <div>
+        <Subscribe />
+        <Settings />
+      </div>
     </div>
   );
 };

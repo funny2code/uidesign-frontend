@@ -147,7 +147,11 @@ const Components = () => {
         window.location.replace("/login");
       });
 
-    if (stage === STAGE.Init) return;
+    if (stage == STAGE.Init) {
+      setStage(STAGE.First);
+      setPromptType("Chat");
+    }
+
     if (apiKey == "") {
       toast.error("Need to input OpenAI Api Key");
       setApiKeyError(true);
@@ -172,12 +176,12 @@ const Components = () => {
     const result = await makeComponent({
       webcontainer,
       engineType,
-      systemPrompt,
+      systemPrompt: stage == STAGE.Init ? SYSTEM_PROMPT["Chat"][STAGE.First] : systemPrompt,
       input,
       apiKey,
-      stage,
+      stage: stage == STAGE.Init ? STAGE.First : stage,
       selectedComponent,
-      promptType,
+      promptType: stage == STAGE.Init ? "Chat" : promptType,
       image: images[0]?.dataURL,
     });
     if (result) {

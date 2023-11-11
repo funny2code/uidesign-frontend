@@ -40,12 +40,15 @@ const Components = () => {
   const [selectedFile, setSelectedFile] = useState<string>("");
   const [isCodeDisplay, setIsCodeDisplay] = useState<boolean>(false);
   const [images, setImages] = useState([]);
+  const [isCoddingBuddyShow, setIsCoddingBuddyShow] = useState<boolean>(true);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const settingsRef = useRef<HTMLDivElement>(null);
 
   const initWebcontainer = async () => {
     if (!webcontainer) return;
+
     await webcontainer.mount(files);
     updateSelectedFile();
 
@@ -89,6 +92,18 @@ const Components = () => {
   const handleImageChange = (imageList: ImageListType) => {
     setImages(imageList as never[]);
   };
+
+  useEffect(() => {
+    // Everything around if statement
+    if (settingsRef && settingsRef.current) {
+      settingsRef.current.addEventListener("hide.bs.dropdown", e => {
+        setIsCoddingBuddyShow(true);
+      });
+      settingsRef.current.addEventListener("show.bs.dropdown", e => {
+        setIsCoddingBuddyShow(false);
+      });
+    }
+  }, [settingsRef]);
 
   useEffect(() => {
     const bootWebContainer = async () => {
@@ -280,16 +295,18 @@ const Components = () => {
         )}
       </section>
       <form onSubmit={handleSubmit} className="z-2">
-        {/* <CodingBuddy
-          setPromptType={setPromptType}
-          setInput={setInput}
-          promptType={promptType}
-          stage={stage}
-          setStage={setStage}
-          handleImageChange={handleImageChange}
-          images={images}
-          processing={processing}
-        /> */}
+        {isCoddingBuddyShow && (
+          <CodingBuddy
+            setPromptType={setPromptType}
+            setInput={setInput}
+            promptType={promptType}
+            stage={stage}
+            setStage={setStage}
+            handleImageChange={handleImageChange}
+            images={images}
+            processing={processing}
+          />
+        )}
         <InputBar
           input={input}
           setInput={setInput}
@@ -297,6 +314,7 @@ const Components = () => {
           placeholder={`${stage == STAGE.First ? "Create Component" : "Input to update your component"}`}
           inputRef={inputRef}
           buttonRef={buttonRef}
+          settingsRef={settingsRef}
         >
           <ComponentSettings setApiKey={setApiKey} apiKey={apiKey} />
 

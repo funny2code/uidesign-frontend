@@ -7,6 +7,7 @@ interface InputBarProps extends React.PropsWithChildren {
   setInput: (input: string) => void;
   processing: boolean;
   inputRef: React.RefObject<HTMLInputElement>;
+  settingsRef: React.RefObject<HTMLDivElement>;
   buttonRef: React.RefObject<HTMLButtonElement>;
   placeholder: string;
   center?: boolean;
@@ -21,6 +22,7 @@ const InputBar = ({
   processing,
   inputRef,
   buttonRef,
+  settingsRef,
   placeholder,
   children,
   center = true,
@@ -104,6 +106,8 @@ const InputBar = ({
         style={{
           height: "100%",
         }}
+        id="settings-dropdown"
+        ref={settingsRef}
       >
         <button
           type={"button"}

@@ -329,6 +329,7 @@ const Components = () => {
           inputRef={inputRef}
           buttonRef={buttonRef}
           settingsRef={settingsRef}
+          isImageMode={promptType == "Image"}
         >
           <ComponentSettings
             setSystemPrompt={setSystemPrompt}

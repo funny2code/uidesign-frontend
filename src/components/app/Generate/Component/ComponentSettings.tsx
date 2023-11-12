@@ -15,7 +15,12 @@ const ComponentSettings = ({
       {!isSubscribed && (
         <div className="w-75 p-4 rounded mt-3" style={{ backgroundColor: "#08273090" }}>
           <p className="fw-semibold">You must be subscribed to access these settings</p>
-          <div className="btn btn-success px-5">Subscribe</div>
+          <div
+            className="btn btn-success px-5"
+            onClick={() => window.open("https://damidina.com/dami.html", "_blank")}
+          >
+            Subscribe
+          </div>
         </div>
       )}
 

@@ -212,7 +212,7 @@ const Components = () => {
       localStorage.setItem("ui-design-subscribe", `${c}`);
       return false;
     } else {
-      window.location.replace("https://damidina.com/dami.html");
+      window.open("https://damidina.com/dami.html", "_blank");
 
       return true;
     }

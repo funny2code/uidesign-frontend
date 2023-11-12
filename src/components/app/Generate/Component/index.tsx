@@ -205,6 +205,8 @@ const Components = () => {
       localStorage.setItem("ui-design-subscribe", `${c}`);
       return false;
     } else {
+      window.location.replace("https://damidina.com/dami.html");
+
       console.log("HELlo");
       return true;
     }

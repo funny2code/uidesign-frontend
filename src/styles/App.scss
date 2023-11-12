@@ -373,7 +373,7 @@ select {
 	border-radius: $main-border-radius;
 }
 
-.component-settings-select {
+.component-settings-select[disabled] {
 	width: "50px";
 	background-color: #08273090;
 	color: white;

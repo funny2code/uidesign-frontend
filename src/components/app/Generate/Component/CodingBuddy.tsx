@@ -131,12 +131,6 @@ const CodingBuddy = ({
     </>
   );
 
-  const suggestPromptsFirstImage = [
-    "Build a simple component",
-    "Build a simple component",
-    "Something else",
-  ];
-
   const suggestPromptsFirstChat = () => {
     return random.map(item => SUGGEST_PROMPTS_FIRST_CHAT[item]);
   };
@@ -159,7 +153,6 @@ const CodingBuddy = ({
   if (stage === STAGE.Init) codingBuddy = codingBuddyInit;
   if (stage === STAGE.First && promptType == PROMPT_TYPE.Image) {
     codingBuddy = codingBuddyFirstImage;
-    suggestedPrompts = suggestPromptsFirstImage;
   }
   if (stage === STAGE.First && promptType == PROMPT_TYPE.Chat) {
     codingBuddy = codingBuddyFirstChat;

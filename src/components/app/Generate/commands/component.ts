@@ -63,8 +63,18 @@ const makeComponent = async ({webcontainer, engineType, systemPrompt, input, sta
         return true;
       }
 
-      for(let i = 0; i < LIST_COUNT; i++)
-        await webcontainer.fs.writeFile(`/src/component${i}.tsx`, response.data[i]);
+      if(response.data.length == LIST_COUNT){
+        for(let i = 0; i < LIST_COUNT; i++)
+          await webcontainer.fs.writeFile(`/src/component${i}.tsx`, response.data[i]);
+        return true
+      }
+
+      if(response.data.length == 1){
+        for(let i = 0; i < LIST_COUNT; i++)
+          await webcontainer.fs.writeFile(`/src/component${i}.tsx`, response.data[0]);
+        return true
+      }
+
       return true
     }
 }

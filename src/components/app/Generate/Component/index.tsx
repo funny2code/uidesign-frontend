@@ -71,6 +71,7 @@ const Components = () => {
     setProcessing(true);
     initWebcontainer();
     setStage(STAGE.Init);
+    setPromptType("Chat");
     setSystemPrompt("");
     setInput("");
     setProcessing(false);
@@ -143,7 +144,6 @@ const Components = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-
     getSession()
       .then(tokens => {})
       .catch(err => {
@@ -339,79 +339,10 @@ const Components = () => {
             setSystemPrompt={setSystemPrompt}
             systemPrompt={systemPrompt}
             isSubscribed={isSubscribed}
+            engineType={engineType}
+            setEngineType={setEngineType}
+            isImageMode={promptType == PROMPT_TYPE.Image}
           />
-
-          {/* <ul
-            className="dropdown-menu px-3 pb-1 pt-2"
-            style={{
-              display: "none",
-              width: "600px",
-              transform: "translateX(-50%)",
-            }}
-            aria-labelledby="dropdownMenuClickable"
-          > */}
-          {/* <SettingElement title="Prompt Type">
-              <select
-                className="form-select"
-                onChange={e => {
-                  if (e.target.value == "Image" || e.target.value == "Chat")
-                    setPromptType(e.target.value);
-                }}
-                defaultValue={PROMPT_TYPE.Chat}
-                value={promptType}
-              >
-                <option value="Chat">Chat</option>
-                <option value="Image">Image</option>
-              </select>
-            </SettingElement> */}
-          {/* {promptType === PROMPT_TYPE.Image && (
-              <SettingElement title="Image">
-                <ImageUploading value={images} onChange={handleImageChange}>
-                  {({ imageList, onImageUpload }) => (
-                    <div className="d-flex flex-row gap-3">
-                      <button
-                        className="btn btn-secondary h-50"
-                        onClick={e => {
-                          e.preventDefault();
-                          onImageUpload();
-                        }}
-                      >
-                        Upload image
-                      </button>
-                      {imageList.map((image, index) => (
-                        <div key={index} className="image-item">
-                          <img src={image.dataURL} alt="" width="250" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </ImageUploading>
-              </SettingElement>
-            )} */}
-
-          {/* <SettingElement title="Engine Type">
-              <select
-                className="form-select"
-                onChange={e => {
-                  setEngineType(e.target.value);
-                }}
-                defaultValue={ENGINE_TYPE[1].value}
-              >
-                <option value={ENGINE_TYPE[0].value}>{ENGINE_TYPE[0].name}</option>
-                <option value={ENGINE_TYPE[1].value}>{ENGINE_TYPE[1].name}</option>
-              </select>
-            </SettingElement> */}
-          {/* <SettingElement title="System Prompt">
-              <textarea
-                className="form-control"
-                style={{
-                  height: "200px",
-                }}
-                value={systemPrompt}
-                onChange={e => setSystemPrompt(e.target.value)}
-              ></textarea>
-            </SettingElement>
-          </ul> */}
         </InputBar>
       </form>
     </>

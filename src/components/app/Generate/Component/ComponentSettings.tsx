@@ -1,13 +1,21 @@
 import React, { useState } from "react";
+import { ENGINE_TYPE } from "./constants";
+
 interface ComponentSettingsProps {
   setSystemPrompt: React.Dispatch<React.SetStateAction<string>>;
   systemPrompt: string;
   isSubscribed: boolean;
+  setEngineType: React.Dispatch<React.SetStateAction<string>>;
+  engineType: string;
+  isImageMode: boolean;
 }
 const ComponentSettings = ({
   setSystemPrompt,
   systemPrompt,
   isSubscribed,
+  setEngineType,
+  engineType,
+  isImageMode,
 }: ComponentSettingsProps): React.ReactElement => {
   const settingButtons = ["Project Config", "System prompt"];
   const settings = [
@@ -23,7 +31,29 @@ const ComponentSettings = ({
           </div>
         </div>
       )}
-
+      <div className="mt-3">
+        <p className="ps-2 mb-2">Engine Type</p>
+        {isImageMode ? (
+          <select className="form-select component-settings-select" disabled={!isSubscribed}>
+            <option>gpt-4-vision-preview</option>
+          </select>
+        ) : (
+          <select
+            className="form-select component-settings-select"
+            defaultValue={ENGINE_TYPE[0].value}
+            onChange={e => {
+              setEngineType(e.target.value);
+            }}
+            disabled={!isSubscribed}
+          >
+            {ENGINE_TYPE.map((item, index) => (
+              <option key={index} value={item.value}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
       <div className="d-flex flex-row justify-content-center align-items-center gap-3 mt-3">
         <div style={{ width: "30%" }}>
           <p className="mb-1">Frontend</p>

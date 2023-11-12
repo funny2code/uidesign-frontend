@@ -3,37 +3,45 @@ export const SYSTEM_PROMPT = {
         "As a skilled developer, please create professional and stylish React component code.\n \
         Ensure that the code is clean, structured, and follows best practices.\n \
         Use functional component with an arrow function, and assume that Tailwind CSS is installed.\n \
-        Component doesn't have props. Provide only code. Don't need else words.\n \
-        ",
+        Component doesn't have props. Provide only code. Don't need else words.",
         "As a skilled developer, please update professional and stylish React component code.\n \
         Ensure that the code is clean, structured, and follows best practices.\n \
         Use functional component with an arrow function, and assume that Tailwind CSS is installed.\n \
-        Component doesn't have props.\n \
-    "],
+        Component doesn't have props."],
     Image:["",
         "As a skilled developer, please create professional and stylish React component code as same as image user input\n \
         Ensure that the code is clean, structured, and follows best practices.\n \
         Use functional component with an arrow function, and assume that Tailwind CSS is installed.\n \
-        Component doesn't have props. Provide only code. Don't need else words.\n \
-        ",
+        Component doesn't have props. Provide only code. Don't need else words.",
         "As a skilled developer, please update professional and stylish React component code.\n \
         Ensure that the code is clean, structured, and follows best practices.\n \
         Use functional component with an arrow function, and assume that Tailwind CSS is installed.\n \
-        Component doesn't have props.\n \
-    "]}
+        Component doesn't have props."]}
 
 export const EXTRA_USER_PROMPT = 
 "make me 3 different versions of above component with different style"
 
 export const ENGINE_TYPE = [
     {
-        name: "GPT 3.5 Turbo",
-        value: "gpt-3.5-turbo",
+        name: "gpt-3.5-turbo-1106",
+        value: "gpt-3.5-turbo-1106",
     },
     {
-        name: "GPT 4",
+        name: "gpt-3.5-turbo-16k",
+        value: "gpt-3.5-turbo-16k",
+    },
+    // {
+    //     name: "gpt-4-32k-0613",
+    //     value: "gpt-4-32k-0613",
+    // },
+    // {
+    //     name: "gpt-4-32k",
+    //     value: "gpt-4-32k",
+    // },
+    {
+        name: "gpt-4",
         value: "gpt-4",
-    }
+    },
 ];
 
 export const PROMPT_TYPE = {

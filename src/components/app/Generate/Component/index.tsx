@@ -38,6 +38,7 @@ const Components = () => {
   const [isCodeDisplay, setIsCodeDisplay] = useState<boolean>(false);
   const [images, setImages] = useState([]);
   const [isCoddingBuddyShow, setIsCoddingBuddyShow] = useState<boolean>(true);
+  const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -72,6 +73,8 @@ const Components = () => {
     setSystemPrompt("");
     setInput("");
     setProcessing(false);
+    const tokens = await getSession();
+    if (tokens) setIsSubscribed(tokens.is_subscribed);
   };
 
   const handleChangeCode = async (value: string) => {
@@ -114,7 +117,8 @@ const Components = () => {
       setWebcontainer(webcontainerInstance);
     };
     bootWebContainer();
-    return () => {};
+
+    // const tokens = await getSession();
   }, []);
 
   useEffect(() => {
@@ -138,7 +142,7 @@ const Components = () => {
 
     getSession()
       .then(tokens => {
-        // all good
+        console.log(tokens);
       })
       .catch(err => {
         window.location.replace("/login");
@@ -198,6 +202,7 @@ const Components = () => {
 
   //This is temporary solution
   const handleSubscribe = () => {
+    if (isSubscribed) return false;
     const count = localStorage.getItem("ui-design-subscribe");
     if (Number(count) > 0) {
       let c = Number(count);
@@ -325,9 +330,13 @@ const Components = () => {
           buttonRef={buttonRef}
           settingsRef={settingsRef}
         >
-          <ComponentSettings />
+          <ComponentSettings
+            setSystemPrompt={setSystemPrompt}
+            systemPrompt={systemPrompt}
+            isSubscribed={isSubscribed}
+          />
 
-          <ul
+          {/* <ul
             className="dropdown-menu px-3 pb-1 pt-2"
             style={{
               display: "none",
@@ -335,8 +344,8 @@ const Components = () => {
               transform: "translateX(-50%)",
             }}
             aria-labelledby="dropdownMenuClickable"
-          >
-            {/* <SettingElement title="Prompt Type">
+          > */}
+          {/* <SettingElement title="Prompt Type">
               <select
                 className="form-select"
                 onChange={e => {
@@ -350,7 +359,7 @@ const Components = () => {
                 <option value="Image">Image</option>
               </select>
             </SettingElement> */}
-            {/* {promptType === PROMPT_TYPE.Image && (
+          {/* {promptType === PROMPT_TYPE.Image && (
               <SettingElement title="Image">
                 <ImageUploading value={images} onChange={handleImageChange}>
                   {({ imageList, onImageUpload }) => (
@@ -375,7 +384,7 @@ const Components = () => {
               </SettingElement>
             )} */}
 
-            {/* <SettingElement title="Engine Type">
+          {/* <SettingElement title="Engine Type">
               <select
                 className="form-select"
                 onChange={e => {
@@ -387,7 +396,7 @@ const Components = () => {
                 <option value={ENGINE_TYPE[1].value}>{ENGINE_TYPE[1].name}</option>
               </select>
             </SettingElement> */}
-            <SettingElement title="System Prompt">
+          {/* <SettingElement title="System Prompt">
               <textarea
                 className="form-control"
                 style={{
@@ -397,7 +406,7 @@ const Components = () => {
                 onChange={e => setSystemPrompt(e.target.value)}
               ></textarea>
             </SettingElement>
-          </ul>
+          </ul> */}
         </InputBar>
       </form>
     </>

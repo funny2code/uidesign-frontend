@@ -1,10 +1,19 @@
 //This is just temporary solution
 import react, { useEffect, useState } from "react";
+import { useSession } from "../../auth/useSession";
 
 const Subscribe = () => {
   const [subscribeCount, setSubScribeCount] = useState<number>(5);
+  const { getSession } = useSession();
+  const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
+
+  const initSubscribe = async () => {
+    const tokens = await getSession();
+    if (tokens) setIsSubscribed(tokens.is_subscribed);
+  };
 
   useEffect(() => {
+    initSubscribe();
     let prevCount = "";
     const count = localStorage.getItem("ui-design-subscribe");
 
@@ -26,7 +35,7 @@ const Subscribe = () => {
     return null;
   }
 
-  return (
+  return !isSubscribed ? (
     <div
       className="text-light d-flex flex-column justify-content-center align-items-center m-2 word-wrap rounded-2 p-2"
       style={{ backgroundColor: "#10503D" }}
@@ -39,6 +48,8 @@ const Subscribe = () => {
         {`${subscribeCount} tries left`}
       </p>
     </div>
+  ) : (
+    <></>
   );
 };
 export default Subscribe;

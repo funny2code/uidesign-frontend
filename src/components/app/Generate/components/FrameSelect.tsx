@@ -1,16 +1,22 @@
 import type React from "react";
+import { FRAMES } from "../Component/constants";
 
-const frames = [1, 2, 3, 4];
+interface FrameSelectProps {
+  frameType: FRAMES;
+  setFrameType: React.Dispatch<React.SetStateAction<FRAMES>>;
+}
 
-const FrameSelect = (): React.ReactElement => {
+const FrameSelect = ({ frameType, setFrameType }: FrameSelectProps): React.ReactElement => {
+  const frames = [FRAMES.Desktop, FRAMES.Tablet, FRAMES.MobileWide, FRAMES.Mobile];
   return (
     <div className="frame-border p-1">
       {frames.map((item, index) => (
         <img
-          src={`images/frame-${item}.png`}
+          src={`images/frame-${item}${item == frameType ? "-active" : ""}.png`}
           className="text-light"
           style={{ cursor: "pointer" }}
           key={index}
+          onClick={() => setFrameType(item)}
         />
       ))}
     </div>

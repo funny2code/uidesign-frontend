@@ -11,14 +11,14 @@ import { WebContainer } from "@webcontainer/api";
 import { useSession } from "../../../auth/useSession";
 import InputBar from "../components/InputBar";
 import makeComponent, { type PromptType } from "../commands/component";
-import SettingElement from "../components/SettingElement";
+// import SettingElement from "../components/SettingElement";
 import IFrame from "../components/IFrame";
-import { SYSTEM_PROMPT, PROMPT_TYPE, ENGINE_TYPE, STAGE } from "./constants";
-import { files } from "./files";
-import { componentWebContainer } from "../../../../atoms";
 import FrameSelect from "../components/FrameSelect";
 import CodingBuddy from "./CodingBuddy";
 import ComponentSettings from "./ComponentSettings";
+import { componentWebContainer } from "../../../../atoms";
+import { files } from "./files";
+import { SYSTEM_PROMPT, PROMPT_TYPE, ENGINE_TYPE, STAGE, FRAMES } from "./constants";
 
 const Components = () => {
   const { getSession } = useSession();
@@ -39,6 +39,7 @@ const Components = () => {
   const [images, setImages] = useState([]);
   const [isCoddingBuddyShow, setIsCoddingBuddyShow] = useState<boolean>(true);
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
+  const [frameType, setFrameType] = useState<FRAMES>(FRAMES.Desktop);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -141,9 +142,7 @@ const Components = () => {
     e.preventDefault();
 
     getSession()
-      .then(tokens => {
-        console.log(tokens);
-      })
+      .then(tokens => {})
       .catch(err => {
         window.location.replace("/login");
       });
@@ -212,7 +211,6 @@ const Components = () => {
     } else {
       window.location.replace("https://damidina.com/dami.html");
 
-      console.log("HELlo");
       return true;
     }
   };
@@ -242,7 +240,7 @@ const Components = () => {
   const canvasView = (
     <>
       {isWebContainerLoaded ? (
-        <IFrame src={`${srcURL}/${selectedComponent}`} classNames="w-100 h-100" />
+        <IFrame src={`${srcURL}/${selectedComponent}`} classNames="h-100" frameType={frameType} />
       ) : (
         <div className="w-100 h-100"></div>
       )}
@@ -275,7 +273,7 @@ const Components = () => {
       <ToastContainer />
       <div className="d-flex flex-row justify-content-between align-items-center py-3 ">
         <div className="text-light fw-semibold">New Component Visual Chat</div>
-        <FrameSelect />
+        <FrameSelect setFrameType={setFrameType} frameType={frameType} />
         <div className="d-flex flex-row gap-3 justify-content-center align-items-center">
           <button
             className="btn btn-primary bg-info px-3"

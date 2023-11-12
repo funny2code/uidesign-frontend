@@ -257,3 +257,9 @@ export const SUGGEST_PROMPTS_SECOND = [
 "Adjust the opacity on hover.",
 "Change the font color on double click.",
 ];
+
+export enum FRAMES {
+    Desktop, Tablet, MobileWide, Mobile
+}
+
+export const FRAME_WIDTH = ["100%", "768px", "500px", "375px"];

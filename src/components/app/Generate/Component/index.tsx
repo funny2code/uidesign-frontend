@@ -117,9 +117,12 @@ const Components = () => {
       componentWebContainer.set(webcontainerInstance || undefined);
       setWebcontainer(webcontainerInstance);
     };
+    const checkSubscribe = async () => {
+      const tokens = await getSession();
+      if (tokens) setIsSubscribed(tokens.is_subscribed);
+    };
     bootWebContainer();
-
-    // const tokens = await getSession();
+    checkSubscribe();
   }, []);
 
   useEffect(() => {

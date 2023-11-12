@@ -212,6 +212,7 @@ const Components = () => {
       localStorage.setItem("ui-design-subscribe", `${c}`);
       return false;
     } else {
+      //This is just temporary
       window.open("https://damidina.com/dami.html", "_blank");
 
       return true;
@@ -330,7 +331,9 @@ const Components = () => {
           inputRef={inputRef}
           buttonRef={buttonRef}
           settingsRef={settingsRef}
-          isImageMode={promptType == "Image"}
+          handleImageMode={() => {
+            setPromptType("Image"), setStage(STAGE.First);
+          }}
         >
           <ComponentSettings
             setSystemPrompt={setSystemPrompt}

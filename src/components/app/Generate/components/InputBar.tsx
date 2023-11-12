@@ -14,7 +14,7 @@ interface InputBarProps extends React.PropsWithChildren {
   promptType?: IValue;
   promptOptions?: IValue[];
   setPromptType?: React.Dispatch<React.SetStateAction<IValue>>;
-  isImageMode?: boolean;
+  handleImageMode: () => void;
 }
 
 const InputBar = ({
@@ -30,7 +30,7 @@ const InputBar = ({
   promptType,
   promptOptions,
   setPromptType,
-  isImageMode = false,
+  handleImageMode,
 }: InputBarProps) => {
   return (
     <div className="hstack designer-form p-1">
@@ -122,6 +122,7 @@ const InputBar = ({
             position: "absolute",
             right: "40px",
           }}
+          onClick={handleImageMode}
         >
           <svg
             stroke="currentColor"

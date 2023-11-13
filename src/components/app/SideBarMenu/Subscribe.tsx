@@ -31,9 +31,9 @@ const Subscribe = () => {
     }, 1000);
   }, []);
 
-  if (typeof window == "undefined") {
-    return null;
-  }
+  // if (typeof window == "undefined") {
+  //   return null;
+  // }
 
   return !isSubscribed ? (
     <div

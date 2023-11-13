@@ -105,6 +105,7 @@ const ComponentSettings = ({
       <div className="d-flex flex-row gap-3">
         {settingButtons.map((item, index) => (
           <div
+            key={index}
             className="btn btn-primary border-0"
             onClick={() => setSelectedSettings(index)}
             style={{ backgroundColor: `${selectedSettings == index ? "#ffffff2f" : "transparent"}` }}

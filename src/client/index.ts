@@ -34,6 +34,7 @@ export { PROJECT_TYPE } from './models/PROJECT_TYPE';
 export type { ProjectDocumentsResult } from './models/ProjectDocumentsResult';
 export type { ProjectResult } from './models/ProjectResult';
 export type { ProjectSimilarityResult } from './models/ProjectSimilarityResult';
+export type { WebsiteProjectResult } from './models/WebsiteProjectResult';
 export type { ResourceID } from './models/ResourceID';
 export type { ResponseContentId } from './models/ResponseContentId';
 export type { ResponseWrapper_ContentViewSimilarity_ } from './models/ResponseWrapper_ContentViewSimilarity_';

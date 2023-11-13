@@ -2,6 +2,8 @@
 import { atom } from "nanostores";
 import type { VM, ProjectFiles } from "@stackblitz/sdk";
 import type { PagesType } from "./components/app/Generate/TopBarMenu/constants";
+import { WebContainer } from "@webcontainer/api";
+
 // TODO: Organize
 export const createCSS = atom("");
 export const createHTML = atom("");
@@ -24,3 +26,4 @@ export const vmState = atom(undefined as VM | undefined);
 // ref state
 export const vmFilesState = atom(undefined as ProjectFiles | undefined);
 //
+export const componentWebContainer = atom(undefined as WebContainer | undefined);

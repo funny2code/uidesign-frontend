@@ -15,11 +15,11 @@ const FigmaAssets = () => {
   const { ref, inView } = useInView();
   const pageSize = 10;
   const [columnDefs, setColumnDefs] = useState([
+    { field: "id", filter: true },
+    { field: "description", filter: true },
+    { field: "type" },
     { field: "colors" },
     { field: "created_at" },
-    { field: "description", filter: true },
-    { field: "id", filter: true },
-    { field: "type" },
     { field: "updated_at" }
   ]);
 
@@ -40,8 +40,8 @@ const FigmaAssets = () => {
     async ({ pageParam = 0 }) => {
       const tokens = await getSession();
       const data = await V3FigmaProjectsService.readAllFigmaColors(pageParam, pageSize);
-      console.log("color data: ", data);
-      setRowData(data);
+      
+      setRowData(data.color_palettes);
       setDepleted(data.results.length < pageSize);
       return { data: data.results, previousId: pageParam - pageSize, nextId: pageParam + pageSize };
     },

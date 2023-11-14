@@ -6,7 +6,28 @@ import { useSession } from "../../../auth/useSession";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { V3FigmaProjectsService } from "../../../../client/index.ts";
 import { useInView } from "react-intersection-observer";
-import { GridApi } from "ag-grid-community";
+import { GridApi, RefSelector } from "ag-grid-community";
+
+// // Components to edit
+// const ColorComponent = props => {
+//   const {value } = props;
+//   console.log("colors: ", value)
+//   return (
+//     <div>
+//       hellop
+//     </div>
+//   )
+// }
+
+const ColorEditor = props => {
+  const [value, setValue] = useState(props.value);
+  console.log("In Editor: ", props)
+  const handleChange = val => setValue({val});
+  // const afterGuiAttached = () => RefSelector.
+  return (
+    <h1>Editor</h1>
+  )
+}
 
 const FigmaAssets = () => {
   const { getSession } = useSession();
@@ -15,6 +36,7 @@ const FigmaAssets = () => {
   const [depleted, setDepleted] = useState(false);
   const { ref, inView } = useInView();
   const pageSize = 10;
+
   const [columnDefs, setColumnDefs] = useState([
     {
       headerName: '',
@@ -27,7 +49,18 @@ const FigmaAssets = () => {
     { field: "id", filter: true },
     { field: "description", filter: true },
     { field: "type" },
-    { field: "colors" },
+    { 
+      field: "colors",
+      editable: true,
+      // cellRenderer: "ColorComponent",
+      // cellRendererParams: {
+      //   message: 'This is Custom Component in AG-Grid',
+      //   func: () => {
+      //     console.log("hellodlkdd")
+      //   }
+      // },
+      cellEditor: 'ColorEditor'
+    },
     { field: "created_at" },
     { field: "updated_at" }
   ]);
@@ -100,7 +133,8 @@ const FigmaAssets = () => {
           defaultColDef={defaultColDef} // Default Column Properties
           animateRows={true} // Optional - set to 'true' to have rows animate when sorted
           rowSelection="multiple" // Options - allows click selection of rows
-          onCellClicked={cellClickedListener} // Optional - registering for Grid Event
+          // onCellClicked={cellClickedListener} // Optional - registering for Grid Event
+          components={{ ColorEditor }}
         />
       </div>
     </>

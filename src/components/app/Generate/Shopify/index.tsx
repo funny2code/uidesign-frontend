@@ -76,7 +76,7 @@ const Shopify = (({isSaved, setSaved, project} : shopifyProps) => {
       }
     }
 
-    const request = await fetch(`https://app.uidesign.ai/generate/v3/shopify/theme/`, {
+    const request = await fetch('https://app.uidesign.ai/generate/v3/shopify/theme', {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -84,7 +84,9 @@ const Shopify = (({isSaved, setSaved, project} : shopifyProps) => {
       body: JSON.stringify(createShopifyRequest)
     });
 
-    console.log(request, "CHECK BROS");
+    const data = await request.json()
+
+    console.log(data, "CHECK BROS");
     setLoading(false);
     setProcessing(false);
 

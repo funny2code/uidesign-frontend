@@ -59,62 +59,6 @@ export class V3FigmaProjectsService {
         });
     }
 
-    public static readAllFigmaColors(
-        offset?: number = 1,
-        limit: number = 10,
-        type: string = "bravo",
-        threshold: number = 0.75,
-    ): CancelablePromise<{results: Array<Object>}> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/data/v3/assets/storage/color-palettes/',
-            query: {
-                'offset': offset,
-                'limit': limit,
-                'type': type
-            },
-            errors: {
-                422: `Validation Error`,
-                502: `Bad Gateway`,
-            },
-        });
-    }
-    
-    public static createFigmaColors(
-        requestBody: Object,
-    ): CancelablePromise<string> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/data/v3/assets/storage/color-palettes/',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                422: `Validation Error`,
-                502: `Bad Gateway`,
-            },
-        });
-    }
-
-    public static updateFigmaColors(
-        id: string,
-        requestBody: Object,
-    ): CancelablePromise<{results: Array<Object>}> {
-        return __request(OpenAPI, {
-            method: 'PUT',
-            url: '/data/v3/assets/storage/color-palettes/{id}',
-            path: {
-                'id': id,
-            },
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                422: `Validation Error`,
-                502: `Bad Gateway`,
-            },
-        });
-    }
-
-
     /**
          * Read User Project
          * Get existing project as Authenticated user.
@@ -179,6 +123,78 @@ export class V3FigmaProjectsService {
         return __request(OpenAPI, {
             method: 'DELETE',
             url: '/data/v3/user/figma/projects/{id}',
+            path: {
+                'id': id,
+            },
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
+
+    // color CRUD
+    public static readAllFigmaColors(
+        offset?: number = 1,
+        limit: number = 10,
+        type: string = "figma",
+        threshold: number = 0.75,
+    ): CancelablePromise<{results: Array<Object>}> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/data/v3/assets/storage/color-palettes/',
+            query: {
+                'offset': offset,
+                'limit': limit,
+                'type': type
+            },
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
+    
+    public static createFigmaColors(
+        requestBody: Object,
+    ): CancelablePromise<string> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/data/v3/assets/storage/color-palettes/',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
+
+    public static updateFigmaColors(
+        id: string,
+        requestBody: Object,
+    ): CancelablePromise<{results: Array<Object>}> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/data/v3/assets/storage/color-palettes/{id}',
+            path: {
+                'id': id,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
+
+    public static deleteFigmaColors(
+        id: string,
+    ): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/data/v3/assets/storage/color-palettes/{id}',
             path: {
                 'id': id,
             },

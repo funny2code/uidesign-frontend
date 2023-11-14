@@ -42,6 +42,9 @@ const FigmaAssets = () => {
   const asset_idRef = useRef<HTMLInputElement>(null);
   const asset_descriptionRef = useRef<HTMLInputElement>(null);
   const asset_colorsRef = useRef<HTMLInputElement>(null);
+  const _asset_idRef = useRef<HTMLInputElement>(null);
+  const _asset_descriptionRef = useRef<HTMLInputElement>(null);
+  const _asset_colorsRef = useRef<HTMLInputElement>(null);
   const [selectedRow, setSelectedRow] = useState({})
 
   const [columnDefs, setColumnDefs] = useState([
@@ -103,9 +106,9 @@ const FigmaAssets = () => {
 
   const createColors = () => {
     // gridRef.current.api.deselectAll();
-    const colors = asset_colorsRef.current.value.split(",");
+    const colors = _asset_colorsRef.current.value.split(",");
     const request_data = {
-      description: asset_descriptionRef.current.value,
+      description: _asset_descriptionRef.current.value,
       colors: colors.map(str => str.trim()),
       type: "figma"
     };
@@ -144,8 +147,13 @@ const FigmaAssets = () => {
           New Colors
         </button>
         <button style={{margin: '0px', width: 'fit-content'}} onClick={ _ => {
-          const selectedRows = gridRef.current.api.getSeletectedRows()
-          gridRef.current.api.applyTransaction({ remove: selectedRows })
+          const {api, columnApi} = gridRef.current;
+          const selectedRows = api.getSelectedRows();
+          console.log("selected rows: ", selectedRows)
+          for (const colorset of selectedRows) {
+            V3FigmaProjectsService.deleteFigmaColors(colorset.id);
+          }
+          api.applyTransaction({ remove: selectedRows })
         }} >
           Delete selected Rows
         </button>
@@ -230,7 +238,7 @@ const FigmaAssets = () => {
         className="modal"
         id="createModal"
         tabIndex={-1}
-        aria-labelledby="editModalLabel"
+        aria-labelledby="createModalLabel"
         aria-hidden="true"
       >
         <div className="modal-dialog modal-xl">
@@ -247,14 +255,14 @@ const FigmaAssets = () => {
             <div className="modal-body p-0">
               <form>
                 <ul className="form-style-1">
-                  <input type="hidden" ref={asset_idRef} />
+                  
                   <li>
                     <label>
                       Description <span className="required">*</span>
                     </label>
                     <input
                       type="text"
-                      ref={asset_descriptionRef}
+                      ref={_asset_descriptionRef}
                       name="field1"
                       className="field-divided"
                       placeholder="Description"
@@ -266,7 +274,7 @@ const FigmaAssets = () => {
                     </label>
                     <input
                       type="email"
-                      ref={asset_colorsRef}
+                      ref={_asset_colorsRef}
                       name="field3"
                       className="field-long"
                       placeholder="#ffffff, #0f0f0f"

@@ -11,14 +11,20 @@ import { WebContainer } from "@webcontainer/api";
 import { useSession } from "../../../auth/useSession";
 import InputBar from "../components/InputBar";
 import makeComponent, { type PromptType } from "../commands/component";
-// import SettingElement from "../components/SettingElement";
 import IFrame from "../components/IFrame";
 import FrameSelect from "../components/FrameSelect";
 import CodingBuddy from "./CodingBuddy";
 import ComponentSettings from "./ComponentSettings";
 import { componentWebContainer } from "../../../../atoms";
 import { files } from "./files";
-import { SYSTEM_PROMPT, PROMPT_TYPE, ENGINE_TYPE, STAGE, FRAMES } from "./constants";
+import {
+  SYSTEM_PROMPT,
+  PROMPT_TYPE,
+  ENGINE_TYPE,
+  STAGE,
+  FRAMES,
+  PACKAGE_LOCK_FILE_PATH,
+} from "./constants";
 
 const Components = () => {
   const { getSession } = useSession();
@@ -45,12 +51,18 @@ const Components = () => {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
 
+  const addPackgeLockFile = async (webcontainer: WebContainer) => {
+    const response = await fetch(PACKAGE_LOCK_FILE_PATH);
+    const content = await response.json();
+    await webcontainer.fs.writeFile("package-lock.json", JSON.stringify(content));
+  };
+
   const initWebcontainer = async () => {
     if (!webcontainer) return;
 
     await webcontainer.mount(files);
     updateSelectedFile();
-
+    await addPackgeLockFile(webcontainer);
     const installProcess = await webcontainer.spawn("npm", ["install"]);
 
     const installExitCode = await installProcess.exit;
@@ -58,10 +70,12 @@ const Components = () => {
     if (installExitCode !== 0) {
       throw new Error("Unable to run npm install");
     }
-    // `npm run dev`
+    // `npm run dev`;
     await webcontainer.spawn("npm", ["run", "dev"]);
 
     webcontainer.on("server-ready", (port, url) => {
+      console.log("server ready");
+
       setSrcURL(url);
       setIsWebContainerLoaded(true);
     });

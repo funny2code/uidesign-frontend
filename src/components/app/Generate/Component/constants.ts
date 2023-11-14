@@ -273,3 +273,4 @@ export enum FRAMES {
 export const FRAME_WIDTH = ["100%", "768px", "500px", "375px"];
 
 export const PACKAGE_LOCK_FILE_PATH = "https://cdn.uidesign.ai/build/components/default/package-lock.json"
+export const NODE_MODULES_FILE_PATH = "https://cdn.uidesign.ai/build/components/default/node_modules.zip"

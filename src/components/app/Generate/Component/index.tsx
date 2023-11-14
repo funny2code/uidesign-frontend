@@ -7,6 +7,7 @@ import { okaidia } from "@uiw/codemirror-theme-okaidia";
 import ClipLoader from "react-spinners/ClipLoader";
 import { type ImageListType } from "react-images-uploading";
 import { WebContainer } from "@webcontainer/api";
+import JSZip from "jszip";
 
 import { useSession } from "../../../auth/useSession";
 import InputBar from "../components/InputBar";
@@ -24,6 +25,7 @@ import {
   STAGE,
   FRAMES,
   PACKAGE_LOCK_FILE_PATH,
+  NODE_MODULES_FILE_PATH,
 } from "./constants";
 
 const Components = () => {
@@ -51,10 +53,65 @@ const Components = () => {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
 
-  const addPackgeLockFile = async (webcontainer: WebContainer) => {
-    const response = await fetch(PACKAGE_LOCK_FILE_PATH);
-    const content = await response.json();
-    await webcontainer.fs.writeFile("package-lock.json", JSON.stringify(content));
+  const addPackgeFile = async () => {
+    if (!webcontainer) return;
+    try {
+      const response = await fetch(PACKAGE_LOCK_FILE_PATH);
+      const content = await response.json();
+      await webcontainer.fs.writeFile("package-lock.json", JSON.stringify(content));
+
+      const nodeModule = await fetch(NODE_MODULES_FILE_PATH);
+      const zipBlob = await nodeModule.blob();
+      await unzipFile(zipBlob);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const unzipFile = async (zipBlob: Blob) => {
+    if (!webcontainer) return;
+
+    try {
+      const zip = await JSZip.loadAsync(zipBlob);
+      console.log(zip.files);
+      const result = {};
+      await Promise.all(
+        Object.keys(zip.files).map(async (fileName: string) => {
+          const file = zip.files[fileName];
+          const content = await file.async("string");
+          console.log(fileName);
+          if (fileName !== "node_modules/@esbuild/win32-x64/esbuild.exe") {
+            const parts = fileName.split("/");
+            let current = result;
+
+            // Build the nested structure
+            for (let i = 0; i < parts.length; i++) {
+              const part = parts[i];
+
+              if (i === parts.length - 1) {
+                // Last part, this is a file
+                current[part] = {
+                  file: {
+                    contents: content,
+                  },
+                };
+              } else {
+                // Not the last part, this is a directory
+                current[part] = current[part] || {};
+                current[part].directory = current[part].directory || {};
+                current = current[part].directory;
+              }
+            }
+          }
+        })
+      );
+      console.log(result);
+      await webcontainer.mount(result);
+      // const esbuild = await zip.files["node_modules/@esbuild/win32-x64/esbuild.exe"].async("string");
+      // await webcontainer.fs.writeFile("node_modules/@esbuild/win32-x64/esbuild.exe", esbuild);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const initWebcontainer = async () => {
@@ -62,16 +119,29 @@ const Components = () => {
 
     await webcontainer.mount(files);
     updateSelectedFile();
-    await addPackgeLockFile(webcontainer);
+    await addPackgeFile();
+    console.log("module added");
     const installProcess = await webcontainer.spawn("npm", ["install"]);
+    console.log("npm install");
 
+    installProcess.output.pipeTo(
+      new WritableStream({
+        write(data) {
+          console.log(data);
+        },
+      })
+    );
     const installExitCode = await installProcess.exit;
-
-    if (installExitCode !== 0) {
-      throw new Error("Unable to run npm install");
-    }
+    console.log("npm run dev");
     // `npm run dev`;
-    await webcontainer.spawn("npm", ["run", "dev"]);
+    const result = await webcontainer.spawn("npm", ["run", "dev"]);
+    result.output.pipeTo(
+      new WritableStream({
+        write(data) {
+          console.log(data);
+        },
+      })
+    );
 
     webcontainer.on("server-ready", (port, url) => {
       console.log("server ready");

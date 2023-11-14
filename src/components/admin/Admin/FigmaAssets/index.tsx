@@ -104,7 +104,7 @@ const FigmaAssets = () => {
     }
   }, [inView]);
 
-  const createColors = () => {
+  const createColors = async () => {
     // gridRef.current.api.deselectAll();
     const colors = _asset_colorsRef.current.value.split(",");
     const request_data = {
@@ -113,13 +113,16 @@ const FigmaAssets = () => {
       type: "figma"
     };
     console.log("create request body: ", request_data);
-    V3FigmaProjectsService.createFigmaColors(request_data);
+    const created_colors = await V3FigmaProjectsService.createFigmaColors(request_data);
+    const {api, columnApi} = gridRef.current;
+    const addedItem =  {
+      id: created_colors.id,
+      description: _asset_descriptionRef.current.value,
+      colors: colors.map(str => str.trim())
+    };
+    console.log("addedItem: ", addedItem);
+    api.applyTransaction({ add:[addedItem]});
   };
-  
-
-  const cellClickedListener = useCallback(event => {
-    
-  }, []);
 
   const updateColors = () => {
     const data = {
@@ -168,7 +171,7 @@ const FigmaAssets = () => {
           defaultColDef={defaultColDef} // Default Column Properties
           animateRows={true} // Optional - set to 'true' to have rows animate when sorted
           rowSelection="multiple" // Options - allows click selection of rows
-          onCellClicked={cellClickedListener} // Optional - registering for Grid Event
+          // onCellClicked={cellClickedListener} // Optional - registering for Grid Event
           components={{ BtnRowRenderer }}
         />
       </div>

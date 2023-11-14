@@ -10,7 +10,7 @@ export class V3FigmaProjectsService {
      * @returns ResourceID Successful Response
      * @throws ApiError
      */
-    public static createBravoProject(
+    public static createFigmaProject(
         requestBody: Object,
     ): CancelablePromise<string> {
         return __request(OpenAPI, {
@@ -35,7 +35,7 @@ export class V3FigmaProjectsService {
      * @returns MultipleResults_ProjectSimilarityResult_ Successful Response
      * @throws ApiError
      */
-    public static readPublicBravoProjects(
+    public static readPublicFigmaProjects(
         offset?: number,
         limit: number = 10,
         preview: boolean = false,
@@ -58,6 +58,26 @@ export class V3FigmaProjectsService {
             },
         });
     }
+    public static readAllFigmaColors(
+        offset?: number = 1,
+        limit: number = 10,
+        type: string = "bravo",
+        threshold: number = 0.75,
+    ): CancelablePromise<{results: Array<Object>}> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/data/v3/assets/storage/color-palettes/',
+            query: {
+                'offset': offset,
+                'limit': limit,
+                'type': type
+            },
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
     /**
          * Read User Project
          * Get existing project as Authenticated user.
@@ -65,7 +85,7 @@ export class V3FigmaProjectsService {
          * @returns SingleResult_ProjectResult_ Successful Response
          * @throws ApiError
          */
-    public static readUserBravoProject(
+    public static readUserFigmaProject(
         id: string,
     ): CancelablePromise<{results: Object}> {
         return __request(OpenAPI, {
@@ -90,7 +110,7 @@ export class V3FigmaProjectsService {
      * @returns void
      * @throws ApiError
      */
-    public static updateUserBravoProject(
+    public static updateUserFigmaProject(
         id: string,
         requestBody: Object,
     ): CancelablePromise<void> {
@@ -116,7 +136,7 @@ export class V3FigmaProjectsService {
      * @returns void
      * @throws ApiError
      */
-    public static deleteBravoProject(
+    public static deleteFigmaProject(
         id: string,
     ): CancelablePromise<void> {
         return __request(OpenAPI, {

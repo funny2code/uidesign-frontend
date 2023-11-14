@@ -51,7 +51,7 @@ const FigmaProjects = () => {
     ["figmaprojects"],
     async ({ pageParam = 0 }) => {
       const tokens = await getSession();
-      const data = await V3FigmaProjectsService.readPublicBravoProjects(pageParam, pageSize, preview);
+      const data = await V3FigmaProjectsService.readPublicFigmaProjects(pageParam, pageSize, preview);
       setDepleted(data.results.length < pageSize);
       return { data: data.results, previousId: pageParam - pageSize, nextId: pageParam + pageSize };
     },
@@ -70,7 +70,7 @@ const FigmaProjects = () => {
       screens: [],
     };
     console.log("create request body: ", request_data);
-    V3FigmaProjectsService.createBravoProject(request_data);
+    V3FigmaProjectsService.createFigmaProject(request_data);
     resetModal();
   };
 
@@ -82,7 +82,7 @@ const FigmaProjects = () => {
       tags: project_tagRef.current.value.split(","),
     };
     console.log("data : ", data);
-    V3FigmaProjectsService.updateUserBravoProject(project_idRef.current.value, data);
+    V3FigmaProjectsService.updateUserFigmaProject(project_idRef.current.value, data);
   };
 
   useEffect(() => {

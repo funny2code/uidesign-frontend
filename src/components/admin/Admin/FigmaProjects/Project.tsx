@@ -20,7 +20,7 @@ interface DocumentItemProps {
 }
 
 const fetchProject = async (id: string, preview: boolean = false) => {
-  const project = await V3FigmaProjectsService.readUserBravoProject(id);
+  const project = await V3FigmaProjectsService.readUserFigmaProject(id);
 
   return project;
 };
@@ -55,7 +55,7 @@ const Project = (props: DocumentItemProps) => {
     OpenAPI.TOKEN = tokens.id_token;
     const confirm = window.confirm("Delete?");
     if (!confirm) return;
-    await V3FigmaProjectsService.deleteBravoProject(props.id);
+    await V3FigmaProjectsService.deleteFigmaProject(props.id);
   };
   return (
     <>

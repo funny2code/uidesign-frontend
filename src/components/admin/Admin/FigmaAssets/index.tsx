@@ -6,26 +6,29 @@ import { useSession } from "../../../auth/useSession";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { V3FigmaProjectsService } from "../../../../client/index.ts";
 import { useInView } from "react-intersection-observer";
-import { GridApi, RefSelector } from "ag-grid-community";
 
-// // Components to edit
-// const ColorComponent = props => {
-//   const {value } = props;
-//   console.log("colors: ", value)
-//   return (
-//     <div>
-//       hellop
-//     </div>
-//   )
-// }
+const BtnRowRenderer = (props) => {
+  const [colors, setColors] = useState(props.data.colors);
+  const [description, setDescription] = useState(props.data.description);
+  const [id, setId] = useState(props.data.id);
+  const [modal_refs, setModal_refs] = useState(props.modal_refs);
 
-const ColorEditor = props => {
-  const [value, setValue] = useState(props.value);
-  console.log("In Editor: ", props)
-  const handleChange = val => setValue({val});
-  // const afterGuiAttached = () => RefSelector.
+  console.log("props: ", props)
+  const fill_rowdata = () => {
+    modal_refs.asset_idRef.current.value = id;
+    modal_refs.asset_descriptionRef.current.value = description;
+    console.log(colors.join(", "))
+    modal_refs.asset_colorsRef.current.value = colors.join(", ");
+    props.setSelectedRow(props.data);
+  }
   return (
-    <h1>Editor</h1>
+    <button 
+      data-bs-toggle="modal"
+      data-bs-target="#editModal"
+      onClick={fill_rowdata}
+    > 
+      Edit 
+    </button>
   )
 }
 
@@ -36,6 +39,10 @@ const FigmaAssets = () => {
   const [depleted, setDepleted] = useState(false);
   const { ref, inView } = useInView();
   const pageSize = 10;
+  const asset_idRef = useRef<HTMLInputElement>(null);
+  const asset_descriptionRef = useRef<HTMLInputElement>(null);
+  const asset_colorsRef = useRef<HTMLInputElement>(null);
+  const [selectedRow, setSelectedRow] = useState({})
 
   const [columnDefs, setColumnDefs] = useState([
     {
@@ -46,23 +53,18 @@ const FigmaAssets = () => {
       width: 50,
       field: 'checkboxBtn'
     },
-    { field: "id", filter: true },
+    { field: "id", filter: true},
     { field: "description", filter: true },
     { field: "type" },
-    { 
-      field: "colors",
-      editable: true,
-      // cellRenderer: "ColorComponent",
-      // cellRendererParams: {
-      //   message: 'This is Custom Component in AG-Grid',
-      //   func: () => {
-      //     console.log("hellodlkdd")
-      //   }
-      // },
-      cellEditor: 'ColorEditor'
-    },
-    { field: "created_at" },
-    { field: "updated_at" }
+    { field: "colors" },
+    {
+      field: 'Edit',
+      cellRenderer: BtnRowRenderer,
+      cellRendererParams: {
+        modal_refs: {asset_idRef, asset_descriptionRef, asset_colorsRef},
+        setSelectedRow: setSelectedRow
+      }
+    }
   ]);
 
   // Get all projects
@@ -99,13 +101,32 @@ const FigmaAssets = () => {
     }
   }, [inView]);
 
-  const buttonListener = useCallback(e => {
-    gridRef.current.api.deselectAll();
-  }, []);
+  const createColors = () => {
+    // gridRef.current.api.deselectAll();
+    const colors = asset_colorsRef.current.value.split(",");
+    const request_data = {
+      description: asset_descriptionRef.current.value,
+      colors: colors.map(str => str.trim()),
+      type: "figma"
+    };
+    console.log("create request body: ", request_data);
+    V3FigmaProjectsService.createFigmaColors(request_data);
+  };
+  
 
   const cellClickedListener = useCallback(event => {
-    console.log("cellClicked", event);
+    
   }, []);
+
+  const updateColors = () => {
+    const data = {
+      ...selectedRow,
+      colors: asset_colorsRef.current.value.split(", "),
+      description: asset_descriptionRef.current.value
+    }
+    console.log("updated data: ", data);
+    V3FigmaProjectsService.updateFigmaColors(asset_idRef.current.value, data);
+  }
 
   const defaultColDef = useMemo(() => ({
     sortable: true,
@@ -115,7 +136,13 @@ const FigmaAssets = () => {
     <>
       {/* Example using Grid's API */}
       <div style={{display: "flex", flexDirection: "row", marginBottom: '1px'}}>
-        <button style={{margin: '0px', width: 'fit-content'}} onClick={buttonListener}>Push Me</button>
+        <button 
+          style={{margin: '0px', width: 'fit-content'}} 
+          data-bs-toggle="modal"
+          data-bs-target="#createModal"
+        >
+          New Colors
+        </button>
         <button style={{margin: '0px', width: 'fit-content'}} onClick={ _ => {
           const selectedRows = gridRef.current.api.getSeletectedRows()
           gridRef.current.api.applyTransaction({ remove: selectedRows })
@@ -133,9 +160,133 @@ const FigmaAssets = () => {
           defaultColDef={defaultColDef} // Default Column Properties
           animateRows={true} // Optional - set to 'true' to have rows animate when sorted
           rowSelection="multiple" // Options - allows click selection of rows
-          // onCellClicked={cellClickedListener} // Optional - registering for Grid Event
-          components={{ ColorEditor }}
+          onCellClicked={cellClickedListener} // Optional - registering for Grid Event
+          components={{ BtnRowRenderer }}
         />
+      </div>
+      <div
+        className="modal"
+        id="editModal"
+        tabIndex={-1}
+        aria-labelledby="editModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-xl">
+          <div className="modal-content">
+            <div className="modal-header">
+              <button
+                type="button"
+                className="btn-close"
+                style={{ fontSize: ".82rem" }}
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body p-0">
+              <form>
+                <ul className="form-style-1">
+                  <input type="hidden" ref={asset_idRef} />
+                  <li>
+                    <label>
+                      Description <span className="required">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      ref={asset_descriptionRef}
+                      name="field1"
+                      className="field-divided"
+                      placeholder="Description"
+                    />
+                  </li>
+                  <li>
+                    <label>
+                      Colors <span className="required">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      ref={asset_colorsRef}
+                      name="field3"
+                      className="field-long"
+                      placeholder="#ffffff, #0f0f0f"
+                    />
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={updateColors}
+                      data-bs-dismiss="modal"
+                    >
+                      Update Colors
+                    </button>
+                  </li>
+                </ul>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="modal"
+        id="createModal"
+        tabIndex={-1}
+        aria-labelledby="editModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-xl">
+          <div className="modal-content">
+            <div className="modal-header">
+              <button
+                type="button"
+                className="btn-close"
+                style={{ fontSize: ".82rem" }}
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body p-0">
+              <form>
+                <ul className="form-style-1">
+                  <input type="hidden" ref={asset_idRef} />
+                  <li>
+                    <label>
+                      Description <span className="required">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      ref={asset_descriptionRef}
+                      name="field1"
+                      className="field-divided"
+                      placeholder="Description"
+                    />
+                  </li>
+                  <li>
+                    <label>
+                      Colors <span className="required">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      ref={asset_colorsRef}
+                      name="field3"
+                      className="field-long"
+                      placeholder="#ffffff, #0f0f0f"
+                    />
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={createColors}
+                      data-bs-dismiss="modal"
+                    >
+                      Create Colors
+                    </button>
+                  </li>
+                </ul>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );

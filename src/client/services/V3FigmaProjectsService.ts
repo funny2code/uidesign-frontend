@@ -58,6 +58,7 @@ export class V3FigmaProjectsService {
             },
         });
     }
+
     public static readAllFigmaColors(
         offset?: number = 1,
         limit: number = 10,
@@ -78,6 +79,42 @@ export class V3FigmaProjectsService {
             },
         });
     }
+    
+    public static createFigmaColors(
+        requestBody: Object,
+    ): CancelablePromise<string> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/data/v3/assets/storage/color-palettes/',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
+
+    public static updateFigmaColors(
+        id: string,
+        requestBody: Object,
+    ): CancelablePromise<{results: Array<Object>}> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/data/v3/assets/storage/color-palettes/{id}',
+            path: {
+                'id': id,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
+
+
     /**
          * Read User Project
          * Get existing project as Authenticated user.

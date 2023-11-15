@@ -13,7 +13,7 @@ const BtnRowRenderer = (props) => {
   const [id, setId] = useState(props.data.id);
   const [modal_refs, setModal_refs] = useState(props.modal_refs);
 
-  console.log("props: ", props)
+  // console.log("props: ", props)
   const fill_rowdata = () => {
     modal_refs.asset_idRef.current.value = id;
     modal_refs.asset_descriptionRef.current.value = description;
@@ -35,9 +35,10 @@ const BtnRowRenderer = (props) => {
 const ColorsAsset = () => {
   const { getSession } = useSession();
   const gridRef = useRef();
-  const [rowData, setRowData] = useState();
+  const [rowData, setRowData] = useState([]);
   const [depleted, setDepleted] = useState(false);
   const { ref, inView } = useInView();
+  const [pageParam, setPageParam] = useState(0);
   const pageSize = 10;
   const asset_idRef = useRef<HTMLInputElement>(null);
   const asset_descriptionRef = useRef<HTMLInputElement>(null);
@@ -70,49 +71,19 @@ const ColorsAsset = () => {
     }
   ]);
 
-  // Get all projects
-  const {
-    status,
-    data,
-    error,
-    isFetching,
-    isFetchingNextPage,
-    isFetchingPreviousPage,
-    fetchNextPage,
-    fetchPreviousPage,
-    hasNextPage,
-    hasPreviousPage,
-  } = useInfiniteQuery(
-    ["figmacolors"],
-    async ({ pageParam = 0 }) => {
-      const tokens = await getSession();
-      const data = await V3FigmaProjectsService.readAllFigmaColors(pageParam, pageSize);
-      setRowData(data.color_palettes);
-      setDepleted(data.color_palettes.length < pageSize);
-      return { data: data.results, previousId: pageParam - pageSize, nextId: pageParam + pageSize };
-    },
-    {
-      getPreviousPageParam: firstPage => firstPage.previousId ?? undefined,
-      getNextPageParam: lastPage => lastPage.nextId ?? undefined,
-    }
-  );
-
-
-  useEffect(() => {
-    if (inView && !depleted) {
-      fetchNextPage();
-    }
-  }, [inView]);
+  const onGridReady = async () => {
+    const data = await V3FigmaProjectsService.readAllFigmaColors(pageParam, pageSize);
+    // setDepleted(data.color_palettes.length < pageSize);
+    setRowData(data.color_palettes);
+  }
 
   const createColors = async () => {
-    // gridRef.current.api.deselectAll();
     const colors = _asset_colorsRef.current.value.split(",");
     const request_data = {
       description: _asset_descriptionRef.current.value,
       colors: colors.map(str => str.trim()),
       type: "figma"
     };
-    console.log("create request body: ", request_data);
     const created_colors = await V3FigmaProjectsService.createFigmaColors(request_data);
     const {api, columnApi} = gridRef.current;
     const addedItem =  {
@@ -140,6 +111,23 @@ const ColorsAsset = () => {
     sortable: true,
   }));
 
+  const onBtPrevious = async () => {
+    let prevParam = pageParam - pageParam;
+    if (prevParam < 0) prevParam = 0;
+    setPageParam(prevParam);
+    console.log("Updated Page Param: ", prevParam, pageParam)
+    const data = await V3FigmaProjectsService.readAllFigmaColors(prevParam, pageSize);
+    setRowData(data.color_palettes);
+  };
+
+  const onBtNext = async () => {
+    let nextPageParam = pageParam + pageSize;
+    setPageParam(nextPageParam);
+    console.log("Updated Page Param: ", nextPageParam, pageParam)
+    const data = await V3FigmaProjectsService.readAllFigmaColors(nextPageParam, pageSize);
+    setRowData(data.color_palettes);
+  }
+
   return (
     <>
       {/* Example using Grid's API */}
@@ -162,6 +150,8 @@ const ColorsAsset = () => {
         }} >
           Delete selected Rows
         </button>
+        <button style={{margin: '0px', width: 'fit-content'}} onClick={onBtPrevious}>To Previous</button>
+        <button style={{margin: '0px', width: 'fit-content'}} onClick={onBtNext}>To Next</button>
       </div>
 
       {/* On div wrapping Grid a) specify theme CSS Class Class and b) sets Grid size */}
@@ -175,6 +165,7 @@ const ColorsAsset = () => {
           rowSelection="multiple" // Options - allows click selection of rows
           // onCellClicked={cellClickedListener} // Optional - registering for Grid Event
           components={{ BtnRowRenderer }}
+          onGridReady={onGridReady}
         />
       </div>
       <div

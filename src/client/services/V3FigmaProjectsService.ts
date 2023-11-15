@@ -205,4 +205,76 @@ export class V3FigmaProjectsService {
         });
     }
 
+    // Images Part
+    public static readAllImages(
+        offset: number = 1,
+        limit: number = 3,
+        // type: string = "figma",
+        threshold: number = 0.75,
+    ): CancelablePromise<{results: Array<Object>}> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/data/v3/assets/storage/images/',
+            query: {
+                'offset': offset,
+                'limit': limit,
+                // 'type': type
+            },
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
+    
+    public static createImage(
+        requestBody: Object,
+    ): CancelablePromise<string> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/data/v3/assets/storage/images/',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
+
+    public static updateImage(
+        id: string,
+        requestBody: Object,
+    ): CancelablePromise<{results: Array<Object>}> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/data/v3/assets/storage/images/{id}',
+            path: {
+                'id': id,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
+
+    public static deleteImage(
+        id: string,
+    ): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/data/v3/assets/storage/images/{id}',
+            path: {
+                'id': id,
+            },
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
+
 }

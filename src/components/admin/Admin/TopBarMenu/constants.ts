@@ -4,7 +4,8 @@ export const PAGES = {
   Users: "Users",
   Embeddings: "Embeddings",
   FigmaProjects: "FigmaProjects",
-  FigmaAssets: "FigmaAssets",
   BravoProjects: "BravoProjects",
-  BravoAssets: "BravoAssets"
+  ColorsAsset: "ColorsAsset",
+  TextsAsset: "TextsAsset",
+  ImageAssets: "ImageAssets"
 };

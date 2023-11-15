@@ -3,9 +3,10 @@ import TopBarMenu from "./TopBarMenu";
 import Messages from "./Messages";
 import Embeddings from "./Embeddings";
 import FigmaProjects from "./FigmaProjects";
-import FigmaAssets from "./FigmaAssets";
+import ColorsAsset from "./ColorsAsset";
 import BravoProjects from "./BravoProjects";
 import BravoAssets from "./BravoAssets";
+import ImageAssets from './ImageAssets';
 import Users from "./Users";
 import { useState } from "react";
 
@@ -21,9 +22,10 @@ const Admin = () => {
       {currentPage === PAGES.Users && <Users />}
       {currentPage === PAGES.Embeddings && <Embeddings />}
       {currentPage === PAGES.FigmaProjects && <FigmaProjects />}
-      {currentPage === PAGES.FigmaAssets && <FigmaAssets />}
       {currentPage === PAGES.BravoProjects && <BravoProjects />}
-      {currentPage === PAGES.BravoAssets && <BravoAssets />}
+      {currentPage === PAGES.ColorsAsset && <ColorsAsset />}
+      {currentPage === PAGES.TextsAsset && <BravoAssets />}
+      {currentPage === PAGES.ImageAssets && <ImageAssets />}
     </section>
   );
 };

@@ -2,7 +2,7 @@ import { AgGridReact } from "ag-grid-react";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { useSession } from "../../../auth/useSession";
+import { useSession } from "../../../auth/useSession.tsx";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { V3FigmaProjectsService } from "../../../../client/index.ts";
 import { useInView } from "react-intersection-observer";
@@ -32,7 +32,7 @@ const BtnRowRenderer = (props) => {
   )
 }
 
-const FigmaAssets = () => {
+const ColorsAsset = () => {
   const { getSession } = useSession();
   const gridRef = useRef();
   const [rowData, setRowData] = useState();
@@ -88,7 +88,7 @@ const FigmaAssets = () => {
       const tokens = await getSession();
       const data = await V3FigmaProjectsService.readAllFigmaColors(pageParam, pageSize);
       setRowData(data.color_palettes);
-      setDepleted(data.results.length < pageSize);
+      setDepleted(data.color_palettes.length < pageSize);
       return { data: data.results, previousId: pageParam - pageSize, nextId: pageParam + pageSize };
     },
     {
@@ -132,6 +132,8 @@ const FigmaAssets = () => {
     }
     console.log("updated data: ", data);
     V3FigmaProjectsService.updateFigmaColors(asset_idRef.current.value, data);
+    const {api, columnApi} = gridRef.current;
+    api.applyTransaction({update: [data]})
   }
 
   const defaultColDef = useMemo(() => ({
@@ -303,4 +305,4 @@ const FigmaAssets = () => {
   );
 };
 
-export default FigmaAssets;
+export default ColorsAsset;

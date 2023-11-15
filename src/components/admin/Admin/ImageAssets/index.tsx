@@ -97,8 +97,6 @@ const ImageAssets = () => {
         setFile( Array.from(new Uint8Array(arrayBuffer)) )
     };
     reader.readAsArrayBuffer(image_file);
-    // createImage(imageFile, convertImage);
-    
   }
 
   const [columnDefs, setColumnDefs] = useState([

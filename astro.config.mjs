@@ -7,7 +7,7 @@ export default defineConfig({
   integrations: [react()],
   site: "https://app.uidesign.ai",
   server: {
-    port: 3030,
+    port: 3000,
     // headers: {
     //   "Cross-Origin-Embedder-Policy": "require-corp",
     //   "Cross-Origin-Opener-Policy": "same-origin",

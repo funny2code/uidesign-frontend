@@ -84,11 +84,28 @@ const Shopify = (({isSaved, setSaved, project} : shopifyProps) => {
       body: JSON.stringify(createShopifyRequest)
     });
 
-    const data = await request.json()
-
-    console.log(data, "CHECK BROS");
-    setLoading(false);
+    
+    const data = await request.json();
+    const newUpdate = await updateThemeSettings(data.messages);
+    console.log(data.messages, newUpdate, "CHECK DAV NEW");
+    setIsThemes((prevThemes:any) => {
+      return {
+        ...prevThemes,
+        [themeId]: {...newUpdate},
+      }
+    });
+    const html = await updateShopitTheme(
+      `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
+      themeId,
+      newUpdate.settings_data,
+      newUpdate.templates[currentPage],
+      newUpdate.templates['header_group'],
+      newUpdate.templates['footer_group'],
+      newUpdate.themeContent
+    );
+    updateIframeContent(html);
     setProcessing(false);
+    setIsDisabled(false);
 
     // const queryParams = parseConfigParams(input, {
     //   theme_id: themeId,
@@ -174,6 +191,25 @@ const Shopify = (({isSaved, setSaved, project} : shopifyProps) => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     await initGenerate();
+  };
+  /* ===================================================================================================
+  *     UPDATE SHOPIFY SETTINGS OBJECT
+  * ================================================================================================= */
+  const updateThemeSettings = async (messages:any[]) => {
+    console.log(messages);
+    const newState = { ...isThemes[themeId] };
+    console.log(themeId, "THEME ID");
+    messages.map(message => {
+      const path = message.path;
+      const value = message.value;
+      let currentLevel:any = newState;
+      for (let i = 0; i < path.length - 1; i++) {
+        console.log(path[i], currentLevel[path[i]]);
+        currentLevel = currentLevel[path[i]];
+      }
+      currentLevel[path[path.length - 1]] = value;
+    })
+    return newState;
   };
   /* ===================================================================================================
   *     PAGE CHANGE FUNCTION
@@ -348,13 +384,14 @@ const Shopify = (({isSaved, setSaved, project} : shopifyProps) => {
   const getThemeById = async (id: string) => {
     const res = await getTheme(id);
     const { templates, settingsData, settingsSchema } = res;
+    console.log(settingsData);
     if (templates && Object.keys(templates).length > 0) setPages(Object.keys(templates));
     if (settingsData && isThemes[id] === undefined){
       setIsThemes(prevThemes => {
         return {
           ...prevThemes,
           [id]: {
-            settings_data: settingsData.presets[settingsData.current],
+            settings_data: typeof settingsData.current === "string" ? settingsData.presets[settingsData.current]: settingsData.current,
             templates: templates,
             themeContent: {},
             settingsSchema: settingsSchema

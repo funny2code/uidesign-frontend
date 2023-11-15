@@ -36,12 +36,14 @@ const ImageAssets = () => {
   const [rowData, setRowData] = useState();
   const [depleted, setDepleted] = useState(false);
   const { ref, inView } = useInView();
+  const [pageParam, setPageParam] = useState(0);
   const pageSize = 10;
   const image_idRef = useRef<HTMLInputElement>(null);
   const image_descriptionRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState();
   const [image_preview, setImage_preview] = useState();
   const [selectedRow, setSelectedRow] = useState({})
+  const [imageType, setImageType] = useState("figma");
 
   const handleFileChange = (e) => {
     console.log(e.target.files);
@@ -84,45 +86,15 @@ const ImageAssets = () => {
     }
   ]);
 
-  // Get all projects
-  const {
-    status,
-    data,
-    error,
-    isFetching,
-    isFetchingNextPage,
-    isFetchingPreviousPage,
-    fetchNextPage,
-    fetchPreviousPage,
-    hasNextPage,
-    hasPreviousPage,
-  } = useInfiniteQuery(
-    ["imageassets"],
-    async ({ pageParam = 0 }) => {
-      const tokens = await getSession();
-      const data = await V3FigmaProjectsService.readAllImages(pageParam, pageSize);
-      console.log("images: ", data)
-      setRowData(data.images);
-      setDepleted(data.images.length < pageSize);
-      return { data: data.images, previousId: pageParam - pageSize, nextId: pageParam + pageSize };
-    },
-    {
-      getPreviousPageParam: firstPage => firstPage.previousId ?? undefined,
-      getNextPageParam: lastPage => lastPage.nextId ?? undefined,
-    }
-  );
-
-
-  useEffect(() => {
-    if (inView && !depleted) {
-      fetchNextPage();
-    }
-  }, [inView]);
-
+  const onGridReady = async () => {
+    const data = await V3FigmaProjectsService.readAllImages(pageParam, pageSize);
+    setRowData(data.images);
+  }
+  
   const createImageAsset = async () => {
     const request_data = {
-      file: file,
-      type: "default"
+      data: [file],
+      type: imageType
     };
     console.log("create request body: ", request_data);
     const created_asset = await V3FigmaProjectsService.createImage(request_data);
@@ -149,6 +121,27 @@ const ImageAssets = () => {
     sortable: true,
   }));
 
+  const onBtPrevious = async () => {
+    let prevParam = pageParam - pageParam;
+    if (prevParam < 0) prevParam = 0;
+    setPageParam(prevParam);
+    console.log("Updated Page Param: ", prevParam, pageParam)
+    const data = await V3FigmaProjectsService.readAllImages(pageParam, pageSize);
+    setRowData(data.images);
+  };
+
+  const onBtNext = async () => {
+    let nextPageParam = pageParam + pageSize;
+    setPageParam(nextPageParam);
+    console.log("Updated Page Param: ", nextPageParam, pageParam)
+    const data = await V3FigmaProjectsService.readAllImages(pageParam, pageSize);
+    setRowData(data.images);
+  }
+
+  const handleChange = (e) => {
+    setImageType(e.target.value);
+  }
+
   return (
     <>
       {/* Example using Grid's API */}
@@ -171,6 +164,8 @@ const ImageAssets = () => {
         }} >
           Delete selected Images
         </button>
+        <button style={{margin: '0px', width: 'fit-content'}} onClick={onBtPrevious}>To Previous</button>
+        <button style={{margin: '0px', width: 'fit-content'}} onClick={onBtNext}>To Next</button>
       </div>
 
       {/* On div wrapping Grid a) specify theme CSS Class Class and b) sets Grid size */}
@@ -184,6 +179,7 @@ const ImageAssets = () => {
           rowSelection="multiple" // Options - allows click selection of rows
           // onCellClicked={cellClickedListener} // Optional - registering for Grid Event
           components={{ BtnRowRenderer }}
+          onGridReady={onGridReady}
         />
       </div>
       <div
@@ -264,6 +260,13 @@ const ImageAssets = () => {
                         <img src={image_preview} style={{width: 100, height: 100}} />
             
                     </div>
+                    <li>
+                      <label>Type</label>
+                      <select name="field4" className="field-select" onChange={handleChange}>
+                        <option value="figma">Figma</option>
+                        <option value="bravo">Bravo</option>
+                      </select>
+                    </li>
                     <li>
                         <button
                         type="button"

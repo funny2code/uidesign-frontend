@@ -5,7 +5,7 @@ import Embeddings from "./Embeddings";
 import FigmaProjects from "./FigmaProjects";
 import ColorsAsset from "./ColorsAsset";
 import BravoProjects from "./BravoProjects";
-import BravoAssets from "./BravoAssets";
+import TextsAsset from "./TextsAsset";
 import ImageAssets from './ImageAssets';
 import Users from "./Users";
 import { useState } from "react";
@@ -24,7 +24,7 @@ const Admin = () => {
       {currentPage === PAGES.FigmaProjects && <FigmaProjects />}
       {currentPage === PAGES.BravoProjects && <BravoProjects />}
       {currentPage === PAGES.ColorsAsset && <ColorsAsset />}
-      {currentPage === PAGES.TextsAsset && <BravoAssets />}
+      {currentPage === PAGES.TextsAsset && <TextsAsset />}
       {currentPage === PAGES.ImageAssets && <ImageAssets />}
     </section>
   );

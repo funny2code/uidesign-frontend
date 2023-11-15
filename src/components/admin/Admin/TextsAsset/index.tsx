@@ -8,17 +8,17 @@ import { V3FigmaProjectsService } from "../../../../client/index.ts";
 import { useInView } from "react-intersection-observer";
 
 const BtnRowRenderer = (props) => {
-  const [colors, setColors] = useState(props.data.colors);
-  const [description, setDescription] = useState(props.data.description);
+  const [text, setText] = useState(props.data.text);
+  const [meta_text, setMeta_text] = useState(props.data.meta_text);
   const [id, setId] = useState(props.data.id);
+  const [text_type, setText_type] = useState(props.data.type);
   const [modal_refs, setModal_refs] = useState(props.modal_refs);
 
   // console.log("props: ", props)
   const fill_rowdata = () => {
     modal_refs.asset_idRef.current.value = id;
-    modal_refs.asset_descriptionRef.current.value = description;
-    console.log(colors.join(", "))
-    modal_refs.asset_colorsRef.current.value = colors.join(", ");
+    modal_refs._asset_textRef.current.value = text;
+    modal_refs._asset_meta_textRef.current.value = meta_text;
     props.setSelectedRow(props.data);
   }
   return (
@@ -32,22 +32,19 @@ const BtnRowRenderer = (props) => {
   )
 }
 
-const ColorsAsset = () => {
+const TextsAsset = () => {
   const { getSession } = useSession();
   const gridRef = useRef();
   const [rowData, setRowData] = useState([]);
-  const [depleted, setDepleted] = useState(false);
-  const { ref, inView } = useInView();
   const [pageParam, setPageParam] = useState(0);
   const pageSize = 10;
   const asset_idRef = useRef<HTMLInputElement>(null);
-  const asset_descriptionRef = useRef<HTMLInputElement>(null);
-  const asset_colorsRef = useRef<HTMLInputElement>(null);
-  const _asset_idRef = useRef<HTMLInputElement>(null);
-  const _asset_descriptionRef = useRef<HTMLInputElement>(null);
-  const _asset_colorsRef = useRef<HTMLInputElement>(null);
+  const asset_textRef = useRef<HTMLInputElement>(null);
+  const asset_meta_textRef = useRef<HTMLInputElement>(null);    
+  const _asset_textRef = useRef<HTMLInputElement>(null);
+  const _asset_meta_textRef = useRef<HTMLInputElement>(null);
   const [selectedRow, setSelectedRow] = useState({})
-  const [colorType, setColorType] = useState('figma');
+  const [texts_type, setTexts_type] = useState("figma");
 
   const [columnDefs, setColumnDefs] = useState([
     {
@@ -59,51 +56,50 @@ const ColorsAsset = () => {
       field: 'checkboxBtn'
     },
     { field: "id", filter: true},
-    { field: "description", filter: true },
+    { field: "text", filter: true },
     { field: "type" },
-    { field: "colors" },
+    { field: "meta_text" },
     {
       field: 'Edit',
       cellRenderer: BtnRowRenderer,
       cellRendererParams: {
-        modal_refs: {asset_idRef, asset_descriptionRef, asset_colorsRef},
+        modal_refs: {asset_idRef, _asset_textRef, _asset_meta_textRef},
         setSelectedRow: setSelectedRow
       }
     }
   ]);
 
   const onGridReady = async () => {
-    const data = await V3FigmaProjectsService.readAllColors(pageParam, pageSize);
-    // setDepleted(data.color_palettes.length < pageSize);
-    setRowData(data.color_palettes);
+    const data = await V3FigmaProjectsService.readAllTexts(pageParam, pageSize);
+    setRowData(data.sentences);
   }
 
-  const createColors = async () => {
-    const colors = _asset_colorsRef.current.value.split(",");
+  const createTexts = async () => {
     const request_data = {
-      description: _asset_descriptionRef.current.value,
-      colors: colors.map(str => str.trim()),
-      type: colorType
+      text: asset_textRef.current.value,
+      meta_text: asset_meta_textRef.current.value,
+      type: texts_type
     };
-    const created_colors = await V3FigmaProjectsService.createColors(request_data);
+    const created_texts = await V3FigmaProjectsService.createTexts(request_data);
     const {api, columnApi} = gridRef.current;
     const addedItem =  {
-      id: created_colors.id,
-      description: _asset_descriptionRef.current.value,
-      colors: colors.map(str => str.trim())
+      id: created_texts.id,
+      text: asset_textRef.current.value,
+      meta_text: asset_meta_textRef.current.value,
+      type: texts_type
     };
     console.log("addedItem: ", addedItem);
     api.applyTransaction({ add:[addedItem]});
   };
 
-  const updateColors = () => {
+  const updateTexts = () => {
     const data = {
       ...selectedRow,
-      colors: asset_colorsRef.current.value.split(", "),
-      description: asset_descriptionRef.current.value
+      meta_text: _asset_meta_textRef.current.value,
+      text: _asset_textRef.current.value
     }
     console.log("updated data: ", data);
-    V3FigmaProjectsService.updateColors(asset_idRef.current.value, data);
+    V3FigmaProjectsService.updateTexts(asset_idRef.current.value, data);
     const {api, columnApi} = gridRef.current;
     api.applyTransaction({update: [data]})
   }
@@ -117,20 +113,20 @@ const ColorsAsset = () => {
     if (prevParam < 0) prevParam = 0;
     setPageParam(prevParam);
     console.log("Updated Page Param: ", prevParam, pageParam)
-    const data = await V3FigmaProjectsService.readAllColors(prevParam, pageSize);
-    setRowData(data.color_palettes);
+    const data = await V3FigmaProjectsService.readAllTexts(prevParam, pageSize);
+    setRowData(data.sentences);
   };
 
   const onBtNext = async () => {
     let nextPageParam = pageParam + pageSize;
     setPageParam(nextPageParam);
     console.log("Updated Page Param: ", nextPageParam, pageParam)
-    const data = await V3FigmaProjectsService.readAllColors(nextPageParam, pageSize);
-    setRowData(data.color_palettes);
+    const data = await V3FigmaProjectsService.readAllTexts(nextPageParam, pageSize);
+    setRowData(data.sentences);
   }
 
   const handleChange = (e) => {
-    setColorType(e.target.value);
+    setTexts_type(e.target.value);
   }
 
   return (
@@ -142,14 +138,14 @@ const ColorsAsset = () => {
           data-bs-toggle="modal"
           data-bs-target="#createModal"
         >
-          New Colors
+          New Texts
         </button>
         <button style={{margin: '0px', width: 'fit-content'}} onClick={ _ => {
           const {api, columnApi} = gridRef.current;
           const selectedRows = api.getSelectedRows();
           console.log("selected rows: ", selectedRows)
-          for (const colorset of selectedRows) {
-            V3FigmaProjectsService.deleteColors(colorset.id);
+          for (const textasset of selectedRows) {
+            V3FigmaProjectsService.deleteTexts(textasset.id);
           }
           api.applyTransaction({ remove: selectedRows })
         }} >
@@ -197,36 +193,36 @@ const ColorsAsset = () => {
                   <input type="hidden" ref={asset_idRef} />
                   <li>
                     <label>
-                      Description <span className="required">*</span>
+                      text <span className="required">*</span>
                     </label>
                     <input
                       type="text"
-                      ref={asset_descriptionRef}
+                      ref={_asset_textRef}
                       name="field1"
                       className="field-divided"
-                      placeholder="Description"
+                      placeholder="Text"
                     />
                   </li>
                   <li>
                     <label>
-                      Colors <span className="required">*</span>
+                      Meta Text <span className="required">*</span>
                     </label>
                     <input
-                      type="email"
-                      ref={asset_colorsRef}
+                      type="text"
+                      ref={_asset_meta_textRef}
                       name="field3"
                       className="field-long"
-                      placeholder="#ffffff, #0f0f0f"
+                      placeholder="meta text"
                     />
                   </li>
                   <li>
                     <button
                       type="button"
                       className="btn btn-primary"
-                      onClick={updateColors}
+                      onClick={updateTexts}
                       data-bs-dismiss="modal"
                     >
-                      Update Colors
+                      Update Texts
                     </button>
                   </li>
                 </ul>
@@ -259,26 +255,26 @@ const ColorsAsset = () => {
                   
                   <li>
                     <label>
-                      Description <span className="required">*</span>
+                      text <span className="required">*</span>
                     </label>
                     <input
                       type="text"
-                      ref={_asset_descriptionRef}
+                      ref={asset_textRef}
                       name="field1"
                       className="field-divided"
-                      placeholder="Description"
+                      placeholder="Text"
                     />
                   </li>
                   <li>
                     <label>
-                      Colors <span className="required">*</span>
+                      Meta Text <span className="required">*</span>
                     </label>
                     <input
                       type="email"
-                      ref={_asset_colorsRef}
+                      ref={asset_meta_textRef}
                       name="field3"
                       className="field-long"
-                      placeholder="#ffffff, #0f0f0f"
+                      placeholder="meta text"
                     />
                   </li>
                   <li>
@@ -292,10 +288,10 @@ const ColorsAsset = () => {
                     <button
                       type="button"
                       className="btn btn-primary"
-                      onClick={createColors}
+                      onClick={createTexts}
                       data-bs-dismiss="modal"
                     >
-                      Create Colors
+                      Create Texts
                     </button>
                   </li>
                 </ul>
@@ -308,4 +304,4 @@ const ColorsAsset = () => {
   );
 };
 
-export default ColorsAsset;
+export default TextsAsset;

@@ -133,8 +133,8 @@ export class V3FigmaProjectsService {
         });
     }
 
-    // color CRUD
-    public static readAllFigmaColors(
+    // Colors CRUD
+    public static readAllColors(
         offset?: number = 1,
         limit: number = 10,
         // type: string = "None",
@@ -155,7 +155,7 @@ export class V3FigmaProjectsService {
         });
     }
     
-    public static createFigmaColors(
+    public static createColors(
         requestBody: Object,
     ): CancelablePromise<string> {
         return __request(OpenAPI, {
@@ -170,7 +170,7 @@ export class V3FigmaProjectsService {
         });
     }
 
-    public static updateFigmaColors(
+    public static updateColors(
         id: string,
         requestBody: Object,
     ): CancelablePromise<{results: Array<Object>}> {
@@ -189,7 +189,7 @@ export class V3FigmaProjectsService {
         });
     }
 
-    public static deleteFigmaColors(
+    public static deleteColors(
         id: string,
     ): CancelablePromise<void> {
         return __request(OpenAPI, {
@@ -205,7 +205,78 @@ export class V3FigmaProjectsService {
         });
     }
 
-    // Images Part
+    // Texts CRUD
+    public static readAllTexts(
+        offset?: number,
+        limit: number = 10,
+        
+        threshold: number = 0.75,
+    ): CancelablePromise<{results: Array<Object>}> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/data/v3/assets/storage/sentences/',
+            query: {
+                'offset': offset,
+                'limit': limit,
+            },
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
+    
+    public static createTexts(
+        requestBody: Object,
+    ): CancelablePromise<string> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/data/v3/assets/storage/sentences/',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
+
+    public static updateTexts(
+        id: string,
+        requestBody: Object,
+    ): CancelablePromise<{results: Array<Object>}> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/data/v3/assets/storage/sentences/{id}',
+            path: {
+                'id': id,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
+
+    public static deleteTexts(
+        id: string,
+    ): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/data/v3/assets/storage/sentences/{id}',
+            path: {
+                'id': id,
+            },
+            errors: {
+                422: `Validation Error`,
+                502: `Bad Gateway`,
+            },
+        });
+    }
+
+    // Images CRUD
     public static readAllImages(
         offset: number = 1,
         limit: number = 3,

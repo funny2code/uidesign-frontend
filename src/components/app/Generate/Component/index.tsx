@@ -7,6 +7,7 @@ import { okaidia } from "@uiw/codemirror-theme-okaidia";
 import ClipLoader from "react-spinners/ClipLoader";
 import { type ImageListType } from "react-images-uploading";
 import { WebContainer } from "@webcontainer/api";
+import JSZip from "jszip";
 
 import { useSession } from "../../../auth/useSession";
 import InputBar from "../components/InputBar";
@@ -24,6 +25,7 @@ import {
   STAGE,
   FRAMES,
   PACKAGE_LOCK_FILE_PATH,
+  NODE_MODULES_FILE_PATH,
 } from "./constants";
 
 const Components = () => {
@@ -51,28 +53,70 @@ const Components = () => {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
 
-  const addPackgeLockFile = async (webcontainer: WebContainer) => {
-    const response = await fetch(PACKAGE_LOCK_FILE_PATH);
-    const content = await response.json();
-    await webcontainer.fs.writeFile("package-lock.json", JSON.stringify(content));
+  const mountContainer = async () => {
+    if (!webcontainer) return;
+    try {
+      // added new files, common includes project files and node_modules
+      const CJS_FILE_PATH = "https://cdn.uidesign.ai/build/components/default/unzip.cjs";
+      const COMMON_ZIP_FILE_PATH = "https://cdn.uidesign.ai/build/components/default/common.zip";
+      // fetch
+      const response = await fetch(CJS_FILE_PATH);
+      const content = await response.text();
+      const nodeModule = await fetch(COMMON_ZIP_FILE_PATH);
+      const zipBlob = await nodeModule.blob();
+      const data = await zipBlob.arrayBuffer();
+      await webcontainer.mount({
+        "common.zip": {
+          file: { contents: new Uint8Array(data) },
+        },
+        "unzip.cjs": {
+          file: { contents: content },
+        },
+      });
+      // await unzipFile(zipBlob);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const initWebcontainer = async () => {
     if (!webcontainer) return;
-
-    await webcontainer.mount(files);
-    updateSelectedFile();
-    await addPackgeLockFile(webcontainer);
-    const installProcess = await webcontainer.spawn("npm", ["install"]);
-
-    const installExitCode = await installProcess.exit;
-
-    if (installExitCode !== 0) {
-      throw new Error("Unable to run npm install");
+    console.log("Mounting container.");
+    await mountContainer();
+    const ls = await webcontainer.spawn("ls", ["."]);
+    ls.output.pipeTo(
+      new WritableStream({
+        write(data) {
+          console.log("files:", data);
+        },
+      })
+    );
+    console.log("Unzipping...");
+    const unzip = await webcontainer.spawn("node", ["unzip.cjs"]);
+    unzip.output.pipeTo(
+      new WritableStream({
+        write(data) {
+          console.log("unzip:", data);
+        },
+      })
+    );
+    const code = await unzip.exit;
+    if (code !== 0) {
+      throw new Error("Failed to initialize WebContainer");
     }
-    // `npm run dev`;
-    await webcontainer.spawn("npm", ["run", "dev"]);
+    await webcontainer.spawn("chmod", ["a+x", "node_modules/vite/bin/vite.js"]);
+    // original mount
+    await webcontainer.mount(files);
 
+    console.log("npm run dev");
+    const result = await webcontainer.spawn("npm", ["run", "dev"]);
+    result.output.pipeTo(
+      new WritableStream({
+        write(data) {
+          console.log(data);
+        },
+      })
+    );
     webcontainer.on("server-ready", (port, url) => {
       console.log("server ready");
 
@@ -81,9 +125,14 @@ const Components = () => {
     });
   };
 
+  const resetWebContainer = async () => {
+    if (!webcontainer) return;
+    await webcontainer.mount(files);
+  };
+
   const handleInit = async () => {
     setProcessing(true);
-    initWebcontainer();
+    resetWebContainer();
     setStage(STAGE.Init);
     setPromptType("Chat");
     setSystemPrompt("");

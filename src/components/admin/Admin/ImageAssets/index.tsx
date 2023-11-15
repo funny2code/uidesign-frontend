@@ -45,20 +45,60 @@ const ImageAssets = () => {
   const [selectedRow, setSelectedRow] = useState({})
   const [imageType, setImageType] = useState("figma");
 
+  // const createImage = (imageFile, callback) => {
+  //   const image = document.createElement('img');
+  //   image.onload = () => callback(image);
+  //   image.setAttribute('src', imageFile);
+  // }
+
+  // const convertImage = (image) => {
+  //   const canvas = drawImageToCanvas(image);
+  //   const ctx = canvas.getContext('2d');
+    
+  //   let result = [];
+  //   for (let y = 0; y < canvas.height; y++) {
+  //     result.push([]);
+  //     for (let x = 0; x < canvas.width; x++) {
+  //       let data = ctx.getImageData(x, y, 1, 1).data;
+  //       result[y].push(data[0]);
+  //       result[y].push(data[1]);
+  //       result[y].push(data[2]);
+  //     }
+  //   }
+  // }
+  // const readImageAsArrayBuffer => (s) {
+  //   const input = document.getElementById('imageInput');
+  //   const file = input.files[0];
+  //   const reader = new FileReader();
+  //   reader.onload = function (e) {
+  //       const arrayBuffer = e.target.result;
+  //       const imageObject = {
+  //         type: "figma",
+  //         data: Array.from(new Uint8Array(arrayBuffer)),
+  //       }
+  //       console.log(imageObject);
+  //   };
+  //   reader.readAsArrayBuffer(file);
+  // }
   const handleFileChange = (e) => {
     console.log(e.target.files);
     const image_file = e.target.files[0];
-    setImage_preview(URL.createObjectURL(image_file));
-    console.log("image file: ", image_file);
+    console.log("image data: ", e.target.result)
+    const imageFile = URL.createObjectURL(image_file);
+    setImage_preview(imageFile);
     const reader = new FileReader();
-    reader.onload = () => {
-        let { result } = reader;
-        let index = result.indexOf("base64") + 7;
-        let data = result.slice(index);
-        console.log("prefix: ", result?.slice(0, index))
-        setFile(data);
+    reader.onload = function (e) {
+        const arrayBuffer = e.target.result;
+        const imageObject = {
+          type: "figma",
+          data: Array.from(new Uint8Array(arrayBuffer)),
+        }
+        console.log(imageObject);
+        setFile( Array.from(new Uint8Array(arrayBuffer)) )
     };
-    reader.readAsDataURL(image_file);
+    reader.readAsArrayBuffer(image_file);
+    // createImage(imageFile, convertImage);
+    
   }
 
   const [columnDefs, setColumnDefs] = useState([
@@ -93,7 +133,7 @@ const ImageAssets = () => {
   
   const createImageAsset = async () => {
     const request_data = {
-      data: [file],
+      data: file,
       type: imageType
     };
     console.log("create request body: ", request_data);

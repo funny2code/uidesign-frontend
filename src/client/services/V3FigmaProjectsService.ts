@@ -137,7 +137,7 @@ export class V3FigmaProjectsService {
     public static readAllFigmaColors(
         offset?: number = 1,
         limit: number = 10,
-        type: string = "figma",
+        // type: string = "None",
         threshold: number = 0.75,
     ): CancelablePromise<{results: Array<Object>}> {
         return __request(OpenAPI, {
@@ -146,7 +146,7 @@ export class V3FigmaProjectsService {
             query: {
                 'offset': offset,
                 'limit': limit,
-                'type': type
+                // 'type': type
             },
             errors: {
                 422: `Validation Error`,

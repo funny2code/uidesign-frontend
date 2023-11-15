@@ -22,7 +22,7 @@ const Subscribe = () => {
     }
     setInterval(() => {
       const count = localStorage.getItem("ui-design-subscribe");
-      console.log(count);
+      // console.log(count);
 
       if (count !== prevCount) {
         setSubScribeCount(Number(count));

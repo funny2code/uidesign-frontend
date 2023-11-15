@@ -62,7 +62,6 @@ const Components = () => {
       // fetch
       const response = await fetch(CJS_FILE_PATH);
       const content = await response.text();
-      // await webcontainer.fs.writeFile("package-lock.json", JSON.stringify(content));
       const nodeModule = await fetch(COMMON_ZIP_FILE_PATH);
       const zipBlob = await nodeModule.blob();
       const data = await zipBlob.arrayBuffer();
@@ -80,58 +79,10 @@ const Components = () => {
     }
   };
 
-  // const unzipFile = async (zipBlob: Blob) => {
-  //   if (!webcontainer) return;
-
-  //   try {
-  //     const zip = await JSZip.loadAsync(zipBlob);
-  //     console.log(zip.files);
-  //     const result = {};
-  //     await Promise.all(
-  //       Object.keys(zip.files).map(async (fileName: string) => {
-  //         const file = zip.files[fileName];
-  //         const content = await file.async("string");
-  //         console.log(fileName);
-  //         if (fileName !== "node_modules/@esbuild/win32-x64/esbuild.exe") {
-  //           const parts = fileName.split("/");
-  //           let current = result;
-
-  //           // Build the nested structure
-  //           for (let i = 0; i < parts.length; i++) {
-  //             const part = parts[i];
-
-  //             if (i === parts.length - 1) {
-  //               // Last part, this is a file
-  //               current[part] = {
-  //                 file: {
-  //                   contents: content,
-  //                 },
-  //               };
-  //             } else {
-  //               // Not the last part, this is a directory
-  //               current[part] = current[part] || {};
-  //               current[part].directory = current[part].directory || {};
-  //               current = current[part].directory;
-  //             }
-  //           }
-  //         }
-  //       })
-  //     );
-  //     console.log(result);
-  //     await webcontainer.mount(result);
-  //     // const esbuild = await zip.files["node_modules/@esbuild/win32-x64/esbuild.exe"].async("string");
-  //     // await webcontainer.fs.writeFile("node_modules/@esbuild/win32-x64/esbuild.exe", esbuild);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
   const initWebcontainer = async () => {
     if (!webcontainer) return;
     console.log("Mounting container.");
     await mountContainer();
-    // updateSelectedFile();
-    // console.log("module added");
     const ls = await webcontainer.spawn("ls", ["."]);
     ls.output.pipeTo(
       new WritableStream({
@@ -156,18 +107,7 @@ const Components = () => {
     await webcontainer.spawn("chmod", ["a+x", "node_modules/vite/bin/vite.js"]);
     // original mount
     await webcontainer.mount(files);
-    // install?
-    // const installProcess = await webcontainer.spawn("npm", ["install"]);
-    // console.log("npm install");
-    // installProcess.output.pipeTo(
-    //   new WritableStream({
-    //     write(data) {
-    //       console.log(data);
-    //     },
-    //   })
-    // );
-    // const installExitCode = await installProcess.exit;
-    // `npm run dev`;
+
     console.log("npm run dev");
     const result = await webcontainer.spawn("npm", ["run", "dev"]);
     result.output.pipeTo(
@@ -185,9 +125,14 @@ const Components = () => {
     });
   };
 
+  const resetWebContainer = async () => {
+    if (!webcontainer) return;
+    await webcontainer.mount(files);
+  };
+
   const handleInit = async () => {
     setProcessing(true);
-    initWebcontainer();
+    resetWebContainer();
     setStage(STAGE.Init);
     setPromptType("Chat");
     setSystemPrompt("");

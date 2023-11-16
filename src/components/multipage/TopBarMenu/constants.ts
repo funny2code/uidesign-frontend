@@ -5,9 +5,9 @@ import type { UIDesignAdminPage, UIDesignPage } from "./types";
 export const PAGES: Record<UIDesignPage, string> = {
   Components: "/",
   Shopify: "/shopify",
-  Build: "/build",
 };
 export const ADMIN_PAGES: Record<UIDesignAdminPage, string> = {
+  Build: "/build",
   Old: "/old",
   Copy: "/copy",
   Remix: "/remix",

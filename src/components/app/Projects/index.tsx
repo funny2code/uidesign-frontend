@@ -22,7 +22,7 @@ const Projects =  () => {
     const toggle = () => {
       setIsCreateProject((isCreateProject) => !isCreateProject);
     }
-    const handleChange = (e) => {
+    const handleChange = (e:Object) => {
       setPrivacyValue(e.target.value);
     };
 

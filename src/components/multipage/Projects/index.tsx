@@ -23,7 +23,6 @@ const Route = () => {
             <SidebarMenu currentPage={"Projects"} handlePageChange={() => {}} />
             <section className="designer d-flex flex-column justify-content-between">
               <TopBarMenu
-                currentPage="Build"
                 handleSaveProjectBtn={handleSaveProjectBtn}
                 setProject={setProject}
               />

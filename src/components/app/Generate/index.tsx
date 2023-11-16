@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { PAGES, ADMIN_PAGES } from "./TopBarMenu/constants";
 import type { UIDesignAdminPage, UIDesignPage } from "./TopBarMenu/types";
 import TopBarMenu from "./TopBarMenu";
-import Shopify, { type shopifyRef } from "./Shopify";
+import Shopify from "./Shopify";
 import Create from "./Create";
 import Old from "./Old";
 import Build from "./Build";
@@ -32,7 +32,7 @@ const Generate = () => {
     [ADMIN_PAGES.Old]: <Old />,
     [ADMIN_PAGES.Copy]: <Copy />,
     [ADMIN_PAGES.Remix]: <Remix />,
-    [ADMIN_PAGES.Shopify]: <Shopify isSaved={isSaved} setSaved={setSaved} project={project} />,
+    [ADMIN_PAGES.Shopify]: <Shopify />,
     [ADMIN_PAGES.Build]: <></>, // Build
     [ADMIN_PAGES.Create]: <Create />,
     [PAGES.Components]: <Components />,

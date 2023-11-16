@@ -4,7 +4,6 @@ import Generate from "./Generate";
 import History from "./History";
 import Projects from "./Projects";
 
-
 const App = () => {
   const [currentPage, setCurrentPage] = useState("Generate");
   const handlePageChange = (page: string) => {

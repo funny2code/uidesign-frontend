@@ -1,5 +1,31 @@
 # Web App
 
+## Update 2023-11-16
+
+Due to Web Containers needing specific headers, we are moving other features to different routes, so we'll use Astro's file-based-routing. 
+
+**The problem:** We are running as a SPA so we can’t change headers after initial page load between tabs.
+
+**Solution:** Use Astro file based routing with transition views or any other “multipage-app” features like layouts to put other tabs under other routes so only the home route gets the headers applied to it. 
+
+**Details:** Web containers require cross-origin isolation headers https://webcontainers.io/guides/quickstart#cross-origin-isolation to allow the container to run on the page. We are already selectively adding these headers via AWS Cloudfront to only the main route of the application “/” so if we want to allow iframe embedding for other features we can put them under their own routes “/shopify”, “/create”, etc. This doesn’t require a major refactor as we can keep using existing React components for each feature and load them from different routes using Astro, also keeping the navigation bar in the same Astro layout for all pages. The major change to React code will be the navigation bar will require changing from “handleChangePage” prop-drilled state to traditional anchors “href=” to actually change routes. Only question is how good is Astro on keeping state in between routes using the current “atom” stores?
+
+Test server with route-dependent headers (builds and runs script).
+```
+npm run server
+```
+
+### Status
+
+DONE: Moved main features. 
+
+TODO: 
+- Move projects, Old, Create, Remix, Copy
+- Continue having a navbar per page or decouple state from current navbar and add stateless navbar to astro layout.
+- Consider Astro view transitions for persisting state or improve ux if we can keep headers separated.
+- Consider Astro middleware for dev server header hooks: https://astro.build/blog/astro-350/#integration-hooks-to-add-middleware to replace scripts/test-server.cjs
+
+
 ## Intro
 
 Astro JS uses file based routing, but most of the app is wrapped as SPA in `src/components/app/index.ts`. The only pages not in the SPA are for auth and old stuff. The `src/client` directory is code generated from embeddings API using OpenAPI.

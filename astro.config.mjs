@@ -8,9 +8,9 @@ export default defineConfig({
   site: "https://app.uidesign.ai",
   server: {
     port: 3000,
-    headers: {
-      "Cross-Origin-Embedder-Policy": "require-corp",
-      "Cross-Origin-Opener-Policy": "same-origin",
-    },
+    // headers: {
+    //   "Cross-Origin-Embedder-Policy": "require-corp",
+    //   "Cross-Origin-Opener-Policy": "same-origin",
+    // },
   },
 });

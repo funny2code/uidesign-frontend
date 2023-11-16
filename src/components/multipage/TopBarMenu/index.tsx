@@ -1,37 +1,36 @@
 import React from "react";
-import ExportButton from "./Export";
 import EditButton from "./Edit";
-import { PAGES, ADMIN_PAGES } from "./constants";
+import ExportButton from "./Export";
 import { useEffect, useState } from "react";
-import { useSession } from "../../../auth/useSession";
-import type { UIDesignAdminPage, UIDesignPage } from "./types";
-import PaymentButton from "../Shopify/components/paymentButton";
+import PaymentButton from "./paymentButton";
 import ShopifyProjects from "./shopifyProjects";
+import { PAGES, ADMIN_PAGES } from "./constants";
+import { useSession } from "../../auth/useSession";
+import type { UIDesignAdminPage, UIDesignPage } from "./types";
 
 interface Props {
   currentPage: UIDesignPage | UIDesignAdminPage;
-  isSaved: boolean;
-  isDisabled: boolean;
   handlePageChange?: (page: UIDesignPage | UIDesignAdminPage) => void;
-  handleSaveProjectBtn: (e:any) => void;
-  setProject: (e:any) => void;
-  setIntentId: (e:any) => void;
+  handleSaveProjectBtn: (e: any) => void;
+  setProject: (e: any) => void;
 }
 
-const TopBarMenu = ({ currentPage, setIntentId, isSaved, isDisabled, handlePageChange, handleSaveProjectBtn, setProject }: Props) => {
+const TopBarMenu = ({ currentPage, handleSaveProjectBtn, setProject }: Props) => {
   const [pages, setPages] = useState(() => PAGES);
   const { getSession } = useSession();
   const Buttons = ({ icon }: { icon?: React.ReactNode } = {}) => {
-    return Object.values(pages).map((page, index) => (
+    return Object.entries(pages).map(([page, route], index) => (
       <li key={index}>
-        <button
-          // className={`${currentPage === page ? "active mb-0" : "mb-0"}`}
-          className={`topbar-button ${currentPage === page ? "topbar-button-active" : ""}`}
-          onClick={() => (handlePageChange ? handlePageChange(page) : () => {})}
-        >
-          {icon || null}
-          {page}
-        </button>
+        <a href={route}>
+          <button
+            // className={`${currentPage === page ? "active mb-0" : "mb-0"}`}
+            className={`topbar-button ${currentPage === page ? "topbar-button-active" : ""}`}
+            // onClick={() => (handlePageChange ? handlePageChange(page) : () => {})}
+          >
+            {icon || null}
+            {page}
+          </button>
+        </a>
       </li>
     ));
   };
@@ -60,13 +59,14 @@ const TopBarMenu = ({ currentPage, setIntentId, isSaved, isDisabled, handlePageC
         {currentPage === "Shopify" && (
           <>
             <ShopifyProjects setProject={setProject} />
-            <button className="btn btn-primary px-2" disabled={isDisabled} style={{ width: '132px', height: "60px" }} onClick={handleSaveProjectBtn}>
-              { isSaved 
-                ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                : <span>Save to Projects</span> 
-              }
+            <button
+              className="btn btn-primary px-2"
+              style={{ height: "60px" }}
+              onClick={handleSaveProjectBtn}
+            >
+              Save to Projects
             </button>
-            <PaymentButton setIntentId={setIntentId} />
+            <PaymentButton />
           </>
         )}
         {currentPage !== "Shopify" && <EditButton currentPage={currentPage} />}

@@ -113,11 +113,13 @@ export const updateShopitTheme = async (
 };
 
 export const downloadShopitTheme = async (
+  intentId: string,
   id: string,
   settingsData: Record<string, any> | undefined,
   templates: Record<string, any> | undefined
 ) => {
   const body: IDownloadReq = {
+    intentId: intentId,
     theme_id: id,
     settings_data: settingsData,
     templates: templates,

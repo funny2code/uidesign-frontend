@@ -22,17 +22,16 @@ const Projects =  () => {
     const toggle = () => {
       setIsCreateProject((isCreateProject) => !isCreateProject);
     }
-    const handleChange = (e:Object) => {
+    const handleChange = (e: any) => {
       setPrivacyValue(e.target.value);
     };
 
     const resetModal = () => {
-      if (sectionRef){
-        sectionRef.current.innerHTML = "";
-        project_descriptionRef.current.value = "";
-        project_tagRef.current.value = "";
-        project_nameRef.current.value = "";
-      }
+      if (!sectionRef.current || !project_tagRef.current || !project_nameRef.current || !project_descriptionRef.current) return;
+      sectionRef.current.innerHTML = "";
+      project_descriptionRef.current.value = "";
+      project_tagRef.current.value = "";
+      project_nameRef.current.value = "";
     }
     // Get all projects
     const {
@@ -175,7 +174,8 @@ const Projects =  () => {
                       <button type="button" data-bs-toggle="modal" className="btn btn-primary"
                         data-bs-target="#iframeModal"
                         onClick = {async () => {
-                          let tags = project_tagRef.current?.value.split(",");
+                          if (!project_tagRef.current || !project_nameRef.current || !project_descriptionRef.current || !sectionRef.current) return;
+                          let tags = project_tagRef.current.value.split(",");
 
                           const tokens = await getSession();
                           // const res = await fetch("http://127.0.0.1:5000/display", {
@@ -189,10 +189,10 @@ const Projects =  () => {
                               refresh_token: tokens.refresh_token,
                               action: "create_project",
                               data: {
-                                name: project_nameRef.current?.value ?? "test project by grapesjs", 
-                                public: privacyValue == "public"? true: false,
-                                tags: project_tagRef.current?.value.split(",") ?? [],
-                                description: project_descriptionRef.current?.value ?? "test_project description", 
+                                name: project_nameRef.current.value ?? "test project by grapesjs", 
+                                public: privacyValue == "public" ? true: false,
+                                tags: project_tagRef.current.value.split(",") ?? [],
+                                description: project_descriptionRef.current.value ?? "test_project description", 
                                 context: {}
                               }
                             })

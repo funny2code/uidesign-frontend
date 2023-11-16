@@ -25,3 +25,4 @@ export const HTML_EXPORT_BASE = `<html>
 {content}
 </body>
 </html>`;
+export const GRAPESJS_EDITOR_API_VIEW = "http://3.135.207.187/display";

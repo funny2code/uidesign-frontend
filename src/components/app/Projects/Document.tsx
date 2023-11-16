@@ -1,16 +1,8 @@
 import { OpenAPI, V3WebsitesProjectsService } from "../../../client";
+import type { ProjectSimilarityResult } from "../../../client";
 import { useSession } from "../../auth/useSession";
 
-interface DocumentItemProps  {
-  id: string;
-  name: string;
-  public: boolean;
-  description: string;
-  /**
-   * Can be empty list.
-   */
-  tags: Array<string>;
-  context?: Record<string, any>;
+interface DocumentItemProps extends ProjectSimilarityResult {
   sectionRef?: React.MutableRefObject<HTMLDivElement | null>;
 }
 const Document = (props: DocumentItemProps) => {

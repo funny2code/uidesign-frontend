@@ -58,6 +58,7 @@ export interface IViewReq {
 }
 
 export interface IDownloadReq {
+    intentId: string;
     theme_id: string;
     settings_data?: Record<string, any>;
     templates?: Record<string, any>;

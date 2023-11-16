@@ -38,12 +38,11 @@ const InputBar = ({
   children,
   center = true,
   isDownload,
-  downloadTheme
+  downloadTheme,
 }: InputBarProps) => {
   return (
     <div
       className="hstack gap-2 designer-form form-control p-1"
-      style={{ width: "60%", transform: "translate(16%, -25%)" }}
     >
       <input
         ref={inputRef}
@@ -80,13 +79,11 @@ const InputBar = ({
           aria-label="Default select Page"
           style={{ height: "100%", width: "130px" }}
         >
-          {
-            pages.map((p) => (
-              <option key={p} value={p}>
-                  {p}
-              </option>
-            ))
-          }
+          {pages.map(p => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
         </select>
       )}
       <div

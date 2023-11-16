@@ -3,7 +3,7 @@ const path = require("path");
 
 const app = express();
 const PORT = 8080;
-const PATH = "/dist";
+const PATH = "../dist";
 
 // Define middleware to set headers for the root route
 app.use("/", (req, res, next) => {

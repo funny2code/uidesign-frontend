@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "openapi": "openapi --input openapi.json --output ./src/client",
-    "astro": "astro"
+    "astro": "astro",
+    "server": "astro build && node scripts/test-server.cjs"
   },
   "dependencies": {
     "@astrojs/react": "^3.0.4",

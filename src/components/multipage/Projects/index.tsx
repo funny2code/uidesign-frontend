@@ -20,7 +20,7 @@ const Route = () => {
       <main className="container-fluid vh-100">
         <section className="row p-4">
           <section className="d-flex flex-column flex-md-row justify-content-around gap-3">
-            <SidebarMenu currentPage={"History"} handlePageChange={() => {}} />
+            <SidebarMenu currentPage={"Projects"} handlePageChange={() => {}} />
             <section className="designer d-flex flex-column justify-content-between">
               <TopBarMenu
                 currentPage="Build"

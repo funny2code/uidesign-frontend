@@ -63,7 +63,6 @@ const Shopify = (({intentId, isSaved, setSaved, setProjectDisabled, project} : s
     setController(control);
     setProcessing(true);
     setIsDisabled(true);
-
     const createShopifyRequest = {
       "prompt": input,
       "shopify_config": {
@@ -74,7 +73,6 @@ const Shopify = (({intentId, isSaved, setSaved, setProjectDisabled, project} : s
         "top_n": 8
       }
     }
-
     const request = await fetch('https://app.uidesign.ai/generate/v3/shopify/theme', {
       method: "POST",
       headers: {
@@ -82,15 +80,14 @@ const Shopify = (({intentId, isSaved, setSaved, setProjectDisabled, project} : s
       },
       body: JSON.stringify(createShopifyRequest)
     });
-
-    
     const data = await request.json();
     const newUpdate = await updateThemeSettings(data.messages);
-    console.log(data.messages, newUpdate, "CHECK DAV NEW");
     setIsThemes((prevThemes:any) => {
       return {
         ...prevThemes,
-        [themeId]: {...newUpdate},
+        [currentThemeId || themeId]: {
+          ...newUpdate
+        }
       }
     });
     const html = await updateShopitTheme(
@@ -117,8 +114,7 @@ const Shopify = (({intentId, isSaved, setSaved, setProjectDisabled, project} : s
   * ================================================================================================= */
   const updateThemeSettings = async (messages:any[]) => {
     console.log(messages);
-    const newState = { ...isThemes[themeId] };
-    console.log(themeId, "THEME ID");
+    const newState = { ...isThemes[currentThemeId || themeId] };
     messages.map(message => {
       const path = message.path;
       const value = message.value;
@@ -462,7 +458,9 @@ const Shopify = (({intentId, isSaved, setSaved, setProjectDisabled, project} : s
     setSaved(false);
     setProjectDisabled(true);
   }
-
+  /* ===================================================================================================
+  *     USE EFFECT FOR SAVE PROJECTS GET PROJECTS AND DOWNLOAD THEME
+  * ================================================================================================= */
   useEffect(() => {
     if(isSaved === true){
       saveProjectHandle();

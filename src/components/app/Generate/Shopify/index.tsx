@@ -102,7 +102,7 @@ const Shopify = (({intentId, isSaved, setSaved, setProjectDisabled, project} : s
     updateIframeContent(html);
     setProcessing(false);
     setIsDisabled(false);
-  
+    setProjectDisabled(false);
   }
   
   const handleSubmit = async (e: any) => {

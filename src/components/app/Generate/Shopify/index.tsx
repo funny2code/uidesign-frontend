@@ -12,15 +12,15 @@ import { downloadShopitTheme } from "../commands/shopify";
 import { DOCUMENT_TYPE, OpenAPI, PROJECT_TYPE, V2ProjectsService } from "../../../../client";
 
 interface shopifyProps {
-  intentId: string | undefined,
-  isSaved: boolean,
-  setSaved: (e:boolean) => void,
-  setProjectDisabled: (e:boolean) => void,
-  project: Record<string, any>
+  intentId: string | undefined;
+  isSaved: boolean;
+  setSaved: (e: boolean) => void;
+  setProjectDisabled: (e: boolean) => void;
+  project: Record<string, any>;
 }
 
-const Shopify = (({intentId, isSaved, setSaved, setProjectDisabled, project} : shopifyProps) => {
-  /* ==================== AUTH AND USER ==================== */ 
+const Shopify = ({ intentId, isSaved, setSaved, setProjectDisabled, project }: shopifyProps) => {
+  /* ==================== AUTH AND USER ==================== */
   const { getSession, getUserData } = useSession();
   /* ==================== REACT USESTATE CONSTANTS ==================== */
   const [isLoading, setLoading] = useState<boolean>(true);
@@ -77,11 +77,11 @@ const Shopify = (({intentId, isSaved, setSaved, setProjectDisabled, project} : s
         theme_id: themeId,
         page: currentPage,
       },
-      "ai_config": {
-        "top_n": 8
-      }
-    }
-    const request = await fetch('https://app.uidesign.ai/generate/v3/shopify/theme', {
+      ai_config: {
+        top_n: 8,
+      },
+    };
+    const request = await fetch("https://app.uidesign.ai/generate/v3/shopify/theme", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -90,21 +90,21 @@ const Shopify = (({intentId, isSaved, setSaved, setProjectDisabled, project} : s
     });
     const data = await request.json();
     const newUpdate = await updateThemeSettings(data.messages);
-    setIsThemes((prevThemes:any) => {
+    setIsThemes((prevThemes: any) => {
       return {
         ...prevThemes,
         [currentThemeId || themeId]: {
-          ...newUpdate
-        }
-      }
+          ...newUpdate,
+        },
+      };
     });
     const html = await updateShopitTheme(
       `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
       themeId,
       newUpdate.settings_data,
       newUpdate.templates[currentPage],
-      newUpdate.templates['header_group'],
-      newUpdate.templates['footer_group'],
+      newUpdate.templates["header_group"],
+      newUpdate.templates["footer_group"],
       newUpdate.themeContent
     );
     updateIframeContent(html);
@@ -193,32 +193,32 @@ const Shopify = (({intentId, isSaved, setSaved, setProjectDisabled, project} : s
     //   }
     // });
   }
-  
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     await initGenerate();
   };
   /* ===================================================================================================
-  *     UPDATE SHOPIFY SETTINGS OBJECT
-  * ================================================================================================= */
-  const updateThemeSettings = async (messages:any[]) => {
+   *     UPDATE SHOPIFY SETTINGS OBJECT
+   * ================================================================================================= */
+  const updateThemeSettings = async (messages: any[]) => {
     console.log(messages);
     const newState = { ...isThemes[currentThemeId || themeId] };
     messages.map(message => {
       const path = message.path;
       const value = message.value;
-      let currentLevel:any = newState;
+      let currentLevel: any = newState;
       for (let i = 0; i < path.length - 1; i++) {
         console.log(path[i], currentLevel[path[i]]);
         currentLevel = currentLevel[path[i]];
       }
       currentLevel[path[path.length - 1]] = value;
-    })
+    });
     return newState;
   };
   /* ===================================================================================================
-  *     PAGE CHANGE FUNCTION
-  * ================================================================================================= */
+   *     PAGE CHANGE FUNCTION
+   * ================================================================================================= */
   const handlePageChange = async (e: any) => {
     if (!e) return;
     try {
@@ -391,7 +391,10 @@ const Shopify = (({intentId, isSaved, setSaved, setProjectDisabled, project} : s
         return {
           ...prevThemes,
           [id]: {
-            settings_data: typeof settingsData.current === "string" ? settingsData.presets[settingsData.current]: settingsData.current,
+            settings_data:
+              typeof settingsData.current === "string"
+                ? settingsData.presets[settingsData.current]
+                : settingsData.current,
             templates: templates,
             themeContent: {},
             settingsSchema: settingsSchema,
@@ -485,9 +488,9 @@ const Shopify = (({intentId, isSaved, setSaved, setProjectDisabled, project} : s
     }
   };
   /* ===================================================================================================
-  *     DOWNLOAD THEME FUNCTION
-  * ================================================================================================= */
-  const handleThemeDownload = async (id:string) => {
+   *     DOWNLOAD THEME FUNCTION
+   * ================================================================================================= */
+  const handleThemeDownload = async (id: string) => {
     if (!id) return;
     setIsDownload(true);
     setProcessing(true);
@@ -534,23 +537,23 @@ const Shopify = (({intentId, isSaved, setSaved, setProjectDisabled, project} : s
             img_url: "",
             tags: ["Shopify"],
             type: DOCUMENT_TYPE.JS,
-            data: {id: themeId, ...isThemes[themeId]},
-          }
-        ]
-      }
+            data: { id: themeId, ...isThemes[themeId] },
+          },
+        ],
+      },
     };
     await V2ProjectsService.createUserProjectV2UserProjectsPost(data);
     setSaved(false);
     setProjectDisabled(true);
-  }
+  };
   /* ===================================================================================================
-  *     USE EFFECT FOR SAVE PROJECTS GET PROJECTS AND DOWNLOAD THEME
-  * ================================================================================================= */
+   *     USE EFFECT FOR SAVE PROJECTS GET PROJECTS AND DOWNLOAD THEME
+   * ================================================================================================= */
   useEffect(() => {
-    if(isSaved === true){
+    if (isSaved === true) {
       saveProjectHandle();
     }
-    if(project?.length){
+    if (project?.length) {
       const { id, data } = project[0];
       setThemeId(data.id);
       setCurrentThemeId(id);
@@ -561,7 +564,7 @@ const Shopify = (({intentId, isSaved, setSaved, setProjectDisabled, project} : s
             settings_data: data.settings_data,
             templates: data.templates,
             themeContent: data.themeContent,
-            settingsSchema: data.settingsSchema
+            settingsSchema: data.settingsSchema,
           },
         };
       });
@@ -570,16 +573,16 @@ const Shopify = (({intentId, isSaved, setSaved, setProjectDisabled, project} : s
           `${MAKE_UI_API_VIEW}?id=${data.id}&page=index`,
           data.id,
           data.settings_data,
-          data.templates['index'],
-          data.templates['header_group'],
-          data.templates['footer_group'],
+          data.templates["index"],
+          data.templates["header_group"],
+          data.templates["footer_group"],
           data.themeContent
         );
         updateIframeContent(html);
-      }
+      };
       callProject();
     }
-    if(intentId !== undefined){
+    if (intentId !== undefined) {
       handleThemeDownload(intentId);
     }
   }, [isSaved, project, intentId]);

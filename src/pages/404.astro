@@ -1,17 +1,15 @@
 ---
-import Layout from '../layouts/Layout.astro';
-
+import MultiPageLayout from "../layouts/MultiPageLayout.astro";
 ---
-<Layout title="Welcome to Astro.">
-	<main class="container-fluid">
-		<section class="row py-4">
-			<section class="col-0 col-md-2"></section>
-			<section class="col-12 col-md-8">
-                <h1>
-                    404 Page doesn't exist.
-                </h1>
-			</section>
-			<section class="col-0 col-md-2"></section>
-		</section>
-	</main>
-</Layout>
+
+<MultiPageLayout title="Welcome to Astro.">
+  <main class="container-fluid">
+    <section class="row py-4">
+      <section class="col-0 col-md-2"></section>
+      <section class="col-12 col-md-8">
+        <h1>404 Page doesn't exist.</h1>
+      </section>
+      <section class="col-0 col-md-2"></section>
+    </section>
+  </main>
+</MultiPageLayout>

@@ -1,20 +1,27 @@
-import Shopify from "../../app/Generate/Shopify";
+import { useState, useEffect, useRef } from "react";
+import Build from "../../app/Generate/Build";
 import { OpenAPI } from "../../../client";
 import SidebarMenu from "../SidebarMenu";
 import TopBarMenu from "../TopBarMenu";
-import { useState } from "react";
 
 const Route = () => {
   OpenAPI.BASE = "https://api.uidesign.ai";
 
   const [isSaved, setSaved] = useState<boolean>(false);
-  const [isDisabled, setDisabled] = useState<boolean>(true);
-  const [intentId, setIntentId] = useState<string | undefined>(undefined);
   const [project, setProject] = useState<any[] | []>([]);
-
   const handleSaveProjectBtn = () => {
     setSaved(true);
   };
+  const stackblitzRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    // Load the Stackblitz iframe on this Component's render to avoid re-creating on page change.
+    const stackblitz = stackblitzRef.current;
+    if (!stackblitz) return;
+    const embed = stackblitz.querySelector("#embed");
+    if (embed) {
+      embed.setAttribute("height", String("100%"));
+    }
+  }, []);
   return (
     <main className="container-fluid vh-100">
       <section className="row p-4">
@@ -22,18 +29,12 @@ const Route = () => {
           <SidebarMenu currentPage={"Generate"} handlePageChange={() => {}} />
           <section className="designer d-flex flex-column justify-content-between">
             <TopBarMenu
-              currentPage="Shopify"
+              currentPage="Build"
               handleSaveProjectBtn={handleSaveProjectBtn}
               setProject={setProject}
             />
-            <section className="d-flex flex-column flex-grow-1 position-relative">
-              <Shopify
-                intentId={intentId}
-                isSaved={isSaved}
-                setProjectDisabled={setDisabled}
-                setSaved={setSaved}
-                project={project}
-              />
+            <section ref={stackblitzRef} className="d-flex flex-column flex-grow-1 position-relative">
+              <Build height={800} />
             </section>
           </section>
         </section>

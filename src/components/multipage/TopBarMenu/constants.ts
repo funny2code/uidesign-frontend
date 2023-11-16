@@ -4,13 +4,13 @@ import type { UIDesignAdminPage, UIDesignPage } from "./types";
 
 export const PAGES: Record<UIDesignPage, string> = {
   Components: "/",
+  Shopify: "/shopify",
+  Build: "/build",
 };
 export const ADMIN_PAGES: Record<UIDesignAdminPage, string> = {
   Old: "/old",
   Copy: "/copy",
   Remix: "/remix",
-  Shopify: "/shopify",
-  Build: "/build",
   Create: "/create",
 };
 

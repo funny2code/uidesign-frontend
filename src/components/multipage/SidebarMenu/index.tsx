@@ -12,6 +12,15 @@ const HISTORY = "History";
 const ADMIN = "Admin";
 const PROJECTS = "Projects";
 
+const PAGES = {
+  Generate: "/",
+};
+const ADMIN_PAGES = {
+  History: "/history",
+  Projects: "/projects",
+  Admin: "/admin",
+};
+
 interface Props {
   currentPage?: string;
   handlePageChange?: (page: string) => void;
@@ -33,11 +42,11 @@ function getIcon(iconName: string, isActive: boolean) {
   }
 }
 const SidebarMenu = ({ currentPage, handlePageChange }: Props) => {
-  const [pages, setPages] = useState([GENERATE]);
+  const [pages, setPages] = useState(() => PAGES);
   const { getSession } = useSession();
   useEffect(() => {
     getSession().then(tokens => {
-      tokens.is_admin && setPages([GENERATE, HISTORY, PROJECTS, ADMIN]);
+      tokens.is_admin && setPages(prev => ({ ...prev, ...ADMIN_PAGES }));
     });
   }, []);
   return (
@@ -45,11 +54,11 @@ const SidebarMenu = ({ currentPage, handlePageChange }: Props) => {
       <section>
         <Branding />
         <ul className="menu">
-          {pages.map((page, index) => {
-            let isActive = currentPage === page;
+          {Object.entries(pages).map(([key, route], index) => {
+            let isActive = currentPage === key;
             return (
               <li key={`option-${index}`}>
-                {page === ADMIN ? (
+                {key === ADMIN ? (
                   <a
                     style={{ color: "inherit", textDecoration: "none" }}
                     href={ADMIN_PAGE}
@@ -58,13 +67,15 @@ const SidebarMenu = ({ currentPage, handlePageChange }: Props) => {
                     <button type={"button"}>Admin</button>
                   </a>
                 ) : (
-                  <SideBarButton
-                    icon={getIcon(page, isActive)}
-                    isActive={isActive}
-                    onClick={() => handlePageChange && handlePageChange(page)}
-                  >
-                    {page}
-                  </SideBarButton>
+                  <a href={route}>
+                    <SideBarButton
+                      icon={getIcon(key, isActive)}
+                      isActive={isActive}
+                      onClick={() => handlePageChange && handlePageChange(key)}
+                    >
+                      {key}
+                    </SideBarButton>
+                  </a>
                 )}
               </li>
             );

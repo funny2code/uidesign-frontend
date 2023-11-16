@@ -1,4 +1,4 @@
-import Shopify from "../../app/Generate/Shopify";
+import Component from "../../app/Generate/Component";
 import { OpenAPI } from "../../../client";
 import SidebarMenu from "../SidebarMenu";
 import TopBarMenu from "../TopBarMenu";
@@ -8,10 +8,7 @@ const Route = () => {
   OpenAPI.BASE = "https://api.uidesign.ai";
 
   const [isSaved, setSaved] = useState<boolean>(false);
-  const [isDisabled, setDisabled] = useState<boolean>(true);
-  const [intentId, setIntentId] = useState<string | undefined>(undefined);
   const [project, setProject] = useState<any[] | []>([]);
-
   const handleSaveProjectBtn = () => {
     setSaved(true);
   };
@@ -22,18 +19,12 @@ const Route = () => {
           <SidebarMenu currentPage={"Generate"} handlePageChange={() => {}} />
           <section className="designer d-flex flex-column justify-content-between">
             <TopBarMenu
-              currentPage="Shopify"
+              currentPage="Components"
               handleSaveProjectBtn={handleSaveProjectBtn}
               setProject={setProject}
             />
             <section className="d-flex flex-column flex-grow-1 position-relative">
-              <Shopify
-                intentId={intentId}
-                isSaved={isSaved}
-                setProjectDisabled={setDisabled}
-                setSaved={setSaved}
-                project={project}
-              />
+              <Component />
             </section>
           </section>
         </section>

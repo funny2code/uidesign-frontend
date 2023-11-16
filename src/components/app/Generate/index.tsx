@@ -9,7 +9,6 @@ import Build from "./Build";
 import Remix from "./Remix";
 import Copy from "./Copy";
 import Components from "./Component";
-import type { BlobLike } from "openai/uploads.mjs";
 
 const Generate = () => {
   // Flow
@@ -24,8 +23,7 @@ const Generate = () => {
   const [isSaved, setSaved] = useState<boolean>(false);
   const [isDisabled, setDisabled] = useState<boolean>(true);
   const [intentId, setIntentId] = useState<string | undefined>(undefined);
-  const [project, setProject] = useState<any[]|[]>([]);
-  
+  const [project, setProject] = useState<any[] | []>([]);
 
   const handleSaveProjectBtn = () => {
     setSaved(true);
@@ -35,7 +33,15 @@ const Generate = () => {
     [ADMIN_PAGES.Old]: <Old />,
     [ADMIN_PAGES.Copy]: <Copy />,
     [ADMIN_PAGES.Remix]: <Remix />,
-    [ADMIN_PAGES.Shopify]: <Shopify intentId={intentId} isSaved={isSaved} setProjectDisabled={setDisabled}  setSaved={setSaved} project={project} />,
+    [ADMIN_PAGES.Shopify]: (
+      <Shopify
+        intentId={intentId}
+        isSaved={isSaved}
+        setProjectDisabled={setDisabled}
+        setSaved={setSaved}
+        project={project}
+      />
+    ),
     [ADMIN_PAGES.Build]: <></>, // Build
     [ADMIN_PAGES.Create]: <Create />,
     [PAGES.Components]: <Components />,
@@ -66,7 +72,15 @@ const Generate = () => {
 
   return (
     <section className="designer d-flex flex-column justify-content-between">
-      <TopBarMenu setIntentId={setIntentId} isSaved={isSaved} currentPage={currentPage} isDisabled={isDisabled} handlePageChange={handlePageChange} handleSaveProjectBtn={handleSaveProjectBtn} setProject={setProject} />
+      <TopBarMenu
+        setIntentId={setIntentId}
+        isSaved={isSaved}
+        currentPage={currentPage}
+        isDisabled={isDisabled}
+        handlePageChange={handlePageChange}
+        handleSaveProjectBtn={handleSaveProjectBtn}
+        setProject={setProject}
+      />
       <section ref={otherRef} className="d-flex flex-column flex-grow-1">
         {pages[currentPage]}
       </section>

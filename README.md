@@ -15,6 +15,16 @@ Test server with route-dependent headers (builds and runs script).
 npm run server
 ```
 
+### Status
+
+DONE: Moved main features. 
+
+TODO: 
+- Move projects, Old, Create, Remix, Copy
+- Continue having a navbar per page or decouple state from current navbar and add stateless navbar to astro layout.
+- Consider Astro view transitions for persisting state or improve ux if we can keep headers separated.
+- Consider Astro middleware for dev server header hooks: https://astro.build/blog/astro-350/#integration-hooks-to-add-middleware to replace scripts/test-server.cjs
+
 
 ## Intro
 

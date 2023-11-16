@@ -199,8 +199,4 @@ export class V2ProjectsService {
         });
     }
 
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> main

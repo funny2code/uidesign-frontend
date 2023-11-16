@@ -106,88 +106,9 @@ const Shopify = (({isSaved, setSaved, project} : shopifyProps) => {
     updateIframeContent(html);
     setProcessing(false);
     setIsDisabled(false);
-
-    // const queryParams = parseConfigParams(input, {
-    //   theme_id: themeId,
-    //   pages: encodeURIComponent(pagesPrompt.join('+')),
-    //   pagesSettings: encodeURIComponent(pagesSettingsPrompt.join('+')),
-    //   globals: encodeURIComponent(globalPrompt.join('+'))
-    // });
-
-    // await executeShopify(control.signal, queryParams, tokens.id_token, async (ok, data) => {
-    //   if (!ok || !data) {
-    //     setIsDisabled(false);
-    //     setProcessing(false);
-    //     return;
-    //   }
-    //   const { settings_data, main, themeContent, subtype } = data;
-    //   // if (ok === 1) {
-    //   //   if(Object.keys(main).length > 0){
-    //   //     Object.entries(main).forEach(([tkey, template]:[string, any]) => {
-    //   //       if(Object.keys(template.sections).length > 0){
-    //   //         Object.entries(template.sections).forEach(([skey, section]:[string, any]) => {
-    //   //           if(section.blocks && Object.keys(section.blocks).length > 0){
-    //   //             Object.entries(section.blocks).forEach(([bkey, block]:[string, any]) => {
-    //   //               console.log(isThemes[themeId].templates[tkey][skey][bkey].type, "CHECK DAV");
-    //   //               block.type = isThemes[themeId].templates[tkey][skey][bkey].type
-    //   //             })
-    //   //           }
-    //   //         })
-    //   //       }
-    //   //     })
-    //   //   }
-    //   // }
-    //   // setIsThemes(prevThemes => {
-        
-    //   //   return {
-    //   //     ...prevThemes,
-    //   //     [themeId]: {
-    //   //       settings_data: isThemes[themeId]?.settings_data,
-    //   //       templates: { [currentPage]: main },
-    //   //       themeContent: themeContent,
-    //   //     },
-    //   //   };
-    //   // });
-    //   console.log(settings_data, "CHECK DAV");
-    //   // ok === 2 ? updateIframeContent(html, subtype) : updateIframeContent(html);
-      
-    //   if (ok === 1) {
-    //     setIsThemes(prevThemes => {
-    //       return {
-    //         ...prevThemes,
-    //         [themeId]: {
-    //           settings_data: {
-    //             ...prevThemes[themeId]?.settings_data,
-    //             ...settings_data
-    //           },
-    //           templates: {
-    //             ...prevThemes[themeId]?.templates,
-    //             ...main
-    //           },
-    //           themeContent: {
-    //             ...prevThemes[themeId]?.themeContent,
-    //             ...themeContent
-    //           },
-    //           settingsSchema: isSettingsSchema
-    //         },
-    //       };
-    //     });
-
-    //     const html = await updateShopitTheme(
-    //       `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
-    //       themeId,
-    //       {...isThemes[themeId]?.settings_data, ...settings_data},
-    //       main[currentPage] || isThemes[themeId]?.templates[currentPage],
-    //       main['header_group'] || isThemes[themeId]?.templates['header_group'],
-    //       main['footer_group'] || isThemes[themeId]?.templates['footer_group'],
-    //       themeContent || isThemes[themeId]?.themeContent
-    //     );
-    //     updateIframeContent(html);
-    //     setLoading(false);
-    //     setProcessing(false);
-    //   }
-    // });
+  
   }
+  
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     await initGenerate();

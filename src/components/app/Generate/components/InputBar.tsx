@@ -7,12 +7,14 @@ interface InputBarProps extends React.PropsWithChildren {
   setInput: (input: string) => void;
   processing: boolean;
   inputRef: React.RefObject<HTMLInputElement>;
+  settingsRef: React.RefObject<HTMLDivElement>;
   buttonRef: React.RefObject<HTMLButtonElement>;
   placeholder: string;
   center?: boolean;
   promptType?: IValue;
   promptOptions?: IValue[];
   setPromptType?: React.Dispatch<React.SetStateAction<IValue>>;
+  handleImageMode: () => void;
 }
 
 const InputBar = ({
@@ -21,19 +23,30 @@ const InputBar = ({
   processing,
   inputRef,
   buttonRef,
+  settingsRef,
   placeholder,
   children,
   center = true,
   promptType,
   promptOptions,
   setPromptType,
+  handleImageMode,
 }: InputBarProps) => {
   return (
-    <div className="hstack gap-2 designer-form form-control p-1">
+    <div className="hstack designer-form p-1">
       <input
         ref={inputRef}
         className="form-control border-0"
-        style={{ height: "100%" }}
+        style={{
+          height: "100%",
+          borderRadius: "4px 0px 0px 4px",
+          border: "1px solid #fff",
+          borderRight: "0px",
+          backgroundColor: "rgba(255, 255, 255, 0.5)",
+          backdropFilter: "blur(5px)",
+          WebkitBackdropFilter: "blur(5px)",
+          outline: "none",
+        }}
         type="text"
         placeholder={placeholder || "Describe your design"}
         value={input}
@@ -95,13 +108,48 @@ const InputBar = ({
         style={{
           height: "100%",
         }}
+        id="settings-dropdown"
+        ref={settingsRef}
       >
         <button
           type={"button"}
-          className="btn btn-outline-secondary text-dark"
+          className="btn text-dark"
+          style={{
+            height: "96%",
+            width: "64px",
+            marginTop: "1px",
+            marginBottom: "1px",
+            position: "absolute",
+            right: "40px",
+          }}
+          onClick={handleImageMode}
+        >
+          <svg
+            stroke="currentColor"
+            fill="currentColor"
+            strokeWidth="0"
+            viewBox="0 0 1024 1024"
+            height="28"
+            width="28"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M864 260H728l-32.4-90.8a32.07 32.07 0 0 0-30.2-21.2H358.6c-13.5 0-25.6 8.5-30.1 21.2L296 260H160c-44.2 0-80 35.8-80 80v456c0 44.2 35.8 80 80 80h704c44.2 0 80-35.8 80-80V340c0-44.2-35.8-80-80-80zM512 716c-88.4 0-160-71.6-160-160s71.6-160 160-160 160 71.6 160 160-71.6 160-160 160zm-96-160a96 96 0 1 0 192 0 96 96 0 1 0-192 0z"></path>
+          </svg>
+        </button>
+
+        <button
+          type={"button"}
+          className="btn text-dark"
           data-bs-toggle="dropdown"
           aria-expanded="false"
-          style={{ height: "96%", width: "64px", marginTop: "1px", marginBottom: "1px" }}
+          style={{
+            height: "96%",
+            width: "64px",
+            marginTop: "1px",
+            marginBottom: "1px",
+            position: "absolute",
+            right: "0",
+          }}
           id="dropdownMenuClickable"
           data-bs-auto-close="false"
         >
@@ -116,7 +164,7 @@ const InputBar = ({
       </div>
       <button
         ref={buttonRef}
-        className="btn btn-primary px-2"
+        className="btn btn-success"
         style={{ height: "100%", width: "188px" }}
         type="submit"
       >

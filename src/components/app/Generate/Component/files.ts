@@ -7,7 +7,7 @@ export const files = {
                   function App({ children }: any) {
                     return (
                       <>
-                        <div className="text-center mt-10">{children}</div>
+                        <div className="text-center">{children}</div>
                       </>
                     );
                   }
@@ -20,7 +20,7 @@ export const files = {
             file: {
                 contents: 
 `const Component = () => {
-  return "Components will display";
+  return "";
 };
 
 export default Component;`,
@@ -30,7 +30,7 @@ export default Component;`,
                 file: {
                     contents: 
 `const Component = () => {
-  return "Components will display";
+  return "";
 };
 
 export default Component;`,
@@ -40,7 +40,7 @@ export default Component;`,
                 file: {
                     contents: 
 `const Component = () => {
-  return "Components will display";
+  return "";
 };
 
 export default Component;`,

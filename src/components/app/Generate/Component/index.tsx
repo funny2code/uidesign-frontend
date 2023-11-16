@@ -5,62 +5,141 @@ import CodeMirror from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { okaidia } from "@uiw/codemirror-theme-okaidia";
 import ClipLoader from "react-spinners/ClipLoader";
+import { type ImageListType } from "react-images-uploading";
+import { WebContainer } from "@webcontainer/api";
+import JSZip from "jszip";
+
+import { useSession } from "../../../auth/useSession";
 import InputBar from "../components/InputBar";
 import makeComponent, { type PromptType } from "../commands/component";
-import ApiKeyInputBar from "../components/ApiKeyInputBar";
-import SettingElement from "../components/SettingElement";
 import IFrame from "../components/IFrame";
-import { SYSTEM_PROMPT, PROMPT_TYPE, ENGINE_TYPE, STAGE } from "./constants";
-import { WebContainer } from "@webcontainer/api";
+import FrameSelect from "../components/FrameSelect";
+import CodingBuddy from "./CodingBuddy";
+import ComponentSettings from "./ComponentSettings";
+import { componentWebContainer } from "../../../../atoms";
 import { files } from "./files";
-import ImageUploading, { type ImageListType } from "react-images-uploading";
+import {
+  SYSTEM_PROMPT,
+  PROMPT_TYPE,
+  ENGINE_TYPE,
+  STAGE,
+  FRAMES,
+  PACKAGE_LOCK_FILE_PATH,
+  NODE_MODULES_FILE_PATH,
+} from "./constants";
 
 const Components = () => {
+  const { getSession } = useSession();
+
   const componentsList = [0, 1, 2];
-  const [stage, setStage] = useState<STAGE>(STAGE.First);
+  const [stage, setStage] = useState<STAGE>(STAGE.Init);
   const [input, setInput] = useState<string>("");
-  const [apiKey, setApiKey] = useState<string>("");
   const [engineType, setEngineType] = useState<string>(ENGINE_TYPE[0].value);
   const [promptType, setPromptType] = useState<PromptType>("Chat");
-  const [apiKeyError, setApiKeyError] = useState<boolean>(false);
-  const [systemPrompt, setSystemPrompt] = useState<string>(SYSTEM_PROMPT.Chat[STAGE.First]);
+  const [systemPrompt, setSystemPrompt] = useState<string>(SYSTEM_PROMPT.Chat[STAGE.Init]);
   const [processing, setProcessing] = useState(false);
   const [isWebContainerLoaded, setIsWebContainerLoaded] = useState<boolean>(false);
   const [srcURL, setSrcURL] = useState("");
-  const [webcontainer, setWebcontainer] = useState<WebContainer | null>(null);
+  const [webcontainer, setWebcontainer] = useState<WebContainer | undefined>(undefined);
   const [selectedComponent, setSelectedComponent] = useState<number>(0);
   const [selectedFile, setSelectedFile] = useState<string>("");
   const [isCodeDisplay, setIsCodeDisplay] = useState<boolean>(false);
   const [images, setImages] = useState([]);
+  const [isCoddingBuddyShow, setIsCoddingBuddyShow] = useState<boolean>(true);
+  const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
+  const [frameType, setFrameType] = useState<FRAMES>(FRAMES.Desktop);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const settingsRef = useRef<HTMLDivElement>(null);
+
+  const mountContainer = async () => {
+    if (!webcontainer) return;
+    try {
+      // added new files, common includes project files and node_modules
+      const CJS_FILE_PATH = "https://cdn.uidesign.ai/build/components/default/unzip.cjs";
+      const COMMON_ZIP_FILE_PATH = "https://cdn.uidesign.ai/build/components/default/common.zip";
+      // fetch
+      const response = await fetch(CJS_FILE_PATH);
+      const content = await response.text();
+      const nodeModule = await fetch(COMMON_ZIP_FILE_PATH);
+      const zipBlob = await nodeModule.blob();
+      const data = await zipBlob.arrayBuffer();
+      await webcontainer.mount({
+        "common.zip": {
+          file: { contents: new Uint8Array(data) },
+        },
+        "unzip.cjs": {
+          file: { contents: content },
+        },
+      });
+      // await unzipFile(zipBlob);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const initWebcontainer = async () => {
     if (!webcontainer) return;
+    console.log("Mounting container.");
+    await mountContainer();
+    const ls = await webcontainer.spawn("ls", ["."]);
+    ls.output.pipeTo(
+      new WritableStream({
+        write(data) {
+          console.log("files:", data);
+        },
+      })
+    );
+    console.log("Unzipping...");
+    const unzip = await webcontainer.spawn("node", ["unzip.cjs"]);
+    unzip.output.pipeTo(
+      new WritableStream({
+        write(data) {
+          console.log("unzip:", data);
+        },
+      })
+    );
+    const code = await unzip.exit;
+    if (code !== 0) {
+      throw new Error("Failed to initialize WebContainer");
+    }
+    await webcontainer.spawn("chmod", ["a+x", "node_modules/vite/bin/vite.js"]);
+    // original mount
     await webcontainer.mount(files);
 
-    updateSelectedFile();
-
-    const installProcess = await webcontainer.spawn("npm", ["install"]);
-    const installExitCode = await installProcess.exit;
-    if (installExitCode !== 0) {
-      throw new Error("Unable to run npm install");
-    }
-    // `npm run dev`
-    await webcontainer.spawn("npm", ["run", "dev"]);
+    console.log("npm run dev");
+    const result = await webcontainer.spawn("npm", ["run", "dev"]);
+    result.output.pipeTo(
+      new WritableStream({
+        write(data) {
+          console.log(data);
+        },
+      })
+    );
     webcontainer.on("server-ready", (port, url) => {
+      console.log("server ready");
+
       setSrcURL(url);
       setIsWebContainerLoaded(true);
     });
   };
 
+  const resetWebContainer = async () => {
+    if (!webcontainer) return;
+    await webcontainer.mount(files);
+  };
+
   const handleInit = async () => {
     setProcessing(true);
-    initWebcontainer();
-    setStage(STAGE.First);
-    setSystemPrompt(SYSTEM_PROMPT[promptType][STAGE.Second]);
+    resetWebContainer();
+    setStage(STAGE.Init);
+    setPromptType("Chat");
+    setSystemPrompt("");
     setInput("");
+    setProcessing(false);
+    const tokens = await getSession();
+    if (tokens) setIsSubscribed(tokens.is_subscribed);
   };
 
   const handleChangeCode = async (value: string) => {
@@ -74,21 +153,40 @@ const Components = () => {
     const file = await webcontainer.fs.readFile(`src/component${selectedComponent}.tsx`, "utf-8");
     setSelectedFile(file);
   };
-  //Useeffect
 
   const handleImageChange = (imageList: ImageListType) => {
     setImages(imageList as never[]);
   };
 
   useEffect(() => {
+    // Everything around if statement
+    if (settingsRef && settingsRef.current) {
+      settingsRef.current.addEventListener("hide.bs.dropdown", e => {
+        setIsCoddingBuddyShow(true);
+      });
+      settingsRef.current.addEventListener("show.bs.dropdown", e => {
+        setIsCoddingBuddyShow(false);
+      });
+    }
+  }, [settingsRef]);
+
+  useEffect(() => {
     const bootWebContainer = async () => {
+      if (componentWebContainer.get()) {
+        setWebcontainer(componentWebContainer.get());
+        return;
+      }
       // Call only once
-      if (webcontainer) return;
       const webcontainerInstance = await WebContainer.boot();
+      componentWebContainer.set(webcontainerInstance || undefined);
       setWebcontainer(webcontainerInstance);
     };
+    const checkSubscribe = async () => {
+      const tokens = await getSession();
+      if (tokens) setIsSubscribed(tokens.is_subscribed);
+    };
     bootWebContainer();
-    return () => {};
+    checkSubscribe();
   }, []);
 
   useEffect(() => {
@@ -103,18 +201,28 @@ const Components = () => {
     setSystemPrompt(SYSTEM_PROMPT[promptType][`${stage == STAGE.First ? STAGE.First : STAGE.Second}`]);
   }, [promptType]);
 
+  useEffect(() => {
+    setSystemPrompt(SYSTEM_PROMPT[promptType][`${stage == STAGE.First ? STAGE.First : STAGE.Second}`]);
+  }, [stage]);
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    if (apiKey == "") {
-      toast.error("Need to input OpenAI Api Key");
-      setApiKeyError(true);
-      return;
+    getSession()
+      .then(tokens => {})
+      .catch(err => {
+        window.location.replace("/login");
+      });
+
+    if (stage == STAGE.Init) {
+      setStage(STAGE.First);
+      setPromptType("Chat");
     }
+
     if (promptType == PROMPT_TYPE.Chat && input == "") {
       toast.error("Need to input prompts");
       return;
     }
-    if (promptType == PROMPT_TYPE.Image && !images.length && stage != STAGE.First) {
+    if (promptType == PROMPT_TYPE.Image && !images.length && stage == STAGE.First) {
       toast.error("Need to add image");
       return;
     }
@@ -123,18 +231,17 @@ const Components = () => {
       return;
     }
     if (!webcontainer) return;
+    if (handleSubscribe()) return;
 
-    setApiKeyError(false);
     setProcessing(true);
     const result = await makeComponent({
       webcontainer,
       engineType,
-      systemPrompt,
+      systemPrompt: stage == STAGE.Init ? SYSTEM_PROMPT["Chat"][STAGE.First] : systemPrompt,
       input,
-      apiKey,
-      stage,
+      stage: stage == STAGE.Init ? STAGE.First : stage,
       selectedComponent,
-      promptType,
+      promptType: stage == STAGE.Init ? "Chat" : promptType,
       image: images[0]?.dataURL,
     });
     if (result) {
@@ -158,12 +265,29 @@ const Components = () => {
     setProcessing(false);
   };
 
+  //This is temporary solution
+  const handleSubscribe = () => {
+    if (isSubscribed) return false;
+    const count = localStorage.getItem("ui-design-subscribe");
+    if (Number(count) > 0) {
+      let c = Number(count);
+      c = c - 1;
+      localStorage.setItem("ui-design-subscribe", `${c}`);
+      return false;
+    } else {
+      //This is just temporary
+      window.open("https://damidina.com/dami.html", "_blank");
+
+      return true;
+    }
+  };
+
   const codeView = (
     <>
       <div className="w-100 h-100 overflow-hidden">
         <CodeMirror
           value={selectedFile}
-          height="850px"
+          height="770px"
           theme={okaidia}
           extensions={[javascript({ jsx: true })]}
           onChange={value => handleChangeCode(value)}
@@ -176,14 +300,6 @@ const Components = () => {
         }}
       >
         <IFrame src={`${srcURL}/${selectedComponent}`} isButton />
-        <div className="d-flex flex-row gap-3 justify-content-center align-items-center w-100">
-          <button className="btn btn-primary" onClick={() => setIsCodeDisplay(prev => !prev)}>
-            Canvas
-          </button>
-          <button className="btn btn-primary" onClick={handleInit}>
-            New +
-          </button>
-        </div>
       </div>
     </>
   );
@@ -191,40 +307,30 @@ const Components = () => {
   const canvasView = (
     <>
       {isWebContainerLoaded ? (
-        <IFrame src={`${srcURL}/${selectedComponent}`} classNames="w-100 h-100" />
+        <IFrame src={`${srcURL}/${selectedComponent}`} classNames="h-100" frameType={frameType} />
       ) : (
         <div className="w-100 h-100"></div>
       )}
 
       <div
-        className="d-flex flex-column m-2 py-3 justify-content-between align-items-center h-100"
+        className="m-2 py-3 h-100"
         style={{
           width: "250px",
         }}
       >
         {stage === STAGE.Second ? (
-          <div>
-            {componentsList.map(item => (
-              <IFrame
-                key={item}
-                src={`${srcURL}/${item}`}
-                onClick={() => setSelectedComponent(item)}
-                isButton
-                classNames={`${item == selectedComponent && "border border-3 border-primary mb-2"} mb-2`}
-              />
-            ))}
-          </div>
+          componentsList.map(item => (
+            <IFrame
+              key={item}
+              src={`${srcURL}/${item}`}
+              onClick={() => setSelectedComponent(item)}
+              isButton
+              classNames={`${item == selectedComponent && "border border-3 border-primary"} mb-2`}
+            />
+          ))
         ) : (
           <div></div>
         )}
-        <div className="d-flex flex-row gap-3 justify-content-center align-items-center w-100">
-          <button className="btn btn-primary" onClick={() => setIsCodeDisplay(prev => !prev)}>
-            Code
-          </button>
-          <button className="btn btn-primary" onClick={handleInit}>
-            New +
-          </button>
-        </div>
       </div>
     </>
   );
@@ -232,7 +338,21 @@ const Components = () => {
   return (
     <>
       <ToastContainer />
-
+      <div className="d-flex flex-row justify-content-between align-items-center py-3 ">
+        <div className="text-light fw-semibold">New Component Visual Chat</div>
+        <FrameSelect setFrameType={setFrameType} frameType={frameType} />
+        <div className="d-flex flex-row gap-3 justify-content-center align-items-center">
+          <button
+            className="btn btn-primary bg-info px-3"
+            onClick={() => setIsCodeDisplay(prev => !prev)}
+          >
+            {`${isCodeDisplay ? "View Canvas" : "View Code"}`}
+          </button>
+          <button className="btn btn-primary px-3 rounded bg-success" onClick={handleInit}>
+            New +
+          </button>
+        </div>
+      </div>
       <section
         className="designer-window hstack flex-grow-1 position-relative"
         style={{
@@ -253,7 +373,19 @@ const Components = () => {
           canvasView
         )}
       </section>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="z-2">
+        {isCoddingBuddyShow && (
+          <CodingBuddy
+            setPromptType={setPromptType}
+            setInput={setInput}
+            promptType={promptType}
+            stage={stage}
+            setStage={setStage}
+            handleImageChange={handleImageChange}
+            images={images}
+            processing={processing}
+          />
+        )}
         <InputBar
           input={input}
           setInput={setInput}
@@ -261,80 +393,19 @@ const Components = () => {
           placeholder={`${stage == STAGE.First ? "Create Component" : "Input to update your component"}`}
           inputRef={inputRef}
           buttonRef={buttonRef}
+          settingsRef={settingsRef}
+          handleImageMode={() => {
+            setPromptType("Image"), setStage(STAGE.First);
+          }}
         >
-          <ul
-            className="dropdown-menu px-3 pb-1 pt-2"
-            style={{
-              width: "600px",
-              transform: "translateX(-50%)",
-            }}
-            aria-labelledby="dropdownMenuClickable"
-          >
-            <SettingElement title="Prompt Type">
-              <select
-                className="form-select"
-                onChange={e => {
-                  if (e.target.value == "Image" || e.target.value == "Chat")
-                    setPromptType(e.target.value);
-                }}
-                defaultValue={PROMPT_TYPE.Chat}
-                value={promptType}
-              >
-                <option value="Chat">Chat</option>
-                <option value="Image">Image</option>
-              </select>
-            </SettingElement>
-            {promptType === PROMPT_TYPE.Image && (
-              <SettingElement title="Image">
-                <ImageUploading value={images} onChange={handleImageChange}>
-                  {({ imageList, onImageUpload }) => (
-                    <div className="d-flex flex-row gap-3">
-                      <button
-                        className="btn btn-secondary h-50"
-                        onClick={e => {
-                          e.preventDefault();
-                          onImageUpload();
-                        }}
-                      >
-                        Upload image
-                      </button>
-                      {imageList.map((image, index) => (
-                        <div key={index} className="image-item">
-                          <img src={image.dataURL} alt="" width="250" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </ImageUploading>
-              </SettingElement>
-            )}
-
-            <SettingElement title="Engine Type">
-              <select
-                className="form-select"
-                onChange={e => {
-                  setEngineType(e.target.value);
-                }}
-                defaultValue={ENGINE_TYPE[1].value}
-              >
-                <option value={ENGINE_TYPE[0].value}>{ENGINE_TYPE[0].name}</option>
-                <option value={ENGINE_TYPE[1].value}>{ENGINE_TYPE[1].name}</option>
-              </select>
-            </SettingElement>
-            <SettingElement title="System Prompt">
-              <textarea
-                className="form-control"
-                style={{
-                  height: "200px",
-                }}
-                value={systemPrompt}
-                onChange={e => setSystemPrompt(e.target.value)}
-              ></textarea>
-            </SettingElement>
-            <SettingElement title="API KEY">
-              <ApiKeyInputBar error={apiKeyError} value={apiKey} setValue={setApiKey} />
-            </SettingElement>
-          </ul>
+          <ComponentSettings
+            setSystemPrompt={setSystemPrompt}
+            systemPrompt={systemPrompt}
+            isSubscribed={isSubscribed}
+            engineType={engineType}
+            setEngineType={setEngineType}
+            isImageMode={promptType == PROMPT_TYPE.Image}
+          />
         </InputBar>
       </form>
     </>

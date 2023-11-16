@@ -1,7 +1,7 @@
-import { OpenAPI, V3WebsitesProjectsService } from "../../../../client";
-import { editDocuments, exportDocuments } from "../../utils/documents";
-import type { WebsiteProjectResult } from "../../../../client";
-import { useSession } from "../../../auth/useSession";
+import { OpenAPI, V3WebsitesProjectsService } from "../../../client";
+import { editDocuments, exportDocuments } from "../utils/documents";
+import type { WebsiteProjectResult } from "../../../client";
+import { useSession } from "../../auth/useSession";
 
 interface DocumentItemProps  {
   id: string;

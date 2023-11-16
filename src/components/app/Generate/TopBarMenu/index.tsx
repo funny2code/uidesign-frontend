@@ -7,16 +7,18 @@ import { useSession } from "../../../auth/useSession";
 import type { UIDesignAdminPage, UIDesignPage } from "./types";
 import PaymentButton from "../Shopify/components/paymentButton";
 import ShopifyProjects from "./shopifyProjects";
-import Generate from "../../SideBarMenu/generate";
 
 interface Props {
   currentPage: UIDesignPage | UIDesignAdminPage;
+  isSaved: boolean;
+  isDisabled: boolean;
   handlePageChange?: (page: UIDesignPage | UIDesignAdminPage) => void;
-  handleSaveProjectBtn: (e: any) => void;
-  setProject: (e: any) => void;
+  handleSaveProjectBtn: (e:any) => void;
+  setProject: (e:any) => void;
+  setIntentId: (e:any) => void;
 }
 
-const TopBarMenu = ({ currentPage, handlePageChange, handleSaveProjectBtn, setProject }: Props) => {
+const TopBarMenu = ({ currentPage, setIntentId, isSaved, isDisabled, handlePageChange, handleSaveProjectBtn, setProject }: Props) => {
   const [pages, setPages] = useState(() => PAGES);
   const { getSession } = useSession();
   const Buttons = ({ icon }: { icon?: React.ReactNode } = {}) => {
@@ -58,14 +60,13 @@ const TopBarMenu = ({ currentPage, handlePageChange, handleSaveProjectBtn, setPr
         {currentPage === "Shopify" && (
           <>
             <ShopifyProjects setProject={setProject} />
-            <button
-              className="btn btn-primary px-2"
-              style={{ height: "60px" }}
-              onClick={handleSaveProjectBtn}
-            >
-              Save to Projects
+            <button className="btn btn-primary px-2" disabled={isDisabled} style={{ width: '132px', height: "60px" }} onClick={handleSaveProjectBtn}>
+              { isSaved 
+                ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                : <span>Save to Projects</span> 
+              }
             </button>
-            <PaymentButton />
+            <PaymentButton setIntentId={setIntentId} />
           </>
         )}
         {currentPage !== "Shopify" && <EditButton currentPage={currentPage} />}

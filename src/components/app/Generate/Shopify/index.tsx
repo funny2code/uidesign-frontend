@@ -4,25 +4,23 @@ import { useSession } from "../../../auth/useSession";
 import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from "react";
 import type { ISopifyPages } from "../Create/types";
 import InputBar from "../components/InputBarShopify";
-import { executeShopify, getTheme, getThemeNames, updateShopitTheme } from "../commands";
+import { getTheme, getThemeNames, updateShopitTheme } from "../commands";
 import { MAKE_UI_API_VIEW, MAKE_UI_URL } from "../../constants";
-import type { ISchema, IThemes, IViewReq } from "./interface/shopify";
+import type { ISchema, IThemes } from "./interface/shopify";
 import { downloadShopitTheme } from "../commands/shopify";
 // import ClipLoader from "react-spinners/ClipLoader";
 import { DOCUMENT_TYPE, OpenAPI, PROJECT_TYPE, V2ProjectsService } from "../../../../client";
 
 interface shopifyProps {
-  isSaved: boolean;
-  setSaved: (e: boolean) => void;
-  project: any[];
+  intentId: string | undefined,
+  isSaved: boolean,
+  setSaved: (e:boolean) => void,
+  setProjectDisabled: (e:boolean) => void,
+  project: Record<string, any>
 }
 
-interface shopifyRef {
-  saveProjectHandle: () => Promise<void>;
-}
-
-const Shopify = () => {
-  /* ==================== AUTH AND USER ==================== */
+const Shopify = (({intentId, isSaved, setSaved, setProjectDisabled, project} : shopifyProps) => {
+  /* ==================== AUTH AND USER ==================== */ 
   const { getSession, getUserData } = useSession();
   /* ==================== REACT USESTATE CONSTANTS ==================== */
   const [isLoading, setLoading] = useState<boolean>(true);
@@ -31,6 +29,7 @@ const Shopify = () => {
   const [isDownload, setIsDownload] = useState<boolean>(false);
   const [input, setInput] = useState("");
   const [themeId, setThemeId] = useState<string>("64dcd06b0db1077c79970cec");
+  const [currentThemeId, setCurrentThemeId] = useState<string | undefined>(undefined);
   const [pages, setPages] = useState<string[] | undefined>(undefined);
   const [pageSettings, setPageSettings] = useState<string[]>([
     "Texts",
@@ -72,29 +71,46 @@ const Shopify = () => {
     setController(control);
     setProcessing(true);
     setIsDisabled(true);
-
     const createShopifyRequest = {
       prompt: input,
       shopify_config: {
         theme_id: themeId,
         page: currentPage,
       },
-      ai_config: {
-        top_n: 8,
-      },
-    };
-
-    const request = await fetch(`https://app.uidesign.ai/generate/v3/shopify/theme/`, {
+      "ai_config": {
+        "top_n": 8
+      }
+    }
+    const request = await fetch('https://app.uidesign.ai/generate/v3/shopify/theme', {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(createShopifyRequest),
     });
-
-    console.log(request, "CHECK BROS");
-    setLoading(false);
+    const data = await request.json();
+    const newUpdate = await updateThemeSettings(data.messages);
+    setIsThemes((prevThemes:any) => {
+      return {
+        ...prevThemes,
+        [currentThemeId || themeId]: {
+          ...newUpdate
+        }
+      }
+    });
+    const html = await updateShopitTheme(
+      `${MAKE_UI_API_VIEW}?id=${themeId}&page=${currentPage}`,
+      themeId,
+      newUpdate.settings_data,
+      newUpdate.templates[currentPage],
+      newUpdate.templates['header_group'],
+      newUpdate.templates['footer_group'],
+      newUpdate.themeContent
+    );
+    updateIframeContent(html);
     setProcessing(false);
+    setIsDisabled(false);
+    setProjectDisabled(false);
 
     // const queryParams = parseConfigParams(input, {
     //   theme_id: themeId,
@@ -177,13 +193,32 @@ const Shopify = () => {
     //   }
     // });
   }
+  
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     await initGenerate();
   };
   /* ===================================================================================================
-   *     PAGE CHANGE FUNCTION
-   * ================================================================================================= */
+  *     UPDATE SHOPIFY SETTINGS OBJECT
+  * ================================================================================================= */
+  const updateThemeSettings = async (messages:any[]) => {
+    console.log(messages);
+    const newState = { ...isThemes[currentThemeId || themeId] };
+    messages.map(message => {
+      const path = message.path;
+      const value = message.value;
+      let currentLevel:any = newState;
+      for (let i = 0; i < path.length - 1; i++) {
+        console.log(path[i], currentLevel[path[i]]);
+        currentLevel = currentLevel[path[i]];
+      }
+      currentLevel[path[path.length - 1]] = value;
+    })
+    return newState;
+  };
+  /* ===================================================================================================
+  *     PAGE CHANGE FUNCTION
+  * ================================================================================================= */
   const handlePageChange = async (e: any) => {
     if (!e) return;
     try {
@@ -216,6 +251,7 @@ const Shopify = () => {
       let id = e.target.value;
       setProcessing(true);
       setThemeId(id);
+      setCurrentThemeId(undefined);
       setLocalThemes(`${userName}-page`, currentPage);
       setLocalThemes(`${userName}-id`, id);
       await getThemeById(id);
@@ -348,13 +384,14 @@ const Shopify = () => {
   const getThemeById = async (id: string) => {
     const res = await getTheme(id);
     const { templates, settingsData, settingsSchema } = res;
+    console.log(settingsData);
     if (templates && Object.keys(templates).length > 0) setPages(Object.keys(templates));
     if (settingsData && isThemes[id] === undefined) {
       setIsThemes(prevThemes => {
         return {
           ...prevThemes,
           [id]: {
-            settings_data: settingsData.presets[settingsData.current],
+            settings_data: typeof settingsData.current === "string" ? settingsData.presets[settingsData.current]: settingsData.current,
             templates: templates,
             themeContent: {},
             settingsSchema: settingsSchema,
@@ -448,16 +485,17 @@ const Shopify = () => {
     }
   };
   /* ===================================================================================================
-   *     DOWNLOAD THEME FUNCTION
-   * ================================================================================================= */
-  const handleThemeDownload = async (e: any) => {
-    if (!e) return;
+  *     DOWNLOAD THEME FUNCTION
+  * ================================================================================================= */
+  const handleThemeDownload = async (id:string) => {
+    if (!id) return;
     setIsDownload(true);
     setProcessing(true);
     const blob = await downloadShopitTheme(
+      id,
       themeId,
-      isThemes[themeId].settings_data,
-      isThemes[themeId].templates
+      isThemes[currentThemeId || themeId].settings_data,
+      isThemes[currentThemeId || themeId].templates
     );
     const anchor = document.createElement("a");
     const objectURL = URL.createObjectURL(blob);
@@ -496,23 +534,55 @@ const Shopify = () => {
             img_url: "",
             tags: ["Shopify"],
             type: DOCUMENT_TYPE.JS,
-            data: isThemes[themeId],
-          },
-        ],
-      },
+            data: {id: themeId, ...isThemes[themeId]},
+          }
+        ]
+      }
     };
     await V2ProjectsService.createUserProjectV2UserProjectsPost(data);
-    // setSaved(false)
-  };
-
-  // useEffect(() => {
-  //   if(isSaved === true){
-  //     saveProjectHandle();
-  //   }
-  //   if(project?.length){
-  //     console.log(project, "CHECK DAV");
-  //   }
-  // }, [isSaved, project]);
+    setSaved(false);
+    setProjectDisabled(true);
+  }
+  /* ===================================================================================================
+  *     USE EFFECT FOR SAVE PROJECTS GET PROJECTS AND DOWNLOAD THEME
+  * ================================================================================================= */
+  useEffect(() => {
+    if(isSaved === true){
+      saveProjectHandle();
+    }
+    if(project?.length){
+      const { id, data } = project[0];
+      setThemeId(data.id);
+      setCurrentThemeId(id);
+      setIsThemes(prevThemes => {
+        return {
+          ...prevThemes,
+          [id]: {
+            settings_data: data.settings_data,
+            templates: data.templates,
+            themeContent: data.themeContent,
+            settingsSchema: data.settingsSchema
+          },
+        };
+      });
+      const callProject = async () => {
+        const html = await updateShopitTheme(
+          `${MAKE_UI_API_VIEW}?id=${data.id}&page=index`,
+          data.id,
+          data.settings_data,
+          data.templates['index'],
+          data.templates['header_group'],
+          data.templates['footer_group'],
+          data.themeContent
+        );
+        updateIframeContent(html);
+      }
+      callProject();
+    }
+    if(intentId !== undefined){
+      handleThemeDownload(intentId);
+    }
+  }, [isSaved, project, intentId]);
 
   return (
     <>

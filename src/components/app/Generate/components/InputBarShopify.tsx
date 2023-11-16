@@ -43,7 +43,6 @@ const InputBar = ({
   return (
     <div
       className="hstack gap-2 designer-form form-control p-1"
-      style={{ width: "60%", transform: "translate(-50%, -25%)" }}
     >
       <input
         ref={inputRef}

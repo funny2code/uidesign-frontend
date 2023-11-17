@@ -1,4 +1,5 @@
 export const MENUITEMS: Record<string, string> = {
     Projects: "/projects",
-    Create: "/create"
+    Create: "/projects/create",
+    GrapesEditor: "/projects/grapes"
 };

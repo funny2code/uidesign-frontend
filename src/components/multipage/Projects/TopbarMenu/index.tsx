@@ -11,7 +11,7 @@ interface Props {
 
 const TopBarMenu = ({ currentPage }: Props) => {
   const [menus, setPages] = useState( MENUITEMS );
-  const Buttons = ({ icon }: { icon?: React.ReactNode } = {}) => {
+  const Buttons = () => {
     return Object.entries(menus).map(([menuItem, route], index) => (
       <li key={index}>
         <a href={route}>

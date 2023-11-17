@@ -1,12 +1,12 @@
-import React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MENUITEMS } from './constants';
 
 interface Props {
     currentPage: string;
-    // handlePageChange?: (page: UIDesignPage | UIDesignAdminPage) => void;
-    // handleSaveProjectBtn: (e: any) => void;
-    // setProject: (e: any) => void;
+    // isEdit: boolean;
+    // isCreated: boolean;
+    // setIsEdit: (value: boolean) => void;
+    // setIsCreated: (value: boolean) => void;
   }
 
 const TopBarMenu = ({ currentPage }: Props) => {
@@ -44,7 +44,22 @@ const TopBarMenu = ({ currentPage }: Props) => {
         <ul className="dropdown-menu w-100">{Buttons()}</ul>
       </section>
       <section className="d-flex gap-2">
-        {/* <EditButton currentPage={currentPage} /> */}
+        {/* {currentPage == "Projects" && (isEdit ? (
+          <button>
+            <a href="/projects">Back</a>
+          </button>
+        ): (
+          <></>
+        )
+        )}
+        {currentPage == "Create" && (isCreated ? (
+          <button>
+            <a href="/projects/create">Back</a>
+          </button>
+        ): (
+          <></>
+        )
+        )} */}
       </section>
     </section>
   );

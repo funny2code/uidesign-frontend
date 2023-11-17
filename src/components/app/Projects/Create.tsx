@@ -86,14 +86,19 @@ const CreateGrapesJs = () => {
                 </form>
             </section>
         ) : (
-            <section className="designer-window hstack flex-grow-1">
-                <iframe
-                    ref={sectionRef}
-                    srcDoc={iframeDoc}
-                    title="Grapes Editor"
-                    style={{ width: "100%", height: "100%", border: "none" }}
-                />
-            </section>
+            <>
+                <section>
+                    <button><a href="/projects/create">Back</a></button>
+                </section>
+                <section className="designer-window hstack flex-grow-1">
+                    <iframe
+                        ref={sectionRef}
+                        srcDoc={iframeDoc}
+                        title="Grapes Editor"
+                        style={{ width: "100%", height: "100%", border: "none" }}
+                    />
+                </section>
+            </>
         )}
         </>
     );

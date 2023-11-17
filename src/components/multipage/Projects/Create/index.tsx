@@ -15,9 +15,7 @@ const Route = () => {
           <section className="d-flex flex-column flex-md-row justify-content-around gap-3">
             <SidebarMenu currentPage={"Projects"} handlePageChange={() => {}} />
             <section className="designer d-flex flex-column justify-content-between">
-              <TopBarMenu
-                  currentPage="Create"
-              />
+              <TopBarMenu currentPage="Create" />
               <section className="d-flex flex-column flex-grow-1 position-relative">
                 <CreateGrapesJs />
               </section>

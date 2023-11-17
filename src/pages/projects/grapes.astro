@@ -1,0 +1,10 @@
+---
+import MultiPageLayout from "../../layouts/MultiPageLayout.astro";
+import Route from "../../components/multipage/Projects/GrapesJS"
+import { grapesIframeDoc } from '../../atoms'
+console.log("GRAPES: ",grapesIframeDoc.get())
+---
+
+<MultiPageLayout title="GrapesJS Editor">
+  <Route client:load />
+</MultiPageLayout>

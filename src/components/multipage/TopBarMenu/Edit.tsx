@@ -11,6 +11,7 @@ const EditButton = ({ currentPage }: { currentPage: string }) => {
     const tokens = await getSession();
     OpenAPI.TOKEN = tokens.id_token;
     const projects = generatedProjectsIds.get();
+    console.log("PROJECTS: ", projects)
     //@ts-ignore
     if (!projects[currentPage]) {
       setValid(false);

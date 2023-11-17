@@ -1,6 +1,7 @@
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
+import type {GrapesjsProject} from '../../components/app/Projects/interfaces';
 
 export class V3WebsitesProjectsService {
     /**
@@ -18,7 +19,7 @@ export class V3WebsitesProjectsService {
         limit: number = 5,
         description?: string,
         threshold: number = 0.85,
-    ): CancelablePromise<{results: Array<Object>}> {
+    ): CancelablePromise<{results: Array<GrapesjsProject>}> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/data/v3/public/website/projects/',

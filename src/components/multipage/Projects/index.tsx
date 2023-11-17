@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import Projects from "../../app/Projects";
 import { OpenAPI } from "../../../client";
 import SidebarMenu from "../SidebarMenu";
-import TopBarMenu from "../TopBarMenu";
+import TopBarMenu from "./TopbarMenu";
 
 const queryClient = new QueryClient();
 
@@ -23,8 +23,9 @@ const Route = () => {
             <SidebarMenu currentPage={"Projects"} handlePageChange={() => {}} />
             <section className="designer d-flex flex-column justify-content-between">
               <TopBarMenu
-                handleSaveProjectBtn={handleSaveProjectBtn}
-                setProject={setProject}
+                  currentPage="Projects"
+                  // handleSaveProjectBtn={handleSaveProjectBtn}
+                  // setProject={setProject}
               />
               <section className="d-flex flex-column flex-grow-1 position-relative">
                 <Projects />

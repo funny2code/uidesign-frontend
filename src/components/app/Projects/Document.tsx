@@ -1,10 +1,11 @@
 import { OpenAPI, V3WebsitesProjectsService } from "../../../client";
-import type { ProjectSimilarityResult } from "../../../client";
+import type { GrapesjsProject }  from './interfaces';
 import { useSession } from "../../auth/useSession";
 
-interface DocumentItemProps extends ProjectSimilarityResult {
+interface DocumentItemProps extends GrapesjsProject {
   sectionRef?: React.MutableRefObject<HTMLDivElement | null>;
 }
+
 const Document = (props: DocumentItemProps) => {
   const { getSession } = useSession();
   const handleView = async () => {
@@ -74,7 +75,7 @@ const Document = (props: DocumentItemProps) => {
         )}
       </section>
     </>
-  );
+  )
 };
 
 export default Document;

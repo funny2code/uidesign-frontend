@@ -33,7 +33,9 @@ const Projects =  () => {
       project_tagRef.current.value = "";
       project_nameRef.current.value = "";
     }
-    // Get all projects
+    /***************************
+     * Get All Grapejs Projects*
+     ***************************/ 
     const {
       status,
       data,
@@ -94,13 +96,9 @@ const Projects =  () => {
                 {data
                   ? data.pages.map(page => (
                       <Fragment key={page.nextId}>
-                        {
-                          page.data.map(project => {
-                            return (
-                            <Document key={project.id} {...project} sectionRef={sectionRef} />
-                            )
-                          })
-                        }
+                        {page.data.map(document => (
+                            <Document key={document.id} {...document} sectionRef={sectionRef} />
+                        ))}
                       </Fragment>
                     ))
                   : null}
